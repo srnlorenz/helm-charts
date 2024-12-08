@@ -1,0 +1,47 @@
+suite: test deployment
+
+templates:
+  - deployment.yaml
+
+tests:
+  - it: should be custom service account when we do not create it
+    set:
+      serviceAccount.create: false
+      serviceAccount.name: customsa
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: customsa
+
+  - it: should show actual post environment variable
+    set:
+      service.port: "1234"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].name
+          value: ACTUAL_PORT
+      - equal:
+          path: spec.template.spec.containers[0].env[0].value
+          value: "1234"
+
+  - it: should show actual server files environment variable
+    set:
+      files.server: "/somewhere/server"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[1].name
+          value: ACTUAL_SERVER_FILES
+      - equal:
+          path: spec.template.spec.containers[0].env[1].value
+          value: "/somewhere/server"
+
+  - it: should show actual user files environment variable
+    set:
+      files.user: "/somewhere/user"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[2].name
+          value: ACTUAL_USER_FILES
+      - equal:
+          path: spec.template.spec.containers[0].env[2].value
+          value: "/somewhere/user"
