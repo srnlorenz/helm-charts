@@ -1,0 +1,75 @@
+suite: test deployment
+
+templates:
+  - deployment.yaml
+  - configmap.yaml
+
+
+tests:
+  - it: should be custom service account when we do not create it
+    set:
+      serviceAccount.create: false
+      serviceAccount.name: customsa
+      tunnelConfig.name: "unittest"
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: customsa
+        template: deployment.yaml
+
+  - it: should use DaemonSet when all nodes flag enabled
+    set:
+      replica.allNodes: true
+      tunnelConfig.name: "unittest"
+    asserts:
+      - isKind:
+          of: DaemonSet
+        template: deployment.yaml
+
+  - it: should use Deployment when all nodes flag disabled
+    set:
+      replica.allNodes: false
+      tunnelConfig.name: "unittest"
+    asserts:
+      - isKind:
+          of: Deployment
+        template: deployment.yaml
+
+  - it: should use update strategy when all nodes flag enabled
+    set:
+      replica.allNodes: true
+      updateStrategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 1
+      tunnelConfig.name: "unittest"
+    asserts:
+      - equal:
+          path: spec.updateStrategy.type
+          value: RollingUpdate
+        template: deployment.yaml
+      - equal:
+          path: spec.updateStrategy.rollingUpdate.maxUnavailable
+          value: 1
+        template: deployment.yaml
+
+  - it: should use replica when all nodes flag disabled
+    set:
+      replica.allNodes: false
+      replica.count: 5
+      tunnelConfig.name: "unittest"
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 5
+        template: deployment.yaml
+
+  - it: should set termination grace period
+    set:
+      terminationGracePeriodSeconds: 10
+      tunnelConfig.name: "unittest"
+    asserts:
+      - equal:
+          path: spec.template.spec.terminationGracePeriodSeconds
+          value: 10
+        template: deployment.yaml

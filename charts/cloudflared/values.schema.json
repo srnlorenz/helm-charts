@@ -1,0 +1,447 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "properties": {
+    "affinity": {
+      "additionalProperties": false,
+      "description": "For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity",
+      "required": [],
+      "title": "affinity",
+      "type": "object"
+    },
+    "fullnameOverride": {
+      "default": "",
+      "required": [],
+      "title": "fullnameOverride",
+      "type": "string"
+    },
+    "global": {
+      "description": "Global values are values that can be accessed from any chart or subchart by exactly the same name.",
+      "required": [],
+      "title": "global",
+      "type": "object"
+    },
+    "image": {
+      "additionalProperties": false,
+      "description": "This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/",
+      "properties": {
+        "pullPolicy": {
+          "default": "IfNotPresent",
+          "description": "This sets the pull policy for images.",
+          "required": [],
+          "title": "pullPolicy",
+          "type": "string"
+        },
+        "repository": {
+          "default": "cloudflare/cloudflared",
+          "description": "The docker image repository to use",
+          "required": [],
+          "title": "repository",
+          "type": "string"
+        },
+        "tag": {
+          "default": "",
+          "description": "Overrides the image tag whose default is the chart appVersion.",
+          "required": [],
+          "title": "tag",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repository",
+        "pullPolicy",
+        "tag"
+      ],
+      "title": "image",
+      "type": "object"
+    },
+    "imagePullSecrets": {
+      "description": "This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "imagePullSecrets",
+      "type": "array"
+    },
+    "ingress": {
+      "items": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "hostname": {
+                "default": "example.com",
+                "required": [],
+                "title": "hostname",
+                "type": "string"
+              },
+              "service": {
+                "default": "http://traefik.kube-system.svc.cluster.local:80",
+                "required": [],
+                "title": "service",
+                "type": "string"
+              }
+            },
+            "required": [
+              "hostname",
+              "service"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "service": {
+                "default": "http_status:404",
+                "required": [],
+                "title": "service",
+                "type": "string"
+              }
+            },
+            "required": [
+              "service"
+            ],
+            "type": "object"
+          }
+        ],
+        "required": []
+      },
+      "required": [],
+      "title": "ingress",
+      "type": "array"
+    },
+    "nameOverride": {
+      "default": "",
+      "description": "This is to override the chart name.",
+      "required": [],
+      "title": "nameOverride",
+      "type": "string"
+    },
+    "nodeSelector": {
+      "additionalProperties": false,
+      "description": "For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector",
+      "properties": {
+        "kubernetes.io/os": {
+          "default": "linux",
+          "required": [],
+          "title": "kubernetes.io/os",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kubernetes.io/os"
+      ],
+      "title": "nodeSelector",
+      "type": "object"
+    },
+    "podAnnotations": {
+      "additionalProperties": false,
+      "description": "This is for setting Kubernetes Annotations to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/",
+      "required": [],
+      "title": "podAnnotations",
+      "type": "object"
+    },
+    "podLabels": {
+      "additionalProperties": false,
+      "description": "This is for setting Kubernetes Labels to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/",
+      "required": [],
+      "title": "podLabels",
+      "type": "object"
+    },
+    "podSecurityContext": {
+      "additionalProperties": false,
+      "description": "This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
+      "required": [],
+      "title": "podSecurityContext",
+      "type": "object"
+    },
+    "replica": {
+      "additionalProperties": false,
+      "description": "This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/",
+      "properties": {
+        "allNodes": {
+          "default": true,
+          "description": "This will use DaemonSet to deploy cloudflared to all nodes",
+          "required": [],
+          "title": "allNodes",
+          "type": "boolean"
+        },
+        "count": {
+          "default": 1,
+          "description": "If previous flag disabled, this will use Deployment to deploy cloudflared only number of following count",
+          "required": [],
+          "title": "count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "allNodes",
+        "count"
+      ],
+      "title": "replica",
+      "type": "object"
+    },
+    "resources": {
+      "additionalProperties": false,
+      "required": [],
+      "title": "resources",
+      "type": "object"
+    },
+    "securityContext": {
+      "additionalProperties": false,
+      "description": "This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
+      "required": [],
+      "title": "securityContext",
+      "type": "object"
+    },
+    "serviceAccount": {
+      "additionalProperties": false,
+      "description": "This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/",
+      "properties": {
+        "annotations": {
+          "additionalProperties": false,
+          "description": "Annotations to add to the service account",
+          "required": [],
+          "title": "annotations",
+          "type": "object"
+        },
+        "automount": {
+          "default": true,
+          "description": "Automatically mount a ServiceAccount's API credentials?",
+          "required": [],
+          "title": "automount",
+          "type": "boolean"
+        },
+        "create": {
+          "default": true,
+          "description": "Specifies whether a service account should be created",
+          "required": [],
+          "title": "create",
+          "type": "boolean"
+        },
+        "name": {
+          "default": "",
+          "description": "The name of the service account to use. If not set and create is true, a name is generated using the fullname template",
+          "required": [],
+          "title": "name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "create",
+        "automount",
+        "annotations",
+        "name"
+      ],
+      "title": "serviceAccount",
+      "type": "object"
+    },
+    "terminationGracePeriodSeconds": {
+      "default": 30,
+      "required": [],
+      "title": "terminationGracePeriodSeconds",
+      "type": "integer"
+    },
+    "tolerations": {
+      "description": "For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/",
+      "items": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "effect": {
+                "default": "NoSchedule",
+                "required": [],
+                "title": "effect",
+                "type": "string"
+              },
+              "operator": {
+                "default": "Exists",
+                "required": [],
+                "title": "operator",
+                "type": "string"
+              }
+            },
+            "required": [
+              "effect",
+              "operator"
+            ],
+            "type": "object"
+          }
+        ],
+        "required": []
+      },
+      "required": [],
+      "title": "tolerations",
+      "type": "array"
+    },
+    "tunnelConfig": {
+      "additionalProperties": false,
+      "description": "Please find more configuration from https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/arguments/",
+      "properties": {
+        "autoUpdateFrequency": {
+          "default": "24h",
+          "required": [],
+          "title": "autoUpdateFrequency",
+          "type": "string"
+        },
+        "connectTimeout": {
+          "default": "30s",
+          "required": [],
+          "title": "connectTimeout",
+          "type": "string"
+        },
+        "gracePeriod": {
+          "default": "30s",
+          "required": [],
+          "title": "gracePeriod",
+          "type": "string"
+        },
+        "logLevel": {
+          "default": "info",
+          "description": "info, warn, error, fatal, panic",
+          "required": [],
+          "title": "logLevel",
+          "type": "string"
+        },
+        "metricsUpdateFrequency": {
+          "default": "5s",
+          "required": [],
+          "title": "metricsUpdateFrequency",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "required": [],
+          "title": "name",
+          "type": "string"
+        },
+        "noAutoUpdate": {
+          "default": true,
+          "required": [],
+          "title": "noAutoUpdate",
+          "type": "boolean"
+        },
+        "protocol": {
+          "default": "auto",
+          "description": "auto, http2, h2mux, quic",
+          "required": [],
+          "title": "protocol",
+          "type": "string"
+        },
+        "retries": {
+          "default": 5,
+          "required": [],
+          "title": "retries",
+          "type": "integer"
+        },
+        "transportLogLevel": {
+          "default": "warn",
+          "required": [],
+          "title": "transportLogLevel",
+          "type": "string"
+        },
+        "warpRouting": {
+          "default": false,
+          "required": [],
+          "title": "warpRouting",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "metricsUpdateFrequency",
+        "autoUpdateFrequency",
+        "noAutoUpdate",
+        "gracePeriod",
+        "retries",
+        "protocol",
+        "logLevel",
+        "transportLogLevel",
+        "connectTimeout",
+        "warpRouting"
+      ],
+      "title": "tunnelConfig",
+      "type": "object"
+    },
+    "tunnelSecrets": {
+      "additionalProperties": false,
+      "properties": {
+        "base64EncodedConfigJsonFile": {
+          "default": "",
+          "required": [],
+          "title": "base64EncodedConfigJsonFile",
+          "type": "string"
+        },
+        "base64EncodedPemFile": {
+          "default": "",
+          "required": [],
+          "title": "base64EncodedPemFile",
+          "type": "string"
+        }
+      },
+      "required": [
+        "base64EncodedPemFile",
+        "base64EncodedConfigJsonFile"
+      ],
+      "title": "tunnelSecrets",
+      "type": "object"
+    },
+    "updateStrategy": {
+      "additionalProperties": false,
+      "properties": {
+        "rollingUpdate": {
+          "additionalProperties": false,
+          "properties": {
+            "maxUnavailable": {
+              "default": 1,
+              "required": [],
+              "title": "maxUnavailable",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "maxUnavailable"
+          ],
+          "title": "rollingUpdate",
+          "type": "object"
+        },
+        "type": {
+          "default": "RollingUpdate",
+          "required": [],
+          "title": "type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "rollingUpdate"
+      ],
+      "title": "updateStrategy",
+      "type": "object"
+    }
+  },
+  "required": [
+    "replica",
+    "terminationGracePeriodSeconds",
+    "image",
+    "updateStrategy",
+    "imagePullSecrets",
+    "nameOverride",
+    "fullnameOverride",
+    "serviceAccount",
+    "podAnnotations",
+    "podLabels",
+    "podSecurityContext",
+    "securityContext",
+    "tunnelSecrets",
+    "tunnelConfig",
+    "ingress",
+    "resources",
+    "nodeSelector",
+    "tolerations",
+    "affinity"
+  ],
+  "type": "object"
+}

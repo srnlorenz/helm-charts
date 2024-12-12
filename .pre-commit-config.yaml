@@ -6,3 +6,12 @@ repos:
         args:
           - --chart-search-root=charts
           - --template-files=README.md.gotmpl
+
+  # - repo: https://github.com/dadav/helm-schema
+  #   rev: 0.16.1
+  #   hooks:
+  #     - id: helm-schema
+  #       args:
+  #         - --chart-search-root=charts
+  #         - --no-dependencies
+  #         - --add-schema-reference

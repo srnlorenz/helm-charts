@@ -1,0 +1,30 @@
+suite: test configmap
+
+templates:
+  - configmap.yaml
+
+tests:
+  - it: should match snapshot of default values
+    set:
+      tunnelConfig.name: unittest
+    release:
+      name: cloudflared
+      namespace: cloudflared
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should match snapshot of warp routing on
+    set:
+      tunnelConfig.name: unittest
+      tunnelConfig.warpRouting: true
+    release:
+      name: cloudflared
+      namespace: cloudflared
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
