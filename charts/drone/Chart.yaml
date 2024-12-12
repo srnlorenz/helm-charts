@@ -16,7 +16,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.0.15
+version: 0.0.16
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
@@ -75,5 +75,8 @@ annotations:
       url: https://raw.githubusercontent.com/drone/brand/master/screenshots/screenshot_build_success.png
     - title: Build Failure
       url: https://raw.githubusercontent.com/drone/brand/master/screenshots/screenshot_build_failure.png
+  artifacthub.io/signKey: |
+    fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+    url: https://keybase.io/communitycharts/pgp_keys.asc
 
 dependencies: []

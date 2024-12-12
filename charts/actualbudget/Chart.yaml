@@ -16,7 +16,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.1
+version: 1.0.2
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
@@ -77,5 +77,8 @@ annotations:
       url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-rules-overview.png
     - title: Schedules Overview
       url: https://raw.githubusercontent.com/actualbudget/docs/refs/heads/master/static/img/a-tour-of-actual/tour-schedules-overview.png
+  artifacthub.io/signKey: |
+    fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
+    url: https://keybase.io/communitycharts/pgp_keys.asc
 
 dependencies: []

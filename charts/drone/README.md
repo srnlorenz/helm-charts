@@ -4,7 +4,7 @@
 
 A Helm chart for Drone Server and Drone Kubernetes Runner
 
-![Version: 0.0.15](https://img.shields.io/badge/Version-0.0.15-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.25.0](https://img.shields.io/badge/AppVersion-2.25.0-informational?style=flat-square)
+![Version: 0.0.16](https://img.shields.io/badge/Version-0.0.16-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.25.0](https://img.shields.io/badge/AppVersion-2.25.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
