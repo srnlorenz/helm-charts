@@ -16,7 +16,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.2
+version: 1.0.3
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
@@ -52,10 +52,14 @@ annotations:
       url: https://github.com/actualbudget/actual
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |
-    - Add more documentation to settings.
+    - Add supported platforms for the image
   artifacthub.io/images: |
     - name: actualbudget
       image: actualbudget/actual-server:24.12.0
+      platforms:
+        - linux/amd64
+        - linux/arm64
+        - linux/arm/v7
   artifacthub.io/license: MIT
   artifacthub.io/maintainers: |
     - name: burakince
