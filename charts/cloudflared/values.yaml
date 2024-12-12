@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=values.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/community-charts/helm-charts/refs/heads/main/charts/cloudflared/values.schema.json
 # Default values for cloudflared.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
