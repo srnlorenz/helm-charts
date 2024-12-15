@@ -15,7 +15,7 @@ tests:
 
   - it: should show actual post environment variable
     set:
-      service.port: "1234"
+      service.port: 1234
     asserts:
       - equal:
           path: spec.template.spec.containers[0].env[0].name

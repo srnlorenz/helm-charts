@@ -3,7 +3,7 @@
   "additionalProperties": false,
   "properties": {
     "affinity": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity",
       "required": [],
       "title": "affinity",
@@ -91,7 +91,7 @@
       "description": "This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/",
       "properties": {
         "annotations": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "required": [],
           "title": "annotations",
           "type": "object"
@@ -187,11 +187,11 @@
       "type": "object"
     },
     "livenessProbe": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
       "properties": {
         "httpGet": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "properties": {
             "path": {
               "default": "/",
@@ -228,38 +228,38 @@
       "type": "string"
     },
     "nodeSelector": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector",
       "required": [],
       "title": "nodeSelector",
       "type": "object"
     },
     "podAnnotations": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "This is for setting Kubernetes Annotations to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/",
       "required": [],
       "title": "podAnnotations",
       "type": "object"
     },
     "podLabels": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "This is for setting Kubernetes Labels to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/",
       "required": [],
       "title": "podLabels",
       "type": "object"
     },
     "podSecurityContext": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
       "required": [],
       "title": "podSecurityContext",
       "type": "object"
     },
     "readinessProbe": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "properties": {
         "httpGet": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "properties": {
             "path": {
               "default": "/",
@@ -296,13 +296,13 @@
       "type": "integer"
     },
     "resources": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "required": [],
       "title": "resources",
       "type": "object"
     },
     "securityContext": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
       "required": [],
       "title": "securityContext",
@@ -339,7 +339,7 @@
       "description": "This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/",
       "properties": {
         "annotations": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Annotations to add to the service account",
           "required": [],
           "title": "annotations",
@@ -377,32 +377,9 @@
       "type": "object"
     },
     "strategy": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy",
       "properties": {
-        "rollingUpdate": {
-          "additionalProperties": false,
-          "properties": {
-            "maxSurge": {
-              "default": "100%",
-              "required": [],
-              "title": "maxSurge",
-              "type": "string"
-            },
-            "maxUnavailable": {
-              "default": 0,
-              "required": [],
-              "title": "maxUnavailable",
-              "type": "integer"
-            }
-          },
-          "required": [
-            "maxSurge",
-            "maxUnavailable"
-          ],
-          "title": "rollingUpdate",
-          "type": "object"
-        },
         "type": {
           "default": "RollingUpdate",
           "required": [],
@@ -411,8 +388,7 @@
         }
       },
       "required": [
-        "type",
-        "rollingUpdate"
+        "type"
       ],
       "title": "strategy",
       "type": "object"

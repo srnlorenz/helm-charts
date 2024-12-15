@@ -28,7 +28,7 @@
       "additionalProperties": false,
       "properties": {
         "affinity": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Set the affinity for the kube runner pod.",
           "required": [],
           "title": "affinity",
@@ -42,7 +42,7 @@
           "type": "boolean"
         },
         "env": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "# The keys within the \"envs\" map are mounted as environment variables on the Kubernetes runner pod.\n# See the full reference of Kubernetes runner environment variables here:\n# Ref: https://docs.drone.io/runner/kubernetes/installation/",
           "properties": {
             "DRONE_NAMESPACE_DEFAULT": {
@@ -60,10 +60,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "DRONE_RPC_PROTO",
-            "DRONE_NAMESPACE_DEFAULT"
-          ],
+          "required": [],
           "title": "env",
           "type": "object"
         },
@@ -131,7 +128,7 @@
           "additionalProperties": false,
           "properties": {
             "annotations": {
-              "additionalProperties": false,
+              "additionalProperties": true,
               "description": "Additional kube runner ingress annotations",
               "required": [],
               "title": "annotations",
@@ -232,21 +229,21 @@
           "type": "object"
         },
         "nodeSelector": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "If you'd like to force the Drone runner to run on a specific node or set of nodes,\nset a selector here.",
           "required": [],
           "title": "nodeSelector",
           "type": "object"
         },
         "podAnnotations": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Annotations for the kube runner pod",
           "required": [],
           "title": "podAnnotations",
           "type": "object"
         },
         "podSecurityContext": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Security context for all kube runner pod",
           "required": [],
           "title": "podSecurityContext",
@@ -285,14 +282,14 @@
           "type": "integer"
         },
         "resources": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Set the kube runner resources requests and limits",
           "required": [],
           "title": "resources",
           "type": "object"
         },
         "securityContext": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Security context for the kube runner container",
           "required": [],
           "title": "securityContext",
@@ -302,7 +299,7 @@
           "additionalProperties": false,
           "properties": {
             "annotations": {
-              "additionalProperties": false,
+              "additionalProperties": true,
               "description": "Additional kube runner service annotations",
               "required": [],
               "title": "annotations",
@@ -335,7 +332,7 @@
           "additionalProperties": false,
           "properties": {
             "annotations": {
-              "additionalProperties": false,
+              "additionalProperties": true,
               "description": "Annotations to add to the kube runner service account",
               "required": [],
               "title": "annotations",
@@ -416,7 +413,7 @@
       "additionalProperties": false,
       "properties": {
         "affinity": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Set the affinity for the drone server pod.",
           "required": [],
           "title": "affinity",
@@ -441,7 +438,7 @@
           "type": "object"
         },
         "env": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "properties": {
             "DRONE_GIT_ALWAYS_AUTH": {
               "default": false,
@@ -463,13 +460,16 @@
               "required": [],
               "title": "DRONE_SERVER_PROTO",
               "type": "string"
+            },
+            "DRONE_DATABASE_DRIVER": {
+              "default": "postgres",
+              "description": "If you'd like to use a DB other than SQLite (the default), set a driver + DSN here.\nRef: https://docs.drone.io/server/storage/database/",
+              "required": [],
+              "title": "DRONE_DATABASE_DRIVER",
+              "type": "string"
             }
           },
-          "required": [
-            "DRONE_SERVER_HOST",
-            "DRONE_SERVER_PROTO",
-            "DRONE_GIT_ALWAYS_AUTH"
-          ],
+          "required": [],
           "title": "env",
           "type": "object"
         },
@@ -528,7 +528,7 @@
           "additionalProperties": false,
           "properties": {
             "annotations": {
-              "additionalProperties": false,
+              "additionalProperties": true,
               "description": "Additional drone server ingress annotations",
               "required": [],
               "title": "annotations",
@@ -629,7 +629,7 @@
           "type": "object"
         },
         "nodeSelector": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Set the node selector for the drone server pod.",
           "required": [],
           "title": "nodeSelector",
@@ -654,7 +654,7 @@
               "type": "array"
             },
             "annotations": {
-              "additionalProperties": false,
+              "additionalProperties": true,
               "description": "Drone server data Persistent Volume annotations",
               "required": [],
               "title": "annotations",
@@ -725,14 +725,14 @@
           "type": "object"
         },
         "podAnnotations": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Annotations for the drone server pod",
           "required": [],
           "title": "podAnnotations",
           "type": "object"
         },
         "podSecurityContext": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Security context for all drone server pod",
           "required": [],
           "title": "podSecurityContext",
@@ -746,21 +746,21 @@
           "type": "integer"
         },
         "resources": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Set the drone server resources requests and limits",
           "required": [],
           "title": "resources",
           "type": "object"
         },
         "secrets": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Drone server secrets",
           "required": [],
           "title": "secrets",
           "type": "object"
         },
         "securityContext": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Security context for the drone server container",
           "required": [],
           "title": "securityContext",
@@ -770,7 +770,7 @@
           "additionalProperties": false,
           "properties": {
             "annotations": {
-              "additionalProperties": false,
+              "additionalProperties": true,
               "description": "Additional drone server service annotations",
               "required": [],
               "title": "annotations",
@@ -803,7 +803,7 @@
           "additionalProperties": false,
           "properties": {
             "annotations": {
-              "additionalProperties": false,
+              "additionalProperties": true,
               "description": "Annotations to add to the drone server service account.",
               "required": [],
               "title": "annotations",

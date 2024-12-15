@@ -4,7 +4,7 @@
 
 A Helm chart for Drone Server and Drone Kubernetes Runner
 
-![Version: 0.0.17](https://img.shields.io/badge/Version-0.0.17-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.25.0](https://img.shields.io/badge/AppVersion-2.25.0-informational?style=flat-square)
+![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.25.0](https://img.shields.io/badge/AppVersion-2.25.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -102,7 +102,7 @@ helm upgrade [RELEASE_NAME] community-charts/drone
 | kubeRunner.extraVolumes | list | `[]` | If you'd like to make additional files or volumes available to the runner, declare additional Volumes here per the Pod spec's "volumes" section. Ref: https://kubernetes.io/docs/concepts/storage/volumes/ |
 | kubeRunner.image.pullPolicy | string | `"IfNotPresent"` | The kube runner image pull policy |
 | kubeRunner.image.repository | string | `"drone/drone-runner-kube"` | The kube runner docker image repository to use |
-| kubeRunner.image.tag | string | `"1.0.0-rc.2"` | The kube runner image tag to use |
+| kubeRunner.image.tag | string | `"1.0.0-rc.3"` | The kube runner image tag to use |
 | kubeRunner.ingress.annotations | object | `{}` | Additional kube runner ingress annotations |
 | kubeRunner.ingress.className | string | `""` | Specifies if you want to use different ingress controller for kube runner |
 | kubeRunner.ingress.enabled | bool | `false` | Specifies if you want to create an ingress access to kube runner |

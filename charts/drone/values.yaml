@@ -271,7 +271,7 @@ kubeRunner:
     # -- The kube runner docker image repository to use
     repository: drone/drone-runner-kube
     # -- The kube runner image tag to use
-    tag: 1.0.0-rc.2
+    tag: 1.0.0-rc.3
     # -- The kube runner image pull policy
     pullPolicy: IfNotPresent
 

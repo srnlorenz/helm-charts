@@ -119,38 +119,28 @@
       "type": "string"
     },
     "nodeSelector": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector",
-      "properties": {
-        "kubernetes.io/os": {
-          "default": "linux",
-          "required": [],
-          "title": "kubernetes.io/os",
-          "type": "string"
-        }
-      },
-      "required": [
-        "kubernetes.io/os"
-      ],
+      "required": [],
       "title": "nodeSelector",
       "type": "object"
     },
     "podAnnotations": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "This is for setting Kubernetes Annotations to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/",
       "required": [],
       "title": "podAnnotations",
       "type": "object"
     },
     "podLabels": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "This is for setting Kubernetes Labels to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/",
       "required": [],
       "title": "podLabels",
       "type": "object"
     },
     "podSecurityContext": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
       "required": [],
       "title": "podSecurityContext",
@@ -183,13 +173,13 @@
       "type": "object"
     },
     "resources": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "required": [],
       "title": "resources",
       "type": "object"
     },
     "securityContext": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
       "required": [],
       "title": "securityContext",
@@ -200,7 +190,7 @@
       "description": "This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/",
       "properties": {
         "annotations": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "Annotations to add to the service account",
           "required": [],
           "title": "annotations",
@@ -246,30 +236,6 @@
     "tolerations": {
       "description": "For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/",
       "items": {
-        "anyOf": [
-          {
-            "additionalProperties": false,
-            "properties": {
-              "effect": {
-                "default": "NoSchedule",
-                "required": [],
-                "title": "effect",
-                "type": "string"
-              },
-              "operator": {
-                "default": "Exists",
-                "required": [],
-                "title": "operator",
-                "type": "string"
-              }
-            },
-            "required": [
-              "effect",
-              "operator"
-            ],
-            "type": "object"
-          }
-        ],
         "required": []
       },
       "required": [],
@@ -389,24 +355,8 @@
       "type": "object"
     },
     "updateStrategy": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "properties": {
-        "rollingUpdate": {
-          "additionalProperties": false,
-          "properties": {
-            "maxUnavailable": {
-              "default": 1,
-              "required": [],
-              "title": "maxUnavailable",
-              "type": "integer"
-            }
-          },
-          "required": [
-            "maxUnavailable"
-          ],
-          "title": "rollingUpdate",
-          "type": "object"
-        },
         "type": {
           "default": "RollingUpdate",
           "required": [],
@@ -415,8 +365,7 @@
         }
       },
       "required": [
-        "type",
-        "rollingUpdate"
+        "type"
       ],
       "title": "updateStrategy",
       "type": "object"
