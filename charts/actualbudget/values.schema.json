@@ -140,10 +140,7 @@
                               "type": "string"
                             }
                           },
-                          "required": [
-                            "path",
-                            "pathType"
-                          ],
+                          "required": [],
                           "type": "object"
                         }
                       ],
@@ -155,8 +152,7 @@
                   }
                 },
                 "required": [
-                  "host",
-                  "paths"
+                  "host"
                 ],
                 "type": "object"
               }
