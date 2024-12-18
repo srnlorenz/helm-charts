@@ -190,7 +190,7 @@
           "description": "If previous flag disabled, this will use Deployment to deploy cloudflared only number of following count",
           "required": [],
           "title": "count",
-          "type": ["string", "integer"]
+          "type": "integer"
         }
       },
       "required": ["allNodes"],
@@ -414,7 +414,7 @@
           "default": 5,
           "required": [],
           "title": "retries",
-          "type": ["string", "integer"]
+          "type": "integer"
         },
         "transportLogLevel": {
           "default": "warn",

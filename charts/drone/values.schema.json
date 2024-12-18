@@ -298,7 +298,7 @@
           "description": "(int) Numbers of runner replicas\nFor small or experimental deployments of the Kubernetes runner, 1 replica will suffice.\nFor production cases, 2-3 are recommended. This does not grant additional parallelism,\nbut does ensure that upgrades, config changes, and disruptions are handled more gracefully.",
           "required": [],
           "title": "replicaCount",
-          "type": ["string", "integer"]
+          "type": "integer"
         },
         "resources": {
           "additionalProperties": true,
@@ -878,7 +878,7 @@
           "description": "(int) Numbers of server replicas",
           "required": [],
           "title": "replicaCount",
-          "type": ["string", "integer"]
+          "type": "integer"
         },
         "resources": {
           "additionalProperties": true,
