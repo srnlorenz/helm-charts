@@ -1,0 +1,7 @@
+{
+  "yaml.schemas": {
+      "https://raw.githubusercontent.com/helm-unittest/helm-unittest/refs/heads/main/schema/helm-testsuite.json": [
+          "**/unittests/**/*.yaml"
+      ]
+  },
+}

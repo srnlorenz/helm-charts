@@ -62,6 +62,10 @@ service:
   type: ClusterIP
   # -- This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
   port: 5006
+  # -- Default Service name
+  name: http
+  # -- Additional service annotations
+  annotations: {}
 
 files:
   server: /data/server-files
@@ -84,6 +88,7 @@ ingress:
   #    hosts:
   #      - actualbudget.local
 
+# -- This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little

@@ -29,6 +29,8 @@ server:
   serviceAccount:
     # -- Specifies whether a Drone server ServiceAccount should be created
     create: true
+    # -- Automatically mount a ServiceAccount's API credentials?
+    automount: true
     # -- Annotations to add to the drone server service account.
     annotations: {}
     # -- The name of the drone server service account to use.
@@ -58,6 +60,8 @@ server:
     type: ClusterIP
     # -- Default drone server Service port
     port: 80
+    # -- Default Service name
+    name: http
     # -- Additional drone server service annotations
     annotations: {}
 
@@ -278,6 +282,8 @@ kubeRunner:
   serviceAccount:
     # -- Specifies whether a kube runner service account should be created
     create: true
+    # -- Automatically mount a ServiceAccount's API credentials?
+    automount: true
     # -- Annotations to add to the kube runner service account
     annotations: {}
     # -- The name of the kube runner service account to use.
@@ -312,6 +318,8 @@ kubeRunner:
     type: ClusterIP
     # -- Default kube runner Service port
     port: 3000
+    # -- Default Service name
+    name: http
     # -- Additional kube runner service annotations
     annotations: {}
 

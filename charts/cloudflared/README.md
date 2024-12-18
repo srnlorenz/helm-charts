@@ -4,7 +4,7 @@
 
 A Helm chart for cloudflare tunnel
 
-![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2024.12.1](https://img.shields.io/badge/AppVersion-2024.12.1-informational?style=flat-square)
+![Version: 1.1.1](https://img.shields.io/badge/Version-1.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2024.12.1](https://img.shields.io/badge/AppVersion-2024.12.1-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -124,7 +124,7 @@ helm upgrade [RELEASE_NAME] community-charts/cloudflared
 | replica | object | `{"allNodes":true,"count":1}` | This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/ |
 | replica.allNodes | bool | `true` | This will use DaemonSet to deploy cloudflared to all nodes |
 | replica.count | int | `1` | If previous flag disabled, this will use Deployment to deploy cloudflared only number of following count |
-| resources | object | `{}` |  |
+| resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 | securityContext | object | `{}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
 | serviceAccount | object | `{"annotations":{},"automount":true,"create":true,"name":""}` | This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/ |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
@@ -149,10 +149,10 @@ helm upgrade [RELEASE_NAME] community-charts/cloudflared
 
 ## Chart Development
 
-Please install unittest helm plugin with `helm plugin install https://github.com/quintush/helm-unittest` command and use following command to run helm unit tests.
+Please install unittest helm plugin with `helm plugin install https://github.com/helm-unittest/helm-unittest` command and use following command to run helm unit tests.
 
 ```console
-helm unittest --helm3 --strict --file unittests/*.yaml --file unittests/**/*.yaml charts/cloudflared
+helm unittest --strict --file unittests/**/*.yaml charts/cloudflared
 ```
 
 ## Maintainers

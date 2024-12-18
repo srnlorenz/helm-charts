@@ -10,6 +10,7 @@
       "type": "string"
     },
     "global": {
+      "additionalProperties": true,
       "description": "Global values are values that can be accessed from any chart or subchart by exactly the same name.",
       "required": [],
       "title": "global",
@@ -99,7 +100,8 @@
               "description": "The kube runner image pull policy",
               "required": [],
               "title": "pullPolicy",
-              "type": "string"
+              "type": "string",
+              "enum": ["IfNotPresent", "Never", "Always"]
             },
             "repository": {
               "default": "drone/drone-runner-kube",
@@ -116,11 +118,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "repository",
-            "tag",
-            "pullPolicy"
-          ],
+          "required": ["repository", "tag", "pullPolicy"],
           "title": "image",
           "type": "object"
         },
@@ -181,10 +179,7 @@
                                   "type": "string"
                                 }
                               },
-                              "required": [
-                                "path",
-                                "pathType"
-                              ],
+                              "required": ["path", "pathType"],
                               "type": "object"
                             }
                           ],
@@ -195,10 +190,7 @@
                         "type": "array"
                       }
                     },
-                    "required": [
-                      "host",
-                      "paths"
-                    ],
+                    "required": ["host", "paths"],
                     "type": "object"
                   }
                 ],
@@ -218,13 +210,7 @@
               "type": "array"
             }
           },
-          "required": [
-            "enabled",
-            "className",
-            "annotations",
-            "hosts",
-            "tls"
-          ],
+          "required": ["enabled", "className", "annotations", "hosts", "tls"],
           "title": "ingress",
           "type": "object"
         },
@@ -245,6 +231,41 @@
         "podSecurityContext": {
           "additionalProperties": true,
           "description": "Security context for all kube runner pod",
+          "properties": {
+            "runAsUser": {
+              "default": 1000,
+              "required": [],
+              "title": "runAsUser",
+              "type": "integer"
+            },
+            "runAsGroup": {
+              "default": 3000,
+              "required": [],
+              "title": "runAsGroup",
+              "type": "integer"
+            },
+            "fsGroup": {
+              "default": 2000,
+              "required": [],
+              "title": "fsGroup",
+              "type": "integer"
+            },
+            "supplementalGroups": {
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "runAsUser",
+              "type": "array"
+            },
+            "fsGroupChangePolicy": {
+              "default": "OnRootMismatch",
+              "required": [],
+              "title": "fsGroupChangePolicy",
+              "type": "string",
+              "enum": ["OnRootMismatch", "Always"]
+            }
+          },
           "required": [],
           "title": "podSecurityContext",
           "type": "object"
@@ -268,9 +289,7 @@
               "type": "array"
             }
           },
-          "required": [
-            "buildNamespaces"
-          ],
+          "required": ["buildNamespaces"],
           "title": "rbac",
           "type": "object"
         },
@@ -279,11 +298,53 @@
           "description": "(int) Numbers of runner replicas\nFor small or experimental deployments of the Kubernetes runner, 1 replica will suffice.\nFor production cases, 2-3 are recommended. This does not grant additional parallelism,\nbut does ensure that upgrades, config changes, and disruptions are handled more gracefully.",
           "required": [],
           "title": "replicaCount",
-          "type": "integer"
+          "type": ["string", "integer"]
         },
         "resources": {
           "additionalProperties": true,
           "description": "Set the kube runner resources requests and limits",
+          "properties": {
+            "limits": {
+              "additionalProperties": true,
+              "properties": {
+                "cpu": {
+                  "default": "500m",
+                  "required": [],
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "1Gi",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "limits",
+              "type": "object"
+            },
+            "requests": {
+              "additionalProperties": true,
+              "properties": {
+                "cpu": {
+                  "default": "100m",
+                  "required": [],
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "128Mi",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "requests",
+              "type": "object"
+            }
+          },
           "required": [],
           "title": "resources",
           "type": "object"
@@ -291,6 +352,56 @@
         "securityContext": {
           "additionalProperties": true,
           "description": "Security context for the kube runner container",
+          "properties": {
+            "allowPrivilegeEscalation": {
+              "default": false,
+              "required": [],
+              "title": "allowPrivilegeEscalation",
+              "type": "boolean"
+            },
+            "readOnlyRootFilesystem": {
+              "default": true,
+              "required": [],
+              "title": "readOnlyRootFilesystem",
+              "type": "boolean"
+            },
+            "runAsNonRoot": {
+              "default": true,
+              "required": [],
+              "title": "runAsNonRoot",
+              "type": "boolean"
+            },
+            "runAsUser": {
+              "default": 1000,
+              "required": [],
+              "title": "runAsUser",
+              "type": "integer"
+            },
+            "capabilities": {
+              "additionalProperties": true,
+              "properties": {
+                "drop": {
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "drop",
+                  "type": "array"
+                },
+                "add": {
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "add",
+                  "type": "array"
+                }
+              },
+              "required": [],
+              "title": "capabilities",
+              "type": "object"
+            }
+          },
           "required": [],
           "title": "securityContext",
           "type": "object"
@@ -304,6 +415,13 @@
               "required": [],
               "title": "annotations",
               "type": "object"
+            },
+            "name": {
+              "default": "http",
+              "description": "Default Service name",
+              "required": [],
+              "title": "name",
+              "type": "string"
             },
             "port": {
               "default": 3000,
@@ -320,11 +438,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "type",
-            "port",
-            "annotations"
-          ],
+          "required": ["type", "port", "annotations"],
           "title": "service",
           "type": "object"
         },
@@ -337,6 +451,13 @@
               "required": [],
               "title": "annotations",
               "type": "object"
+            },
+            "automount": {
+              "default": true,
+              "description": "Automatically mount a ServiceAccount's API credentials?",
+              "required": [],
+              "title": "automount",
+              "type": "boolean"
             },
             "create": {
               "default": true,
@@ -353,11 +474,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "create",
-            "annotations",
-            "name"
-          ],
+          "required": ["create", "automount", "annotations", "name"],
           "title": "serviceAccount",
           "type": "object"
         },
@@ -420,7 +537,7 @@
           "type": "object"
         },
         "emptyDir": {
-          "additionalProperties": false,
+          "additionalProperties": true,
           "description": "If persistentVolume.enabled is set to false, Drone will mount an emptyDir instead of\na PVC for any state that it needs to persist.",
           "properties": {
             "sizeLimit": {
@@ -431,9 +548,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "sizeLimit"
-          ],
+          "required": ["sizeLimit"],
           "title": "emptyDir",
           "type": "object"
         },
@@ -499,7 +614,8 @@
               "description": "The drone server image pull policy",
               "required": [],
               "title": "pullPolicy",
-              "type": "string"
+              "type": "string",
+              "enum": ["IfNotPresent", "Never", "Always"]
             },
             "repository": {
               "default": "drone/drone",
@@ -516,11 +632,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "repository",
-            "tag",
-            "pullPolicy"
-          ],
+          "required": ["repository", "tag", "pullPolicy"],
           "title": "image",
           "type": "object"
         },
@@ -581,10 +693,7 @@
                                   "type": "string"
                                 }
                               },
-                              "required": [
-                                "path",
-                                "pathType"
-                              ],
+                              "required": ["path", "pathType"],
                               "type": "object"
                             }
                           ],
@@ -595,10 +704,7 @@
                         "type": "array"
                       }
                     },
-                    "required": [
-                      "host",
-                      "paths"
-                    ],
+                    "required": ["host", "paths"],
                     "type": "object"
                   }
                 ],
@@ -618,13 +724,7 @@
               "type": "array"
             }
           },
-          "required": [
-            "enabled",
-            "className",
-            "annotations",
-            "hosts",
-            "tls"
-          ],
+          "required": ["enabled", "className", "annotations", "hosts", "tls"],
           "title": "ingress",
           "type": "object"
         },
@@ -734,6 +834,41 @@
         "podSecurityContext": {
           "additionalProperties": true,
           "description": "Security context for all drone server pod",
+          "properties": {
+            "runAsUser": {
+              "default": 1000,
+              "required": [],
+              "title": "runAsUser",
+              "type": "integer"
+            },
+            "runAsGroup": {
+              "default": 3000,
+              "required": [],
+              "title": "runAsGroup",
+              "type": "integer"
+            },
+            "fsGroup": {
+              "default": 2000,
+              "required": [],
+              "title": "fsGroup",
+              "type": "integer"
+            },
+            "supplementalGroups": {
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "runAsUser",
+              "type": "array"
+            },
+            "fsGroupChangePolicy": {
+              "default": "OnRootMismatch",
+              "required": [],
+              "title": "fsGroupChangePolicy",
+              "type": "string",
+              "enum": ["OnRootMismatch", "Always"]
+            }
+          },
           "required": [],
           "title": "podSecurityContext",
           "type": "object"
@@ -743,11 +878,53 @@
           "description": "(int) Numbers of server replicas",
           "required": [],
           "title": "replicaCount",
-          "type": "integer"
+          "type": ["string", "integer"]
         },
         "resources": {
           "additionalProperties": true,
           "description": "Set the drone server resources requests and limits",
+          "properties": {
+            "limits": {
+              "additionalProperties": true,
+              "properties": {
+                "cpu": {
+                  "default": "500m",
+                  "required": [],
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "1Gi",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "limits",
+              "type": "object"
+            },
+            "requests": {
+              "additionalProperties": true,
+              "properties": {
+                "cpu": {
+                  "default": "100m",
+                  "required": [],
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "128Mi",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "requests",
+              "type": "object"
+            }
+          },
           "required": [],
           "title": "resources",
           "type": "object"
@@ -762,6 +939,56 @@
         "securityContext": {
           "additionalProperties": true,
           "description": "Security context for the drone server container",
+          "properties": {
+            "allowPrivilegeEscalation": {
+              "default": false,
+              "required": [],
+              "title": "allowPrivilegeEscalation",
+              "type": "boolean"
+            },
+            "readOnlyRootFilesystem": {
+              "default": true,
+              "required": [],
+              "title": "readOnlyRootFilesystem",
+              "type": "boolean"
+            },
+            "runAsNonRoot": {
+              "default": true,
+              "required": [],
+              "title": "runAsNonRoot",
+              "type": "boolean"
+            },
+            "runAsUser": {
+              "default": 1000,
+              "required": [],
+              "title": "runAsUser",
+              "type": "integer"
+            },
+            "capabilities": {
+              "additionalProperties": true,
+              "properties": {
+                "drop": {
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "drop",
+                  "type": "array"
+                },
+                "add": {
+                  "items": {
+                    "required": []
+                  },
+                  "required": [],
+                  "title": "add",
+                  "type": "array"
+                }
+              },
+              "required": [],
+              "title": "capabilities",
+              "type": "object"
+            }
+          },
           "required": [],
           "title": "securityContext",
           "type": "object"
@@ -775,6 +1002,13 @@
               "required": [],
               "title": "annotations",
               "type": "object"
+            },
+            "name": {
+              "default": "http",
+              "description": "Default Service name",
+              "required": [],
+              "title": "name",
+              "type": "string"
             },
             "port": {
               "default": 80,
@@ -791,11 +1025,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "type",
-            "port",
-            "annotations"
-          ],
+          "required": ["type", "port", "name", "annotations"],
           "title": "service",
           "type": "object"
         },
@@ -808,6 +1038,13 @@
               "required": [],
               "title": "annotations",
               "type": "object"
+            },
+            "automount": {
+              "default": true,
+              "description": "Automatically mount a ServiceAccount's API credentials?",
+              "required": [],
+              "title": "automount",
+              "type": "boolean"
             },
             "create": {
               "default": true,
@@ -824,11 +1061,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "create",
-            "annotations",
-            "name"
-          ],
+          "required": ["create", "automount", "annotations", "name"],
           "title": "serviceAccount",
           "type": "object"
         },

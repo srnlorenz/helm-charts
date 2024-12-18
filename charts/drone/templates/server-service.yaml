@@ -15,6 +15,6 @@ spec:
     - port: {{ .Values.server.service.port }}
       targetPort: http
       protocol: TCP
-      name: http
+      name: {{ .Values.server.service.name }}
   selector:
     {{- include "drone.serverSelectorLabels" . | nindent 4 }}

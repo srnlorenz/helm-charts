@@ -1,6 +1,8 @@
 suite: test drone kubernetes runner service
+
 templates:
   - runner-service.yaml
+
 tests:
   - it: should be empty if kube runner is not enabled
     set:

@@ -3,7 +3,7 @@
   "additionalProperties": false,
   "properties": {
     "affinity": {
-      "additionalProperties": false,
+      "additionalProperties": true,
       "description": "For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity",
       "required": [],
       "title": "affinity",
@@ -16,6 +16,7 @@
       "type": "string"
     },
     "global": {
+      "additionalProperties": true,
       "description": "Global values are values that can be accessed from any chart or subchart by exactly the same name.",
       "required": [],
       "title": "global",
@@ -30,7 +31,8 @@
           "description": "This sets the pull policy for images.",
           "required": [],
           "title": "pullPolicy",
-          "type": "string"
+          "type": "string",
+          "enum": ["IfNotPresent", "Never", "Always"]
         },
         "repository": {
           "default": "cloudflare/cloudflared",
@@ -47,11 +49,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "repository",
-        "pullPolicy",
-        "tag"
-      ],
+      "required": ["repository", "pullPolicy", "tag"],
       "title": "image",
       "type": "object"
     },
@@ -83,10 +81,7 @@
                 "type": "string"
               }
             },
-            "required": [
-              "hostname",
-              "service"
-            ],
+            "required": ["hostname", "service"],
             "type": "object"
           },
           {
@@ -99,9 +94,7 @@
                 "type": "string"
               }
             },
-            "required": [
-              "service"
-            ],
+            "required": ["service"],
             "type": "object"
           }
         ],
@@ -142,6 +135,41 @@
     "podSecurityContext": {
       "additionalProperties": true,
       "description": "This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
+      "properties": {
+        "runAsUser": {
+          "default": 1000,
+          "required": [],
+          "title": "runAsUser",
+          "type": "integer"
+        },
+        "runAsGroup": {
+          "default": 3000,
+          "required": [],
+          "title": "runAsGroup",
+          "type": "integer"
+        },
+        "fsGroup": {
+          "default": 2000,
+          "required": [],
+          "title": "fsGroup",
+          "type": "integer"
+        },
+        "supplementalGroups": {
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "runAsUser",
+          "type": "array"
+        },
+        "fsGroupChangePolicy": {
+          "default": "OnRootMismatch",
+          "required": [],
+          "title": "fsGroupChangePolicy",
+          "type": "string",
+          "enum": ["OnRootMismatch", "Always"]
+        }
+      },
       "required": [],
       "title": "podSecurityContext",
       "type": "object"
@@ -162,18 +190,58 @@
           "description": "If previous flag disabled, this will use Deployment to deploy cloudflared only number of following count",
           "required": [],
           "title": "count",
-          "type": "integer"
+          "type": ["string", "integer"]
         }
       },
-      "required": [
-        "allNodes",
-        "count"
-      ],
+      "required": ["allNodes"],
       "title": "replica",
       "type": "object"
     },
     "resources": {
       "additionalProperties": true,
+      "description": "This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+      "properties": {
+        "limits": {
+          "additionalProperties": true,
+          "properties": {
+            "cpu": {
+              "default": "400m",
+              "required": [],
+              "title": "cpu",
+              "type": "string"
+            },
+            "memory": {
+              "default": "128Mi",
+              "required": [],
+              "title": "memory",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "title": "limits",
+          "type": "object"
+        },
+        "requests": {
+          "additionalProperties": true,
+          "properties": {
+            "cpu": {
+              "default": "100m",
+              "required": [],
+              "title": "cpu",
+              "type": "string"
+            },
+            "memory": {
+              "default": "64Mi",
+              "required": [],
+              "title": "memory",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "title": "requests",
+          "type": "object"
+        }
+      },
       "required": [],
       "title": "resources",
       "type": "object"
@@ -181,6 +249,56 @@
     "securityContext": {
       "additionalProperties": true,
       "description": "This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
+      "properties": {
+        "allowPrivilegeEscalation": {
+          "default": false,
+          "required": [],
+          "title": "allowPrivilegeEscalation",
+          "type": "boolean"
+        },
+        "readOnlyRootFilesystem": {
+          "default": true,
+          "required": [],
+          "title": "readOnlyRootFilesystem",
+          "type": "boolean"
+        },
+        "runAsNonRoot": {
+          "default": true,
+          "required": [],
+          "title": "runAsNonRoot",
+          "type": "boolean"
+        },
+        "runAsUser": {
+          "default": 1000,
+          "required": [],
+          "title": "runAsUser",
+          "type": "integer"
+        },
+        "capabilities": {
+          "additionalProperties": true,
+          "properties": {
+            "drop": {
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "drop",
+              "type": "array"
+            },
+            "add": {
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "add",
+              "type": "array"
+            }
+          },
+          "required": [],
+          "title": "capabilities",
+          "type": "object"
+        }
+      },
       "required": [],
       "title": "securityContext",
       "type": "object"
@@ -218,12 +336,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "create",
-        "automount",
-        "annotations",
-        "name"
-      ],
+      "required": ["create", "automount", "annotations", "name"],
       "title": "serviceAccount",
       "type": "object"
     },
@@ -294,19 +407,21 @@
           "description": "auto, http2, h2mux, quic",
           "required": [],
           "title": "protocol",
-          "type": "string"
+          "type": "string",
+          "enum": ["auto", "http2", "h2mux", "quic"]
         },
         "retries": {
           "default": 5,
           "required": [],
           "title": "retries",
-          "type": "integer"
+          "type": ["string", "integer"]
         },
         "transportLogLevel": {
           "default": "warn",
           "required": [],
           "title": "transportLogLevel",
-          "type": "string"
+          "type": "string",
+          "enum": ["debug", "info", "warn", "error", "fatal"]
         },
         "warpRouting": {
           "default": false,
@@ -347,10 +462,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "base64EncodedPemFile",
-        "base64EncodedConfigJsonFile"
-      ],
+      "required": ["base64EncodedPemFile", "base64EncodedConfigJsonFile"],
       "title": "tunnelSecrets",
       "type": "object"
     },
@@ -364,9 +476,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "type"
-      ],
+      "required": ["type"],
       "title": "updateStrategy",
       "type": "object"
     }

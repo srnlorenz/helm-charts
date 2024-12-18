@@ -25,10 +25,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "server",
-        "user"
-      ],
+      "required": ["server", "user"],
       "title": "files",
       "type": "object"
     },
@@ -39,6 +36,7 @@
       "type": "string"
     },
     "global": {
+      "additionalProperties": true,
       "description": "Global values are values that can be accessed from any chart or subchart by exactly the same name.",
       "required": [],
       "title": "global",
@@ -52,7 +50,8 @@
           "description": "This sets the pull policy for images.",
           "required": [],
           "title": "pullPolicy",
-          "type": "string"
+          "type": "string",
+          "enum": ["IfNotPresent", "Never", "Always"]
         },
         "repository": {
           "default": "actualbudget/actual-server",
@@ -69,11 +68,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "repository",
-        "pullPolicy",
-        "tag"
-      ],
+      "required": ["repository", "pullPolicy", "tag"],
       "title": "image",
       "type": "object"
     },
@@ -140,10 +135,7 @@
                               "type": "string"
                             }
                           },
-                          "required": [
-                            "path",
-                            "pathType"
-                          ],
+                          "required": ["path", "pathType"],
                           "type": "object"
                         }
                       ],
@@ -154,10 +146,7 @@
                     "type": "array"
                   }
                 },
-                "required": [
-                  "host",
-                  "paths"
-                ],
+                "required": ["host", "paths"],
                 "type": "object"
               }
             ],
@@ -168,6 +157,7 @@
           "type": "array"
         },
         "tls": {
+          "description": "Ingress tls configuration for https access",
           "items": {
             "required": []
           },
@@ -176,13 +166,7 @@
           "type": "array"
         }
       },
-      "required": [
-        "enabled",
-        "className",
-        "annotations",
-        "hosts",
-        "tls"
-      ],
+      "required": ["enabled", "className", "annotations", "hosts", "tls"],
       "title": "ingress",
       "type": "object"
     },
@@ -206,17 +190,12 @@
               "type": "string"
             }
           },
-          "required": [
-            "path",
-            "port"
-          ],
+          "required": ["path", "port"],
           "title": "httpGet",
           "type": "object"
         }
       },
-      "required": [
-        "httpGet"
-      ],
+      "required": ["httpGet"],
       "title": "livenessProbe",
       "type": "object"
     },
@@ -251,6 +230,41 @@
     "podSecurityContext": {
       "additionalProperties": true,
       "description": "This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
+      "properties": {
+        "runAsUser": {
+          "default": 1000,
+          "required": [],
+          "title": "runAsUser",
+          "type": "integer"
+        },
+        "runAsGroup": {
+          "default": 3000,
+          "required": [],
+          "title": "runAsGroup",
+          "type": "integer"
+        },
+        "fsGroup": {
+          "default": 2000,
+          "required": [],
+          "title": "fsGroup",
+          "type": "integer"
+        },
+        "supplementalGroups": {
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "runAsUser",
+          "type": "array"
+        },
+        "fsGroupChangePolicy": {
+          "default": "OnRootMismatch",
+          "required": [],
+          "title": "fsGroupChangePolicy",
+          "type": "string",
+          "enum": ["OnRootMismatch", "Always"]
+        }
+      },
       "required": [],
       "title": "podSecurityContext",
       "type": "object"
@@ -274,17 +288,12 @@
               "type": "string"
             }
           },
-          "required": [
-            "path",
-            "port"
-          ],
+          "required": ["path", "port"],
           "title": "httpGet",
           "type": "object"
         }
       },
-      "required": [
-        "httpGet"
-      ],
+      "required": ["httpGet"],
       "title": "readinessProbe",
       "type": "object"
     },
@@ -293,10 +302,53 @@
       "description": "This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/",
       "required": [],
       "title": "replicaCount",
-      "type": "integer"
+      "type": ["string", "integer"]
     },
     "resources": {
       "additionalProperties": true,
+      "description": "Set the resources requests and limits",
+      "properties": {
+        "limits": {
+          "additionalProperties": true,
+          "properties": {
+            "cpu": {
+              "default": "200m",
+              "required": [],
+              "title": "cpu",
+              "type": "string"
+            },
+            "memory": {
+              "default": "256Mi",
+              "required": [],
+              "title": "memory",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "title": "limits",
+          "type": "object"
+        },
+        "requests": {
+          "additionalProperties": true,
+          "properties": {
+            "cpu": {
+              "default": "100m",
+              "required": [],
+              "title": "cpu",
+              "type": "string"
+            },
+            "memory": {
+              "default": "128Mi",
+              "required": [],
+              "title": "memory",
+              "type": "string"
+            }
+          },
+          "required": [],
+          "title": "requests",
+          "type": "object"
+        }
+      },
       "required": [],
       "title": "resources",
       "type": "object"
@@ -304,6 +356,56 @@
     "securityContext": {
       "additionalProperties": true,
       "description": "This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
+      "properties": {
+        "allowPrivilegeEscalation": {
+          "default": false,
+          "required": [],
+          "title": "allowPrivilegeEscalation",
+          "type": "boolean"
+        },
+        "readOnlyRootFilesystem": {
+          "default": true,
+          "required": [],
+          "title": "readOnlyRootFilesystem",
+          "type": "boolean"
+        },
+        "runAsNonRoot": {
+          "default": true,
+          "required": [],
+          "title": "runAsNonRoot",
+          "type": "boolean"
+        },
+        "runAsUser": {
+          "default": 1000,
+          "required": [],
+          "title": "runAsUser",
+          "type": "integer"
+        },
+        "capabilities": {
+          "additionalProperties": true,
+          "properties": {
+            "drop": {
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "drop",
+              "type": "array"
+            },
+            "add": {
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "add",
+              "type": "array"
+            }
+          },
+          "required": [],
+          "title": "capabilities",
+          "type": "object"
+        }
+      },
       "required": [],
       "title": "securityContext",
       "type": "object"
@@ -312,6 +414,20 @@
       "additionalProperties": false,
       "description": "This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/",
       "properties": {
+        "annotations": {
+          "additionalProperties": true,
+          "description": "Additional service annotations",
+          "required": [],
+          "title": "annotations",
+          "type": "object"
+        },
+        "name": {
+          "default": "http",
+          "description": "Default Service name",
+          "required": [],
+          "title": "name",
+          "type": "string"
+        },
         "port": {
           "default": 5006,
           "description": "This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports",
@@ -327,10 +443,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "type",
-        "port"
-      ],
+      "required": ["type", "port", "name", "annotations"],
       "title": "service",
       "type": "object"
     },
@@ -367,12 +480,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "create",
-        "automount",
-        "annotations",
-        "name"
-      ],
+      "required": ["create", "automount", "annotations", "name"],
       "title": "serviceAccount",
       "type": "object"
     },
@@ -384,12 +492,11 @@
           "default": "RollingUpdate",
           "required": [],
           "title": "type",
-          "type": "string"
+          "type": "string",
+          "enum": ["RollingUpdate", "Recreate"]
         }
       },
-      "required": [
-        "type"
-      ],
+      "required": ["type"],
       "title": "strategy",
       "type": "object"
     },

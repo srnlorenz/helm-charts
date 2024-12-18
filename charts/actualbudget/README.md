@@ -4,7 +4,7 @@
 
 A local-first personal finance app
 
-![Version: 1.1.2](https://img.shields.io/badge/Version-1.1.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 24.12.0](https://img.shields.io/badge/AppVersion-24.12.0-informational?style=flat-square)
+![Version: 1.1.3](https://img.shields.io/badge/Version-1.1.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 24.12.0](https://img.shields.io/badge/AppVersion-24.12.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -69,9 +69,11 @@ helm upgrade [RELEASE_NAME] community-charts/actualbudget
 | readinessProbe.httpGet.path | string | `"/"` |  |
 | readinessProbe.httpGet.port | string | `"http"` |  |
 | replicaCount | int | `1` | This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/ |
-| resources | object | `{}` |  |
+| resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 | securityContext | object | `{}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
-| service | object | `{"port":5006,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
+| service | object | `{"annotations":{},"name":"http","port":5006,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
+| service.annotations | object | `{}` | Additional service annotations |
+| service.name | string | `"http"` | Default Service name |
 | service.port | int | `5006` | This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports |
 | service.type | string | `"ClusterIP"` | This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types |
 | serviceAccount | object | `{"annotations":{},"automount":true,"create":true,"name":""}` | This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/ |
@@ -93,10 +95,10 @@ helm upgrade [RELEASE_NAME] community-charts/actualbudget
 
 ## Chart Development
 
-Please install unittest helm plugin with `helm plugin install https://github.com/quintush/helm-unittest` command and use following command to run helm unit tests.
+Please install unittest helm plugin with `helm plugin install https://github.com/helm-unittest/helm-unittest` command and use following command to run helm unit tests.
 
 ```console
-helm unittest --helm3 --strict --file unittests/*.yaml --file unittests/**/*.yaml charts/actualbudget
+helm unittest --strict --file unittests/**/*.yaml charts/actualbudget
 ```
 
 ## Maintainers

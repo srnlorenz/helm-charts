@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=values.schema.json
 # Default values for pypiserver.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
@@ -73,6 +74,10 @@ service:
   type: ClusterIP
   # -- This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
   port: 8080
+  # -- Default Service name
+  name: http
+  # -- Additional service annotations
+  annotations: {}
 
 # -- This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:

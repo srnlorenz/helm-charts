@@ -16,16 +16,16 @@ should match snapshot of default values:
     spec:
       ingressClassName: nginx-test
       rules:
-      - host: chart-example.local
-        http:
-          paths:
-          - backend:
-              service:
-                name: runner-RELEASE-NAME-drone
-                port:
-                  number: 3000
-            path: /
-            pathType: ImplementationSpecific
+        - host: chart-example.local
+          http:
+            paths:
+              - backend:
+                  service:
+                    name: runner-RELEASE-NAME-drone
+                    port:
+                      number: 3000
+                path: /
+                pathType: ImplementationSpecific
 should match snapshot of default values with old kubernetes ingress:
   1: |
     apiVersion: networking.k8s.io/v1beta1
@@ -45,10 +45,10 @@ should match snapshot of default values with old kubernetes ingress:
       namespace: NAMESPACE
     spec:
       rules:
-      - host: chart-example.local
-        http:
-          paths:
-          - backend:
-              serviceName: runner-RELEASE-NAME-drone
-              servicePort: 3000
-            path: /
+        - host: chart-example.local
+          http:
+            paths:
+              - backend:
+                  serviceName: runner-RELEASE-NAME-drone
+                  servicePort: 3000
+                path: /

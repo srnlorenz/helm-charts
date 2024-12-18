@@ -17,10 +17,10 @@ should match snapshot of default values:
       namespace: NAMESPACE
     spec:
       ports:
-      - name: http
-        port: 3000
-        protocol: TCP
-        targetPort: http
+        - name: http
+          port: 3000
+          protocol: TCP
+          targetPort: http
       selector:
         app: drone-runner
         app.kubernetes.io/instance: RELEASE-NAME

@@ -1,6 +1,8 @@
 suite: test drone kubernetes runner ingress
+
 templates:
   - runner-ingress.yaml
+
 tests:
   - it: should be empty if kube runner is not enabled
     set:

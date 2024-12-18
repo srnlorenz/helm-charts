@@ -4,7 +4,7 @@
 
 A Helm chart for Drone Server and Drone Kubernetes Runner
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.25.0](https://img.shields.io/badge/AppVersion-2.25.0-informational?style=flat-square)
+![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.25.0](https://img.shields.io/badge/AppVersion-2.25.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -118,9 +118,11 @@ helm upgrade [RELEASE_NAME] community-charts/drone
 | kubeRunner.resources | object | `{}` | Set the kube runner resources requests and limits |
 | kubeRunner.securityContext | object | `{}` | Security context for the kube runner container |
 | kubeRunner.service.annotations | object | `{}` | Additional kube runner service annotations |
+| kubeRunner.service.name | string | `"http"` | Default Service name |
 | kubeRunner.service.port | int | `3000` | Default kube runner Service port |
 | kubeRunner.service.type | string | `"ClusterIP"` | Specifies what type of kube runner Service should be created |
 | kubeRunner.serviceAccount.annotations | object | `{}` | Annotations to add to the kube runner service account |
+| kubeRunner.serviceAccount.automount | bool | `true` | Automatically mount a ServiceAccount's API credentials? |
 | kubeRunner.serviceAccount.create | bool | `true` | Specifies whether a kube runner service account should be created |
 | kubeRunner.serviceAccount.name | string | `""` | The name of the kube runner service account to use. If not set and create is true, a name is generated using the fullname template |
 | kubeRunner.terminationGracePeriodSeconds | int | `3600` | When the runner receives a SIGTERM/SIGINT (config update, upgrade, etc), it will wait until all jobs that particular pod has spawned complete. It is for this reason that you'll want to make sure that this value is longer than your longest job. |
@@ -161,9 +163,11 @@ helm upgrade [RELEASE_NAME] community-charts/drone
 | server.secrets | object | `{}` | Drone server secrets |
 | server.securityContext | object | `{}` | Security context for the drone server container |
 | server.service.annotations | object | `{}` | Additional drone server service annotations |
+| server.service.name | string | `"http"` | Default Service name |
 | server.service.port | int | `80` | Default drone server Service port |
 | server.service.type | string | `"ClusterIP"` | Specifies what type of drone server Service should be created |
 | server.serviceAccount.annotations | object | `{}` | Annotations to add to the drone server service account. |
+| server.serviceAccount.automount | bool | `true` | Automatically mount a ServiceAccount's API credentials? |
 | server.serviceAccount.create | bool | `true` | Specifies whether a Drone server ServiceAccount should be created |
 | server.serviceAccount.name | string | `""` | The name of the drone server service account to use. If not set and create is true, a name is generated using the fullname template |
 | server.tolerations | list | `[]` | Set the tolerations for the drone server pod. |
@@ -179,8 +183,16 @@ For questions, suggestions, and discussion, visit the [Drone community site](htt
 * <https://github.com/community-charts/helm-charts>
 * <https://github.com/drone>
 
+## Chart Development
+
+Please install unittest helm plugin with `helm plugin install https://github.com/helm-unittest/helm-unittest` command and use following command to run helm unit tests.
+
+```console
+helm unittest --strict --file unittests/**/*.yaml charts/drone
+```
+
 ## Maintainers
 
 | Name | Email | Url |
 | ---- | ------ | --- |
-| burakince | <burak.ince@linux.org.tr> | <https://www.burakince.net> |
+| burakince | <burak.ince@linux.org.tr> | <https://www.burakince.com> |

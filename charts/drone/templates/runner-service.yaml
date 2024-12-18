@@ -16,7 +16,7 @@ spec:
     - port: {{ .Values.kubeRunner.service.port }}
       targetPort: http
       protocol: TCP
-      name: http
+      name: {{ .Values.kubeRunner.service.name }}
   selector:
     {{- include "drone.runnerSelectorLabels" . | nindent 4 }}
 {{- end }}
