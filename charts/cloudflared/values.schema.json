@@ -64,42 +64,51 @@
     },
     "ingress": {
       "items": {
-        "anyOf": [
-          {
-            "additionalProperties": false,
+        "additionalProperties": false,
+        "properties": {
+          "hostname": {
+            "default": "example.com",
+            "required": [],
+            "title": "hostname",
+            "type": "string"
+          },
+          "path": {
+            "default": "\\.(jpg|png|css|js)$",
+            "required": [],
+            "title": "path",
+            "type": "string"
+          },
+          "service": {
+            "default": "hello_world",
+            "required": [],
+            "title": "service",
+            "type": "string"
+          },
+          "originRequest": {
+            "additionalProperties": true,
             "properties": {
-              "hostname": {
-                "default": "example.com",
+              "connectTimeout": {
+                "default": "10s",
                 "required": [],
-                "title": "hostname",
+                "title": "connectTimeout",
                 "type": "string"
               },
-              "service": {
-                "default": "http://traefik.kube-system.svc.cluster.local:80",
+              "disableChunkedEncoding": {
+                "default": true,
                 "required": [],
-                "title": "service",
-                "type": "string"
+                "title": "disableChunkedEncoding",
+                "type": "boolean"
               }
             },
-            "required": ["hostname", "service"],
-            "type": "object"
-          },
-          {
-            "additionalProperties": false,
-            "properties": {
-              "service": {
-                "default": "http_status:404",
-                "required": [],
-                "title": "service",
-                "type": "string"
-              }
-            },
-            "required": ["service"],
+            "required": [],
+            "title": "originRequest",
             "type": "object"
           }
-        ],
-        "required": []
+        },
+        "required": ["service"],
+        "type": "object"
       },
+      "minItems": 1,
       "required": [],
       "title": "ingress",
       "type": "array"

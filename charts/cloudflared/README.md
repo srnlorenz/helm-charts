@@ -4,7 +4,7 @@
 
 A Helm chart for cloudflare tunnel
 
-![Version: 1.1.4](https://img.shields.io/badge/Version-1.1.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2024.12.2](https://img.shields.io/badge/AppVersion-2024.12.2-informational?style=flat-square)
+![Version: 1.1.5](https://img.shields.io/badge/Version-1.1.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2024.12.2](https://img.shields.io/badge/AppVersion-2024.12.2-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -43,11 +43,23 @@ To configure the chart, encode the required tunnel files using the following com
    base64 -b 0 -i ~/.cloudflared/*.json
    ```
 
+   If the above command did not work due to OS differences, you can simply use the command below.
+
+   ```console
+   cat ~/.cloudflared/*.json | base64
+   ```
+
 2. **Encode the Tunnel Certificate PEM File**
    Use the following command to obtain the base64-encoded version of your tunnel certificate PEM file and set it in the `tunnelSecrets.base64EncodedPemFile` configuration:
 
    ```console
    base64 -b 0 -i ~/.cloudflared/cert.pem
+   ```
+
+   If the above command did not work due to OS differences, you can simply use the command below.
+
+   ```console
+   cat ~/.cloudflared/cert.pem | base64
    ```
 
 3. **Set the Tunnel Name**
@@ -113,9 +125,7 @@ helm upgrade [RELEASE_NAME] community-charts/cloudflared
 | image.repository | string | `"cloudflare/cloudflared"` | The docker image repository to use |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
-| ingress[0].hostname | string | `"example.com"` |  |
-| ingress[0].service | string | `"http://traefik.kube-system.svc.cluster.local:80"` |  |
-| ingress[1].service | string | `"http_status:404"` |  |
+| ingress | list | `[{"hostname":"example.com","service":"http://traefik.kube-system.svc.cluster.local:80"},{"service":"http_status:404"}]` | Cloudflare ingress rules. More information can be found here: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/local-management/configuration-file/#how-traffic-is-matched |
 | nameOverride | string | `""` | This is to override the chart name. |
 | nodeSelector | object | `{"kubernetes.io/os":"linux"}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
 | podAnnotations | object | `{}` | This is for setting Kubernetes Annotations to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |

@@ -43,11 +43,23 @@ To configure the chart, encode the required tunnel files using the following com
    base64 -b 0 -i ~/.cloudflared/*.json
    ```
 
+   If the above command did not work due to OS differences, you can simply use the command below.
+
+   ```console
+   cat ~/.cloudflared/*.json | base64
+   ```
+
 2. **Encode the Tunnel Certificate PEM File**
    Use the following command to obtain the base64-encoded version of your tunnel certificate PEM file and set it in the `tunnelSecrets.base64EncodedPemFile` configuration:
 
    ```console
    base64 -b 0 -i ~/.cloudflared/cert.pem
+   ```
+
+   If the above command did not work due to OS differences, you can simply use the command below.
+
+   ```console
+   cat ~/.cloudflared/cert.pem | base64
    ```
 
 3. **Set the Tunnel Name**
