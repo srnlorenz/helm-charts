@@ -604,7 +604,7 @@
           "required": [],
           "title": "level",
           "type": "string",
-          "enum": ["error","warn","info","debug"]
+          "enum": ["error", "warn", "info", "debug"]
         },
         "output": {
           "description": "Where to output logs to. Options are: `console` or `file` or both.",
@@ -1163,7 +1163,7 @@
           "required": [],
           "title": "mode",
           "type": "string",
-          "enum": ["regular","queue"]
+          "enum": ["regular", "queue"]
         },
         "url": {
           "default": "",
@@ -1202,7 +1202,7 @@
           "required": [],
           "title": "mode",
           "type": "string",
-          "enum": ["regular","queue"]
+          "enum": ["regular", "queue"]
         }
       },
       "required": ["mode", "count", "concurrency"],
