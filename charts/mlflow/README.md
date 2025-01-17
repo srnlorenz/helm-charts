@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.9.1](https://img.shields.io/badge/Version-0.9.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.19.0](https://img.shields.io/badge/AppVersion-2.19.0-informational?style=flat-square)
+![Version: 0.10.0](https://img.shields.io/badge/Version-0.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.19.0](https://img.shields.io/badge/AppVersion-2.19.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -221,6 +221,8 @@ artifactRoot:
 ```yaml
 auth:
   enabled: true
+  adminUsername: "admin"
+  adminPassword: "S3cr3+"
 ```
 
 Use following configuration for centralised PosgreSQL DB backend for authentication backend.
@@ -228,6 +230,8 @@ Use following configuration for centralised PosgreSQL DB backend for authenticat
 ```yaml
 auth:
   enabled: true
+  adminUsername: "admin"
+  adminPassword: "S3cr3+"
   postgres:
     enabled: true
     host: "postgresql--auth-instance1.abcdef1234.eu-central-1.rds.amazonaws.com"

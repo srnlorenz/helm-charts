@@ -545,7 +545,7 @@ tests:
           path: spec.template.spec.volumes[0].name
           value: auth-config-secret
       - equal:
-          path: spec.template.spec.volumes[0].secret.name
+          path: spec.template.spec.volumes[0].secret.secretName
           value: mlflow-auth-config-secret
 
   - it: should match snapshot of default values

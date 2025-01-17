@@ -211,7 +211,7 @@ spec:
         {{- if .Values.auth.enabled }}
         - name: auth-config-secret
           secret:
-            name: {{ template "mlflow.fullname" . }}-auth-config-secret
+            secretName: {{ template "mlflow.fullname" . }}-auth-config-secret
         {{- end }}
       {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}
