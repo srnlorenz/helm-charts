@@ -515,7 +515,7 @@ tests:
     set:
       auth.enabled: true
       auth.appName: my-auth
-      auth.configPath: /my/special/path/my-config.ini
+      auth.configPath: /my/special/path/
     release:
       name: mlflow
       namespace: mlflow
@@ -531,10 +531,10 @@ tests:
           value: MLFLOW_AUTH_CONFIG_PATH
       - equal:
           path: spec.template.spec.containers[0].env[1].value
-          value: /my/special/path/my-config.ini
+          value: /my/special/path/basic_auth.ini
       - equal:
           path: spec.template.spec.containers[0].volumeMounts[0].mountPath
-          value: /my/special/path/my-config.ini
+          value: /my/special/path
       - equal:
           path: spec.template.spec.containers[0].volumeMounts[0].name
           value: auth-config-secret

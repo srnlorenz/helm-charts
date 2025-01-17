@@ -154,7 +154,7 @@ spec:
               value: {{ .Values.image.tag | default .Chart.AppVersion | quote }}
           {{- if .Values.auth.enabled }}
             - name: MLFLOW_AUTH_CONFIG_PATH
-              value: {{ .Values.auth.configPath | quote }}
+              value: {{ printf "%s/basic_auth.ini" (.Values.auth.configPath | trimSuffix "/") }}
           {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
             - name: {{ upper $key }}
@@ -173,7 +173,7 @@ spec:
           volumeMounts:
             {{- if .Values.auth.enabled }}
             - name: auth-config-secret
-              mountPath: {{ .Values.auth.configPath | quote }}
+              mountPath: {{ .Values.auth.configPath | trimSuffix "/" | quote }}
               readOnly: true
             {{- end }}
           {{- with .Values.extraVolumeMounts }}

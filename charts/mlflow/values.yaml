@@ -170,7 +170,7 @@ auth:
   # -- SQLite database folder. Default is user home directory.
   sqliteFullPath: ""
   # -- Mlflow authentication INI configuration file path.
-  configPath: "/etc/mlflow/auth.ini"
+  configPath: "/etc/mlflow/auth/"
   # -- PostgreSQL based centrilised authentication database
   postgres:
     # -- Specifies if you want to use postgres auth backend storage

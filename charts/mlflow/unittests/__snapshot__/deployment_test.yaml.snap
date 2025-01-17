@@ -142,7 +142,7 @@ should match snapshot with additional values:
                 - name: MLFLOW_VERSION
                   value: 1.0.0
                 - name: MLFLOW_AUTH_CONFIG_PATH
-                  value: /etc/mlflow/auth.ini
+                  value: /etc/mlflow/auth/basic_auth.ini
               envFrom:
                 - configMapRef:
                     name: mlflow-env-configmap
@@ -182,7 +182,7 @@ should match snapshot with additional values:
                 runAsNonRoot: true
                 runAsUser: 1000
               volumeMounts:
-                - mountPath: /etc/mlflow/auth.ini
+                - mountPath: /etc/mlflow/auth
                   name: auth-config-secret
                   readOnly: true
                 - mountPath: /mlflow/data
