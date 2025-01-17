@@ -62,3 +62,8 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{- define "mlflow.health" -}}
+{{- $basPath := default "/" .Values.extraArgs.staticPrefix }}
+{{- printf "%s/health" ($basPath | trimSuffix "/" )}}
+{{- end }}

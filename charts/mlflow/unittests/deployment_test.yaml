@@ -227,10 +227,10 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.httpGet.path
-          value: /mlflow
+          value: /mlflow/health
       - equal:
           path: spec.template.spec.containers[0].readinessProbe.httpGet.path
-          value: /mlflow
+          value: /mlflow/health
   
   - it: should check that the db checker init container is present if enabled with postgres
     set:

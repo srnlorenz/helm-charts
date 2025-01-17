@@ -135,14 +135,14 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: {{ .Values.extraArgs.staticPrefix | default "/" }}
+              path: {{ include "mlflow.health" . }}
               port: {{ .Values.service.name }}
           {{- with .Values.livenessProbe }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
           readinessProbe:
             httpGet:
-              path: {{ .Values.extraArgs.staticPrefix | default "/" }}
+              path: {{ include "mlflow.health" . }}
               port: {{ .Values.service.name }}
           {{- with .Values.readinessProbe }}
             {{- toYaml . | nindent 12 }}
