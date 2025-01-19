@@ -171,6 +171,8 @@ auth:
   sqliteFullPath: ""
   # -- Mlflow authentication INI configuration file path.
   configPath: "/etc/mlflow/auth/"
+  # -- Mlflow authentication INI file
+  configFile: "basic_auth.ini"
   # -- PostgreSQL based centrilised authentication database
   postgres:
     # -- Specifies if you want to use postgres auth backend storage

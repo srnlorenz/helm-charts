@@ -154,7 +154,7 @@ spec:
               value: {{ .Values.image.tag | default .Chart.AppVersion | quote }}
           {{- if .Values.auth.enabled }}
             - name: MLFLOW_AUTH_CONFIG_PATH
-              value: {{ printf "%s/basic_auth.ini" (.Values.auth.configPath | trimSuffix "/") }}
+              value: {{ printf "%s/%s" (.Values.auth.configPath | trimSuffix "/") (default "basic_auth.ini" (.Values.auth.configFile | trimPrefix "/")) }}
           {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
             - name: {{ upper $key }}

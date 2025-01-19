@@ -1095,9 +1095,15 @@
           "type": "string"
         },
         "configPath": {
-          "default": "/etc/mlflow/auth.ini",
+          "default": "/etc/mlflow/",
           "required": [],
           "title": "configPath",
+          "type": "string"
+        },
+        "configFile": {
+          "default": "basic_auth.ini",
+          "required": [],
+          "title": "configFile",
           "type": "string"
         },
         "postgres": {
@@ -1170,6 +1176,7 @@
         "sqliteFile",
         "sqliteFullPath",
         "configPath",
+        "configFile",
         "postgres"
       ],
       "title": "auth",

@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.12.0](https://img.shields.io/badge/Version-0.12.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.19.0](https://img.shields.io/badge/AppVersion-2.19.0-informational?style=flat-square)
+![Version: 0.12.1](https://img.shields.io/badge/Version-0.12.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.19.0](https://img.shields.io/badge/AppVersion-2.19.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -281,11 +281,12 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | artifactRoot.s3.bucket | string | `""` | S3 bucket name |
 | artifactRoot.s3.enabled | bool | `false` | Specifies if you want to use AWS S3 Mlflow Artifact Root |
 | artifactRoot.s3.path | string | `""` | S3 bucket folder. If you want to use root level, please don't set anything. |
-| auth | object | `{"adminPassword":"","adminUsername":"","appName":"basic-auth","authorizationFunction":"mlflow.server.auth:authenticate_request_basic_auth","configPath":"/etc/mlflow/auth/","defaultPermission":"READ","enabled":false,"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""},"sqliteFile":"basic_auth.db","sqliteFullPath":""}` | Mlflow authentication settings |
+| auth | object | `{"adminPassword":"","adminUsername":"","appName":"basic-auth","authorizationFunction":"mlflow.server.auth:authenticate_request_basic_auth","configFile":"basic_auth.ini","configPath":"/etc/mlflow/auth/","defaultPermission":"READ","enabled":false,"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""},"sqliteFile":"basic_auth.db","sqliteFullPath":""}` | Mlflow authentication settings |
 | auth.adminPassword | string | `""` | Mlflow admin user password |
 | auth.adminUsername | string | `""` | Mlflow admin user username |
 | auth.appName | string | `"basic-auth"` | Default registered authentication app name. If you want to use your custom authentication function, please look at: https://mlflow.org/docs/latest/auth/index.html#custom-authentication |
 | auth.authorizationFunction | string | `"mlflow.server.auth:authenticate_request_basic_auth"` | Default authentication function |
+| auth.configFile | string | `"basic_auth.ini"` | Mlflow authentication INI file |
 | auth.configPath | string | `"/etc/mlflow/auth/"` | Mlflow authentication INI configuration file path. |
 | auth.defaultPermission | string | `"READ"` | Default permission for all users. More details: https://mlflow.org/docs/latest/auth/index.html#permissions |
 | auth.enabled | bool | `false` | Specifies if you want to enable mlflow authentication |
