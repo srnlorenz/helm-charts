@@ -4,7 +4,7 @@
 
 A local-first personal finance app
 
-![Version: 1.1.5](https://img.shields.io/badge/Version-1.1.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.1.0](https://img.shields.io/badge/AppVersion-25.1.0-informational?style=flat-square)
+![Version: 1.1.6](https://img.shields.io/badge/Version-1.1.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.1.0](https://img.shields.io/badge/AppVersion-25.1.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -26,6 +26,36 @@ _See [configuration](#configuration) below._
 _See [helm install](https://helm.sh/docs/helm/helm_install/) for command documentation._
 
 > **Tip**: Search all available chart versions using `helm search repo community-charts -l`. Please don't forget to run `helm repo update` before the command.
+
+## Full Example
+
+This configuration mounts a PersistentVolumeClaim (`actualbudget-volume`) to `/data`, where server files (`/data/server-files`) and user files (`/data/user-files`) are stored. The `/data` folder persists across pod restarts, ensuring data retention.
+
+```yaml
+strategy:
+  type: Recreate
+
+files:
+  server: /data/server-files
+  user: /data/user-files
+
+ingress:
+  enabled: true
+  hosts:
+    - host: actualbudget.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: actualbudget-volume
+
+volumeMounts:
+  - name: data
+    mountPath: "/data"
+```
 
 ## Requirements
 

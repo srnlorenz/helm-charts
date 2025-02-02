@@ -27,6 +27,36 @@ _See [helm install](https://helm.sh/docs/helm/helm_install/) for command documen
 
 > **Tip**: Search all available chart versions using `helm search repo community-charts -l`. Please don't forget to run `helm repo update` before the command.
 
+## Full Example
+
+This configuration mounts a PersistentVolumeClaim (`actualbudget-volume`) to `/data`, where server files (`/data/server-files`) and user files (`/data/user-files`) are stored. The `/data` folder persists across pod restarts, ensuring data retention.
+
+```yaml
+strategy:
+  type: Recreate
+
+files:
+  server: /data/server-files
+  user: /data/user-files
+
+ingress:
+  enabled: true
+  hosts:
+    - host: actualbudget.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: actualbudget-volume
+
+volumeMounts:
+  - name: data
+    mountPath: "/data"
+```
+
 {{ template "chart.requirementsSection" . }}
 
 ## Uninstall Helm Chart
