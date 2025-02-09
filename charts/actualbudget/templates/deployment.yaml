@@ -48,6 +48,10 @@ spec:
               value: {{ .Values.files.server }}
             - name: ACTUAL_USER_FILES
               value: {{ .Values.files.user }}
+          {{- range $key, $value := .Values.extraEnvVars }}
+            - name: {{ upper $key }}
+              value: {{ $value | quote }}
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

@@ -170,6 +170,13 @@
       "title": "ingress",
       "type": "object"
     },
+    "extraEnvVars": {
+      "type": "object",
+      "description": "Extra environment variables",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
     "livenessProbe": {
       "additionalProperties": true,
       "description": "This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
@@ -543,6 +550,7 @@
     "service",
     "files",
     "ingress",
+    "extraEnvVars",
     "resources",
     "livenessProbe",
     "readinessProbe",

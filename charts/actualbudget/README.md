@@ -4,7 +4,7 @@
 
 A local-first personal finance app
 
-![Version: 1.1.8](https://img.shields.io/badge/Version-1.1.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.2.1](https://img.shields.io/badge/AppVersion-25.2.1-informational?style=flat-square)
+![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.2.1](https://img.shields.io/badge/AppVersion-25.2.1-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -82,6 +82,7 @@ helm upgrade [RELEASE_NAME] community-charts/actualbudget
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
+| extraEnvVars | object | `{}` | Extra environment variables |
 | files.server | string | `"/data/server-files"` |  |
 | files.user | string | `"/data/user-files"` |  |
 | fullnameOverride | string | `""` |  |
@@ -125,10 +126,10 @@ helm upgrade [RELEASE_NAME] community-charts/actualbudget
 
 ## Chart Development
 
-Please install unittest helm plugin with `helm plugin install https://github.com/helm-unittest/helm-unittest` command and use following command to run helm unit tests.
+Please install unittest helm plugin with `helm plugin install https://github.com/helm-unittest/helm-unittest.git` command and use following command to run helm unit tests.
 
 ```console
-helm unittest --strict --file unittests/**/*.yaml charts/actualbudget
+helm unittest --strict --file 'unittests/**/*.yaml' charts/actualbudget
 ```
 
 ## Maintainers
