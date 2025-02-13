@@ -98,10 +98,10 @@ Reach out in [Discussions](https://github.com/pypiserver/pypiserver/discussions)
 
 ## Chart Development
 
-Please install unittest helm plugin with `helm plugin install https://github.com/helm-unittest/helm-unittest` command and use following command to run helm unit tests.
+Please install unittest helm plugin with `helm plugin install https://github.com/helm-unittest/helm-unittest.git` command and use following command to run helm unit tests.
 
 ```console
-helm unittest --strict --file unittests/**/*.yaml charts/pypiserver
+helm unittest --strict --file 'unittests/**/*.yaml' charts/pypiserver
 ```
 
 ## Maintainers
