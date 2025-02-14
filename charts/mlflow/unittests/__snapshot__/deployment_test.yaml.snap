@@ -48,6 +48,8 @@ should match snapshot of default values:
                     name: mlflow-env-configmap
                 - secretRef:
                     name: mlflow-env-secret
+                - secretRef:
+                    name: mlflow-flask-server-secret-key
               image: burakince/mlflow:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -148,6 +150,8 @@ should match snapshot with additional values:
                     name: mlflow-env-configmap
                 - secretRef:
                     name: mlflow-env-secret
+                - secretRef:
+                    name: mlflow-flask-server-secret-key
               image: burakince/mlflow:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -211,6 +215,8 @@ should match snapshot with additional values:
                     name: mlflow-env-configmap
                 - secretRef:
                     name: mlflow-env-secret
+                - secretRef:
+                    name: mlflow-flask-server-secret-key
               image: burakince/mlflow:1.0.0
               imagePullPolicy: IfNotPresent
               name: mlflow-db-migration

@@ -217,7 +217,7 @@ tests:
         - mysupersecret
     asserts:
       - equal:
-          path: spec.template.spec.containers[0].envFrom[2].secretRef.name
+          path: spec.template.spec.containers[0].envFrom[3].secretRef.name
           value: mysupersecret
 
   - it: should check liveness and rediness with static prefix when we set static prefix from extra arguments
@@ -535,6 +535,48 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].volumeMounts[0].mountPath
           value: /my/special/path
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[0].name
+          value: auth-config-secret
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[0].readOnly
+          value: true
+      - equal:
+          path: spec.template.spec.volumes[0].name
+          value: auth-config-secret
+      - equal:
+          path: spec.template.spec.volumes[0].secret.secretName
+          value: mlflow-auth-config-secret
+
+  - it: should use LDAP authentication settings when ldapAuth enabled
+    set:
+      ldapAuth.enabled: true
+      ldapAuth.uri: "ldap://lldap:3890/dc=mlflow,dc=test"
+      ldapAuth.lookupBind: "uid=%s,ou=people,dc=mlflow,dc=test"
+      ldapAuth.groupAttribute: "dn"
+      ldapAuth.searchBaseDistinguishedName: "ou=groups,dc=mlflow,dc=test"
+      ldapAuth.searchFilter: "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"
+      ldapAuth.adminGroupDistinguishedName: "cn=test-admin,ou=groups,dc=mlflow,dc=test"
+      ldapAuth.userGroupDistinguishedName: "cn=test-user,ou=groups,dc=mlflow,dc=test"
+    release:
+      name: mlflow
+      namespace: mlflow
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[5]
+          value: --app-name=basic-auth
+      - equal:
+          path: spec.template.spec.containers[0].env[1].name
+          value: MLFLOW_AUTH_CONFIG_PATH
+      - equal:
+          path: spec.template.spec.containers[0].env[1].value
+          value: /etc/mlflow/auth/ldap_basic_auth.ini
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[0].mountPath
+          value: /etc/mlflow/auth
       - equal:
           path: spec.template.spec.containers[0].volumeMounts[0].name
           value: auth-config-secret

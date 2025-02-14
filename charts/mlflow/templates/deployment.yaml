@@ -82,6 +82,8 @@ spec:
                 name: {{ template "mlflow.fullname" . }}-env-configmap
             - secretRef:
                 name: {{ template "mlflow.fullname" . }}-env-secret
+            - secretRef:
+                name: {{ template "mlflow.fullname" . }}-flask-server-secret-key
           command: ["python"]
           args:
             - /opt/mlflow/migrations.py
@@ -122,6 +124,8 @@ spec:
           {{- end }}
           {{- if .Values.auth.enabled }}
             - --app-name={{ .Values.auth.appName }}
+          {{- else if .Values.ldapAuth.enabled }}
+            - --app-name=basic-auth
           {{- end }}
           {{- range $key, $value := .Values.extraArgs }}
             - --{{ kebabcase $key }}={{ $value }}
@@ -155,6 +159,9 @@ spec:
           {{- if .Values.auth.enabled }}
             - name: MLFLOW_AUTH_CONFIG_PATH
               value: {{ printf "%s/%s" (.Values.auth.configPath | trimSuffix "/") (default "basic_auth.ini" (.Values.auth.configFile | trimPrefix "/")) }}
+          {{- else if .Values.ldapAuth.enabled }}
+            - name: MLFLOW_AUTH_CONFIG_PATH
+              value: "/etc/mlflow/auth/ldap_basic_auth.ini"
           {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
             - name: {{ upper $key }}
@@ -165,15 +172,21 @@ spec:
                 name: {{ template "mlflow.fullname" . }}-env-configmap
             - secretRef:
                 name: {{ template "mlflow.fullname" . }}-env-secret
+            - secretRef:
+                name: {{ template "mlflow.fullname" . }}-flask-server-secret-key
           {{- range .Values.extraSecretNamesForEnvFrom }}
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          {{- if or .Values.extraVolumeMounts .Values.auth.enabled }}
+          {{- if or .Values.extraVolumeMounts .Values.auth.enabled .Values.ldapAuth.enabled }}
           volumeMounts:
             {{- if .Values.auth.enabled }}
             - name: auth-config-secret
               mountPath: {{ .Values.auth.configPath | trimSuffix "/" | quote }}
+              readOnly: true
+            {{- else if .Values.ldapAuth.enabled }}
+            - name: auth-config-secret
+              mountPath: "/etc/mlflow/auth"
               readOnly: true
             {{- end }}
           {{- with .Values.extraVolumeMounts }}
@@ -195,7 +208,7 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.extraVolumes .Values.auth.enabled }}
+      {{- if or (and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) (or .Values.backendStore.databaseConnectionCheck .Values.backendStore.databaseMigration) ) .Values.extraVolumes .Values.auth.enabled .Values.ldapAuth.enabled }}
       volumes:
         {{- if and (or .Values.backendStore.postgres.enabled .Values.backendStore.mysql.enabled) .Values.backendStore.databaseConnectionCheck }}
         - name: dbchecker
@@ -208,7 +221,7 @@ spec:
           configMap:
             name: {{ template "mlflow.fullname" . }}-migrations
         {{- end }}
-        {{- if .Values.auth.enabled }}
+        {{- if or .Values.auth.enabled .Values.ldapAuth.enabled }}
         - name: auth-config-secret
           secret:
             secretName: {{ template "mlflow.fullname" . }}-auth-config-secret

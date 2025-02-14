@@ -1041,6 +1041,13 @@
       "title": "tolerations",
       "type": "array"
     },
+    "flaskServerSecretKey": {
+      "default": "",
+      "description": "Mlflow flask server secret key",
+      "required": [],
+      "title": "flaskServerSecretKey",
+      "type": "string"
+    },
     "auth": {
       "additionalProperties": false,
       "description": "Mlflow authentication settings",
@@ -1181,6 +1188,79 @@
       ],
       "title": "auth",
       "type": "object"
+    },
+    "ldapAuth": {
+      "additionalProperties": false,
+      "description": "Mlflow Basic Authentication with LDAP backend settings",
+      "properties": {
+        "enabled": {
+          "default": "false",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "uri": {
+          "default": "",
+          "description": "LDAP URI. e.g.: ldap://lldap:3890/dc=mlflow,dc=test",
+          "required": [],
+          "title": "uri",
+          "type": "string"
+        },
+        "lookupBind": {
+          "default": "",
+          "description": "LDAP Loopup Bind. e.g.: uid=%s,ou=people,dc=mlflow,dc=test",
+          "required": [],
+          "title": "lookupBind",
+          "type": "string"
+        },
+        "groupAttribute": {
+          "default": "dn",
+          "description": "LDAP group attribute",
+          "required": [],
+          "title": "groupAttribute",
+          "type": "string"
+        },
+        "searchBaseDistinguishedName": {
+          "default": "",
+          "description": "LDAP base DN for the search. e.g.: ou=groups,dc=mlflow,dc=test",
+          "required": [],
+          "title": "searchBaseDistinguishedName",
+          "type": "string"
+        },
+        "searchFilter": {
+          "default": "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))",
+          "description": "LDAP query filter for search",
+          "required": [],
+          "title": "searchFilter",
+          "type": "string"
+        },
+        "adminGroupDistinguishedName": {
+          "default": "",
+          "description": "LDAP DN for the admin group. e.g.: cn=test-admin,ou=groups,dc=mlflow,dc=test",
+          "required": [],
+          "title": "adminGroupDistinguishedName",
+          "type": "string"
+        },
+        "userGroupDistinguishedName": {
+          "default": "",
+          "description": "LDAP DN for the user group. e.g.: cn=test-user,ou=groups,dc=mlflow,dc=test",
+          "required": [],
+          "title": "userGroupDistinguishedName",
+          "type": "string"
+        }
+      },
+      "required": [
+        "enabled",
+        "uri",
+        "lookupBind",
+        "groupAttribute",
+        "searchBaseDistinguishedName",
+        "searchFilter",
+        "adminGroupDistinguishedName",
+        "userGroupDistinguishedName"
+      ],
+      "title": "ldapAuth",
+      "type": "object"
     }
   },
   "required": [
@@ -1213,7 +1293,31 @@
     "extraVolumeMounts",
     "livenessProbe",
     "readinessProbe",
-    "auth"
+    "flaskServerSecretKey",
+    "auth",
+    "ldapAuth"
+  ],
+  "allOf": [
+    {
+      "not": {
+        "properties": {
+          "auth": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          },
+          "ldapAuth": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    }
   ],
   "type": "object"
 }

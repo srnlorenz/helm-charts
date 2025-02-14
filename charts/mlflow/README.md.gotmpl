@@ -218,6 +218,8 @@ artifactRoot:
 
 ## Authentication Example
 
+> **Tip**: auth and ldapAuth can not be enabled at same time!
+
 ```yaml
 auth:
   enabled: true
@@ -239,6 +241,22 @@ auth:
     database: "auth"
     user: "mlflowauth"
     password: "A4m1nPa33w0rd!"
+```
+
+## Basic Authentication with LDAP Backend
+
+> **Tip**: auth and ldapAuth can not be enabled at same time!
+
+```yaml
+ldapAuth:
+  enabled: true
+  uri: "ldap://lldap:3890/dc=mlflow,dc=test"
+  lookupBind: "uid=%s,ou=people,dc=mlflow,dc=test"
+  groupAttribute: "dn"
+  searchBaseDistinguishedName: "ou=groups,dc=mlflow,dc=test"
+  searchFilter: "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"
+  adminGroupDistinguishedName: "cn=test-admin,ou=groups,dc=mlflow,dc=test"
+  userGroupDistinguishedName: "cn=test-user,ou=groups,dc=mlflow,dc=test"
 ```
 
 {{ template "chart.requirementsSection" . }}

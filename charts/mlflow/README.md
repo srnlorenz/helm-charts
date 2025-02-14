@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.12.3](https://img.shields.io/badge/Version-0.12.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.20.1](https://img.shields.io/badge/AppVersion-2.20.1-informational?style=flat-square)
+![Version: 0.13.0](https://img.shields.io/badge/Version-0.13.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.20.2](https://img.shields.io/badge/AppVersion-2.20.2-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -218,6 +218,8 @@ artifactRoot:
 
 ## Authentication Example
 
+> **Tip**: auth and ldapAuth can not be enabled at same time!
+
 ```yaml
 auth:
   enabled: true
@@ -239,6 +241,22 @@ auth:
     database: "auth"
     user: "mlflowauth"
     password: "A4m1nPa33w0rd!"
+```
+
+## Basic Authentication with LDAP Backend
+
+> **Tip**: auth and ldapAuth can not be enabled at same time!
+
+```yaml
+ldapAuth:
+  enabled: true
+  uri: "ldap://lldap:3890/dc=mlflow,dc=test"
+  lookupBind: "uid=%s,ou=people,dc=mlflow,dc=test"
+  groupAttribute: "dn"
+  searchBaseDistinguishedName: "ou=groups,dc=mlflow,dc=test"
+  searchFilter: "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"
+  adminGroupDistinguishedName: "cn=test-admin,ou=groups,dc=mlflow,dc=test"
+  userGroupDistinguishedName: "cn=test-user,ou=groups,dc=mlflow,dc=test"
 ```
 
 ## Requirements
@@ -289,7 +307,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | auth.configFile | string | `"basic_auth.ini"` | Mlflow authentication INI file |
 | auth.configPath | string | `"/etc/mlflow/auth/"` | Mlflow authentication INI configuration file path. |
 | auth.defaultPermission | string | `"READ"` | Default permission for all users. More details: https://mlflow.org/docs/latest/auth/index.html#permissions |
-| auth.enabled | bool | `false` | Specifies if you want to enable mlflow authentication |
+| auth.enabled | bool | `false` | Specifies if you want to enable mlflow authentication. auth and ldapAuth can't be enabled at same time. |
 | auth.postgres | object | `{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}` | PostgreSQL based centrilised authentication database |
 | auth.postgres.database | string | `""` | mlflow authorization database name created before in the postgres instance |
 | auth.postgres.driver | string | `""` | postgres database connection driver. e.g.: "psycopg2" |
@@ -324,6 +342,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | extraVolumeMounts | list | `[]` | Extra Volume Mounts for the mlflow container |
 | extraVolumes | list | `[]` | Extra Volumes for the pod |
+| flaskServerSecretKey | string | `""` | Mlflow Flask Server Secret Key. Default: Will be auto generated. |
 | fullnameOverride | string | `""` | String to override the default generated fullname |
 | image.pullPolicy | string | `"IfNotPresent"` | The docker image pull policy |
 | image.repository | string | `"burakince/mlflow"` | The docker image repository to use |
@@ -337,6 +356,15 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` | Ingress path type |
 | ingress.tls | list | `[]` | Ingress tls configuration for https access |
 | initContainers | list | `[]` | Init Containers for Mlflow Pod |
+| ldapAuth | object | `{"adminGroupDistinguishedName":"","enabled":false,"groupAttribute":"dn","lookupBind":"","searchBaseDistinguishedName":"","searchFilter":"(&(objectclass=groupOfUniqueNames)(uniquemember=%s))","uri":"","userGroupDistinguishedName":""}` | Basic Authentication with LDAP backend |
+| ldapAuth.adminGroupDistinguishedName | string | `""` | LDAP DN for the admin group. e.g.: "cn=test-admin,ou=groups,dc=mlflow,dc=test" |
+| ldapAuth.enabled | bool | `false` | Specifies if you want to enable mlflow LDAP authentication. auth and ldapAuth can't be enabled at same time. |
+| ldapAuth.groupAttribute | string | `"dn"` | LDAP group attribute. |
+| ldapAuth.lookupBind | string | `""` | LDAP Loopup Bind. e.g.: "uid=%s,ou=people,dc=mlflow,dc=test" |
+| ldapAuth.searchBaseDistinguishedName | string | `""` | LDAP base DN for the search. e.g.: "ou=groups,dc=mlflow,dc=test" |
+| ldapAuth.searchFilter | string | `"(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"` | LDAP query filter for search |
+| ldapAuth.uri | string | `""` | LDAP URI. e.g.: "ldap://lldap:3890/dc=mlflow,dc=test" |
+| ldapAuth.userGroupDistinguishedName | string | `""` | LDAP DN for the user group. e.g.: "cn=test-user,ou=groups,dc=mlflow,dc=test" |
 | livenessProbe | object | `{"failureThreshold":5,"initialDelaySeconds":10,"periodSeconds":30,"timeoutSeconds":3}` | Liveness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
 | nameOverride | string | `""` | String to override the default generated name |
 | nodeSelector | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |

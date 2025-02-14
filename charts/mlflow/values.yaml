@@ -151,9 +151,12 @@ artifactRoot:
     # -- Google Cloud Storage bucket folder. If you want to use root level, please don't set anything.
     path: "" # optional
 
+# -- Mlflow Flask Server Secret Key. Default: Will be auto generated.
+flaskServerSecretKey: ""
+
 # -- Mlflow authentication settings
 auth:
-  # -- Specifies if you want to enable mlflow authentication
+  # -- Specifies if you want to enable mlflow authentication. auth and ldapAuth can't be enabled at same time.
   enabled: false
   # -- Mlflow admin user username
   adminUsername: ""
@@ -189,6 +192,25 @@ auth:
     password: "" # required
     # -- postgres database connection driver. e.g.: "psycopg2"
     driver: ""
+
+# -- Basic Authentication with LDAP backend
+ldapAuth:
+  # -- Specifies if you want to enable mlflow LDAP authentication. auth and ldapAuth can't be enabled at same time.
+  enabled: false
+  # -- LDAP URI. e.g.: "ldap://lldap:3890/dc=mlflow,dc=test"
+  uri: ""
+  # -- LDAP Loopup Bind. e.g.: "uid=%s,ou=people,dc=mlflow,dc=test"
+  lookupBind: ""
+  # -- LDAP group attribute.
+  groupAttribute: "dn"
+  # -- LDAP base DN for the search. e.g.: "ou=groups,dc=mlflow,dc=test"
+  searchBaseDistinguishedName: ""
+  # -- LDAP query filter for search
+  searchFilter: "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"
+  # -- LDAP DN for the admin group. e.g.: "cn=test-admin,ou=groups,dc=mlflow,dc=test"
+  adminGroupDistinguishedName: ""
+  # -- LDAP DN for the user group. e.g.: "cn=test-user,ou=groups,dc=mlflow,dc=test"
+  userGroupDistinguishedName: ""
 
 # -- A map of arguments and values to pass to the `mlflow server` command. Keys must be camelcase. Helm will turn them to kebabcase style.
 extraArgs: {}
