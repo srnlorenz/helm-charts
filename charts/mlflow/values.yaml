@@ -40,7 +40,7 @@ serviceAccount:
 
   # -- Annotations to add to the service account. AWS EKS users can assign role arn from here.
   # Please find more information from here:
-  # https://docs.aws.amazon.com/eks/latest/userguide/specify-service-account-role.html
+  # https://docs.aws.amazon.com/eks/latest/userguide/associate-service-account-role.html
   annotations: {}
     # eks.amazonaws.com/role-arn: ""
 
