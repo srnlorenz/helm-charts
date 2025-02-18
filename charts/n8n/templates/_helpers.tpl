@@ -156,3 +156,17 @@ app.kubernetes.io/name: {{ include "n8n.webhook.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: webhook
 {{- end }}
+
+{{/*
+Generate random hex similar to `openssl rand -hex 16` command.
+Usage: {{ include "n8n.generateRandomHex" 32 }}
+*/}}
+{{- define "n8n.generateRandomHex" -}}
+{{- $length := . -}}
+{{- $chars := list "0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "a" "b" "c" "d" "e" "f" -}}
+{{- $result := "" -}}
+{{- range $i := until $length -}}
+  {{- $result = print $result (index $chars (randInt 0 16)) -}}
+{{- end -}}
+{{- $result -}}
+{{- end -}}
