@@ -8,20 +8,22 @@ tests:
     set:
       service.port: 80
     asserts:
-      - equal:
-          path: spec.ports[0].port
-          value: 80
-      - equal:
-          path: spec.ports[0].targetPort
-          value: 80
+      - contains:
+          path: spec.ports
+          content:
+            port: 80
+            targetPort: 80
+          any: true
 
   - it: should use different port name when we change it
     set:
       service.name: differentname
     asserts:
-      - equal:
-          path: spec.ports[0].name
-          value: differentname
+      - contains:
+          path: spec.ports
+          content:
+            name: differentname
+          any: true
 
   - it: should match snapshot of default values
     set:

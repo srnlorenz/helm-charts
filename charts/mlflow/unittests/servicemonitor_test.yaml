@@ -27,9 +27,11 @@ tests:
       apiVersions:
         - monitoring.coreos.com/v1
     asserts:
-      - equal:
-          path: spec.endpoints[0].targetPort
-          value: myendpoint
+      - contains:
+          path: spec.endpoints
+          content:
+            targetPort: myendpoint
+          any: true
 
   - it: should use a service endpoint rather than a pod endpoint
     set:
@@ -41,9 +43,11 @@ tests:
       apiVersions:
         - monitoring.coreos.com/v1
     asserts:
-      - equal:
-          path: spec.endpoints[0].port
-          value: anothermyendpoint
+      - contains:
+          path: spec.endpoints
+          content:
+            port: anothermyendpoint
+          any: true
 
   - it: should match snapshot of default values
     set:

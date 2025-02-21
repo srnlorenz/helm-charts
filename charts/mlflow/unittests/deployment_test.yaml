@@ -3,6 +3,14 @@ suite: test deployment
 templates:
   - deployment.yaml
 
+release:
+  name: mlflow
+  namespace: mlflow
+
+chart:
+  version: 1.0.0
+  appVersion: 1.0.0
+
 tests:
   - it: should be custom service account when we do not create it
     set:
@@ -15,51 +23,51 @@ tests:
 
   - it: should be a memory backend when Postgres or MySQL are not enabled
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[3]
-          value: --backend-store-uri=sqlite:///:memory
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --backend-store-uri=sqlite:///:memory
 
   - it: should be Postgres backend when Postgres is enabled
     set:
       backendStore.postgres.enabled: true
       backendStore.postgres.driver: ""
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[3]
-          value: --backend-store-uri=postgresql://
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --backend-store-uri=postgresql://
 
   - it: should use DB connection driver with Postgres backend when Postgres is enabled and driver defined
     set:
       backendStore.postgres.enabled: true
       backendStore.postgres.driver: "psycopg2"
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[3]
-          value: --backend-store-uri=postgresql+psycopg2://
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --backend-store-uri=postgresql+psycopg2://
 
   - it: should be MySQL backend when MySQL is enabled
     set:
       backendStore.mysql.enabled: true
       backendStore.mysql.driver: ""
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[3]
-          value: --backend-store-uri=mysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --backend-store-uri=mysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
 
   - it: should use DB connection driver with MySQL backend when MySQL is enabled and driver defined
     set:
       backendStore.mysql.enabled: true
       backendStore.mysql.driver: "pymysql"
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[3]
-          value: --backend-store-uri=mysql+pymysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --backend-store-uri=mysql+pymysql://$(MYSQL_USERNAME):$(MYSQL_PWD)@$(MYSQL_HOST):$(MYSQL_TCP_PORT)/$(MYSQL_DATABASE)
 
   - it: should be local folder as an artifact root when azureBlob or s3 or gcs is not enabled
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[4]
-          value: --default-artifact-root=./mlruns
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --default-artifact-root=./mlruns
 
   - it: should be azureBlob as an artifact root when azureBlob is enabled
     set:
@@ -68,9 +76,9 @@ tests:
       artifactRoot.azureBlob.storageAccount: test-account
       artifactRoot.azureBlob.path: mlflow_folder
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[4]
-          value: --default-artifact-root=wasbs://test-container@test-account.blob.core.windows.net/mlflow_folder
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --default-artifact-root=wasbs://test-container@test-account.blob.core.windows.net/mlflow_folder
 
   - it: should be s3 as an artifact root when s3 is enabled
     set:
@@ -78,9 +86,9 @@ tests:
       artifactRoot.s3.bucket: test-bucket
       artifactRoot.s3.path: mlflow_folder
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[4]
-          value: --default-artifact-root=s3://test-bucket/mlflow_folder
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --default-artifact-root=s3://test-bucket/mlflow_folder
 
   - it: should be gcs as an artifact root when gcs is enabled
     set:
@@ -88,20 +96,20 @@ tests:
       artifactRoot.gcs.bucket: test-bucket
       artifactRoot.gcs.path: mlflow_folder
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[4]
-          value: --default-artifact-root=gs://test-bucket/mlflow_folder
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --default-artifact-root=gs://test-bucket/mlflow_folder
 
   - it: should be local folder as an artifact destination when proxy enabled and azureBlob or s3 or gcs is not enabled
     set:
       artifactRoot.proxiedArtifactStorage: true
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[4]
-          value: --artifacts-destination=./mlartifacts
-      - equal:
-          path: spec.template.spec.containers[0].args[5]
-          value: --serve-artifacts
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --artifacts-destination=./mlartifacts
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --serve-artifacts
 
   - it: should be azureBlob as an artifact destination when proxy enabled and azureBlob is enabled
     set:
@@ -111,12 +119,12 @@ tests:
       artifactRoot.azureBlob.storageAccount: test-account
       artifactRoot.azureBlob.path: mlflow_folder
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[4]
-          value: --artifacts-destination=wasbs://test-container@test-account.blob.core.windows.net/mlflow_folder
-      - equal:
-          path: spec.template.spec.containers[0].args[5]
-          value: --serve-artifacts
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --artifacts-destination=wasbs://test-container@test-account.blob.core.windows.net/mlflow_folder
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --serve-artifacts
 
   - it: should be s3 as an artifact destination when proxy enabled and s3 is enabled
     set:
@@ -125,12 +133,12 @@ tests:
       artifactRoot.s3.bucket: test-bucket
       artifactRoot.s3.path: mlflow_folder
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[4]
-          value: --artifacts-destination=s3://test-bucket/mlflow_folder
-      - equal:
-          path: spec.template.spec.containers[0].args[5]
-          value: --serve-artifacts
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --artifacts-destination=s3://test-bucket/mlflow_folder
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --serve-artifacts
 
   - it: should be gcs as an artifact destination when proxy enabled and gcs is enabled
     set:
@@ -139,20 +147,20 @@ tests:
       artifactRoot.gcs.bucket: test-bucket
       artifactRoot.gcs.path: mlflow_folder
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[4]
-          value: --artifacts-destination=gs://test-bucket/mlflow_folder
-      - equal:
-          path: spec.template.spec.containers[0].args[5]
-          value: --serve-artifacts
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --artifacts-destination=gs://test-bucket/mlflow_folder
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --serve-artifacts
 
   - it: should expose prometheus metrics when serviceMonitor is enabled
     set:
       serviceMonitor.enabled: true
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[5]
-          value: --expose-prometheus=/mlflow/metrics
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --expose-prometheus=/mlflow/metrics
 
   - it: should show extra arguments when we pass any
     set:
@@ -160,12 +168,12 @@ tests:
         workers: "4"
         staticPrefix: "/mlflow"
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[6]
-          value: --workers=4
-      - equal:
-          path: spec.template.spec.containers[0].args[5]
-          value: --static-prefix=/mlflow
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --workers=4
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --static-prefix=/mlflow
 
   - it: should show extra flags when we pass any
     set:
@@ -173,24 +181,23 @@ tests:
         - serveArtifacts
         - artifactsOnly
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[5]
-          value: --serve-artifacts
-      - equal:
-          path: spec.template.spec.containers[0].args[6]
-          value: --artifacts-only
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --serve-artifacts
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --artifacts-only
 
   - it: should show mlflow version environment variable
     chart:
       version: 0.1.62
       appVersion: 1.27.0
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[0].name
-          value: MLFLOW_VERSION
-      - equal:
-          path: spec.template.spec.containers[0].env[0].value
-          value: "1.27.0"
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: MLFLOW_VERSION
+            value: "1.27.0"
 
   - it: should show extra environment variables when we pass any
     set:
@@ -198,27 +205,27 @@ tests:
          MLFLOW_S3_IGNORE_TLS: true
          AWS_DEFAULT_REGION: eu-central-1
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[2].name
-          value: MLFLOW_S3_IGNORE_TLS
-      - equal:
-          path: spec.template.spec.containers[0].env[2].value
-          value: "true"
-      - equal:
-          path: spec.template.spec.containers[0].env[1].name
-          value: AWS_DEFAULT_REGION
-      - equal:
-          path: spec.template.spec.containers[0].env[1].value
-          value: eu-central-1
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: MLFLOW_S3_IGNORE_TLS
+            value: "true"
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: AWS_DEFAULT_REGION
+            value: eu-central-1
 
   - it: should show extra secret environment variables from secrets when we pass any
     set:
       extraSecretNamesForEnvFrom:
         - mysupersecret
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].envFrom[3].secretRef.name
-          value: mysupersecret
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].envFrom
+          content: 
+            secretRef:
+              name: mysupersecret
 
   - it: should check liveness and rediness with static prefix when we set static prefix from extra arguments
     set:
@@ -226,10 +233,10 @@ tests:
         staticPrefix: /mlflow
     asserts:
       - equal:
-          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          path: spec.template.spec.containers[?(@.name == "mlflow")].livenessProbe.httpGet.path
           value: /mlflow/health
       - equal:
-          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          path: spec.template.spec.containers[?(@.name == "mlflow")].readinessProbe.httpGet.path
           value: /mlflow/health
   
   - it: should check that the db checker init container is present if enabled with postgres
@@ -453,16 +460,16 @@ tests:
         failureThreshold: 3
     asserts:
       - equal:
-          path: spec.template.spec.containers[0].livenessProbe.initialDelaySeconds
+          path: spec.template.spec.containers[?(@.name == "mlflow")].livenessProbe.initialDelaySeconds
           value: 0
       - equal:
-          path: spec.template.spec.containers[0].livenessProbe.periodSeconds
+          path: spec.template.spec.containers[?(@.name == "mlflow")].livenessProbe.periodSeconds
           value: 10
       - equal:
-          path: spec.template.spec.containers[0].livenessProbe.timeoutSeconds
+          path: spec.template.spec.containers[?(@.name == "mlflow")].livenessProbe.timeoutSeconds
           value: 1
       - equal:
-          path: spec.template.spec.containers[0].livenessProbe.failureThreshold
+          path: spec.template.spec.containers[?(@.name == "mlflow")].livenessProbe.failureThreshold
           value: 3
 
   - it: should set readiness probe configurations when we pass it
@@ -474,41 +481,43 @@ tests:
         failureThreshold: 3
     asserts:
       - equal:
-          path: spec.template.spec.containers[0].readinessProbe.initialDelaySeconds
+          path: spec.template.spec.containers[?(@.name == "mlflow")].readinessProbe.initialDelaySeconds
           value: 0
       - equal:
-          path: spec.template.spec.containers[0].readinessProbe.periodSeconds
+          path: spec.template.spec.containers[?(@.name == "mlflow")].readinessProbe.periodSeconds
           value: 10
       - equal:
-          path: spec.template.spec.containers[0].readinessProbe.timeoutSeconds
+          path: spec.template.spec.containers[?(@.name == "mlflow")].readinessProbe.timeoutSeconds
           value: 1
       - equal:
-          path: spec.template.spec.containers[0].readinessProbe.failureThreshold
+          path: spec.template.spec.containers[?(@.name == "mlflow")].readinessProbe.failureThreshold
           value: 3
 
   - it: should use different port number when we change it
     set:
       service.port: 80
     asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --port=80
       - equal:
-          path: spec.template.spec.containers[0].args[2]
-          value: --port=80
-      - equal:
-          path: spec.template.spec.containers[0].ports[0].containerPort
+          path: spec.template.spec.containers[?(@.name == "mlflow")].ports[0].containerPort
           value: 80
 
   - it: should use different port name when we change it
     set:
       service.name: differentname
     asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].ports
+          content:
+            name: differentname
+          any: true
       - equal:
-          path: spec.template.spec.containers[0].ports[0].name
+          path: spec.template.spec.containers[?(@.name == "mlflow")].livenessProbe.httpGet.port
           value: differentname
       - equal:
-          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
-          value: differentname
-      - equal:
-          path: spec.template.spec.containers[0].readinessProbe.httpGet.port
+          path: spec.template.spec.containers[?(@.name == "mlflow")].readinessProbe.httpGet.port
           value: differentname
 
   - it: should use authentication settings when auth enabled
@@ -523,30 +532,26 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[5]
-          value: --app-name=my-auth
-      - equal:
-          path: spec.template.spec.containers[0].env[1].name
-          value: MLFLOW_AUTH_CONFIG_PATH
-      - equal:
-          path: spec.template.spec.containers[0].env[1].value
-          value: /my/special/path/basic_auth.ini
-      - equal:
-          path: spec.template.spec.containers[0].volumeMounts[0].mountPath
-          value: /my/special/path
-      - equal:
-          path: spec.template.spec.containers[0].volumeMounts[0].name
-          value: auth-config-secret
-      - equal:
-          path: spec.template.spec.containers[0].volumeMounts[0].readOnly
-          value: true
-      - equal:
-          path: spec.template.spec.volumes[0].name
-          value: auth-config-secret
-      - equal:
-          path: spec.template.spec.volumes[0].secret.secretName
-          value: mlflow-auth-config-secret
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --app-name=my-auth
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: MLFLOW_AUTH_CONFIG_PATH
+            value: /my/special/path/basic_auth.ini
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
+          content:
+            name: auth-config-secret
+            mountPath: /my/special/path
+            readOnly: true
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: auth-config-secret
+            secret:
+              secretName: mlflow-auth-config-secret
 
   - it: should use LDAP authentication settings when ldapAuth enabled
     set:
@@ -565,30 +570,26 @@ tests:
       version: 1.0.0
       appVersion: 1.0.0
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].args[5]
-          value: --app-name=basic-auth
-      - equal:
-          path: spec.template.spec.containers[0].env[1].name
-          value: MLFLOW_AUTH_CONFIG_PATH
-      - equal:
-          path: spec.template.spec.containers[0].env[1].value
-          value: /etc/mlflow/auth/ldap_basic_auth.ini
-      - equal:
-          path: spec.template.spec.containers[0].volumeMounts[0].mountPath
-          value: /etc/mlflow/auth
-      - equal:
-          path: spec.template.spec.containers[0].volumeMounts[0].name
-          value: auth-config-secret
-      - equal:
-          path: spec.template.spec.containers[0].volumeMounts[0].readOnly
-          value: true
-      - equal:
-          path: spec.template.spec.volumes[0].name
-          value: auth-config-secret
-      - equal:
-          path: spec.template.spec.volumes[0].secret.secretName
-          value: mlflow-auth-config-secret
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].args
+          content: --app-name=basic-auth
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: MLFLOW_AUTH_CONFIG_PATH
+            value: /etc/mlflow/auth/ldap_basic_auth.ini
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
+          content:
+            mountPath: /etc/mlflow/auth
+            name: auth-config-secret
+            readOnly: true
+      - contains:
+          path: spec.template.spec.volumes
+          content: 
+            name: auth-config-secret
+            secret:
+              secretName: mlflow-auth-config-secret
 
   - it: should match snapshot of default values
     release:
