@@ -3,6 +3,14 @@ suite: test deployment
 templates:
   - deployment.yaml
 
+release:
+  name: actualbudget
+  namespace: actualbudget
+
+chart:
+  version: 1.0.0
+  appVersion: 1.0.0
+
 tests:
   - it: should be custom service account when we do not create it
     set:
@@ -17,31 +25,28 @@ tests:
     set:
       service.port: 1234
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[0].name
-          value: ACTUAL_PORT
-      - equal:
-          path: spec.template.spec.containers[0].env[0].value
-          value: "1234"
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].env
+          content:
+            name: ACTUAL_PORT
+            value: "1234"
 
   - it: should show actual server files environment variable
     set:
       files.server: "/somewhere/server"
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[1].name
-          value: ACTUAL_SERVER_FILES
-      - equal:
-          path: spec.template.spec.containers[0].env[1].value
-          value: "/somewhere/server"
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].env
+          content:
+            name: ACTUAL_SERVER_FILES
+            value: "/somewhere/server"
 
   - it: should show actual user files environment variable
     set:
       files.user: "/somewhere/user"
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[2].name
-          value: ACTUAL_USER_FILES
-      - equal:
-          path: spec.template.spec.containers[0].env[2].value
-          value: "/somewhere/user"
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].env
+          content:
+            name: ACTUAL_USER_FILES
+            value: "/somewhere/user"
