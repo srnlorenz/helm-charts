@@ -87,86 +87,93 @@
       "properties": {
         "annotations": {
           "additionalProperties": true,
+          "default": {},
+          "description": "This is for setting up the ingress annotations.",
           "required": [],
           "title": "annotations",
           "type": "object"
         },
         "className": {
           "default": "",
+          "description": "This is for setting up the ingress class name.",
           "required": [],
           "title": "className",
           "type": "string"
         },
         "enabled": {
           "default": false,
+          "description": "This is for setting up the ingress enabled.",
           "required": [],
           "title": "enabled",
           "type": "boolean"
         },
         "hosts": {
-          "description": "kubernetes.io/ingress.class: nginx\nkubernetes.io/tls-acme: \"true\"",
+          "type": "array",
           "items": {
-            "anyOf": [
-              {
-                "additionalProperties": false,
-                "properties": {
-                  "host": {
-                    "default": "actualbudget.local",
-                    "required": [],
-                    "title": "host",
-                    "type": "string"
-                  },
-                  "paths": {
-                    "items": {
-                      "anyOf": [
-                        {
-                          "additionalProperties": false,
-                          "properties": {
-                            "path": {
-                              "default": "/",
-                              "required": [],
-                              "title": "path",
-                              "type": "string"
-                            },
-                            "pathType": {
-                              "default": "ImplementationSpecific",
-                              "required": [],
-                              "title": "pathType",
-                              "type": "string"
-                            }
-                          },
-                          "required": ["path", "pathType"],
-                          "type": "object"
-                        }
-                      ],
-                      "required": []
+            "type": "object",
+            "required": ["host", "paths"],
+            "properties": {
+              "host": {
+                "type": "string"
+              },
+              "paths": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
                     },
-                    "required": [],
-                    "title": "paths",
-                    "type": "array"
-                  }
-                },
-                "required": ["host", "paths"],
-                "type": "object"
+                    "pathType": {
+                      "type": "string",
+                      "enum": ["Exact", "Prefix", "ImplementationSpecific"]
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "pathType"
+                  ],
+                  "title": "paths"
+                }
               }
-            ],
-            "required": []
-          },
-          "required": [],
-          "title": "hosts",
-          "type": "array"
+            },
+            "title": "hosts",
+            "minItems": 1
+          }
         },
         "tls": {
-          "description": "Ingress tls configuration for https access",
+          "type": "array",
           "items": {
-            "required": []
-          },
-          "required": [],
-          "title": "tls",
-          "type": "array"
+            "type": "object",
+            "properties": {
+              "secretName": {
+                "type": "string"
+              },
+              "hosts": {
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "required": [],
+                "title": "hosts",
+                "type": "array"
+              }
+            },
+            "required": [
+              "secretName",
+              "hosts"
+            ],
+            "title": "tls"
+          }
         }
       },
-      "required": ["enabled", "className", "annotations", "hosts", "tls"],
+      "required": [
+        "enabled",
+        "className",
+        "annotations",
+        "hosts",
+        "tls"
+      ],
       "title": "ingress",
       "type": "object"
     },
@@ -204,6 +211,79 @@
       },
       "required": ["httpGet"],
       "title": "livenessProbe",
+      "type": "object"
+    },
+    "persistence": {
+      "additionalProperties": false,
+      "description": "Actual Budget persistence",
+      "properties": {
+        "accessModes": {
+          "default": ["ReadWriteOnce"],
+          "description": "Actual Budget persistence access mode",
+          "required": [],
+          "title": "accessModes",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["ReadWriteOnce", "ReadWriteMany", "ReadOnlyMany"]
+          }
+        },
+        "annotations": {
+          "additionalProperties": true,
+          "default": {},
+          "description": "Actual Budget persistence annotations",
+          "required": [],
+          "title": "annotations",
+          "type": "object"
+        },
+        "enabled": {
+          "default": true,
+          "description": "Enable persistence",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "existingClaim": {
+          "default": "",
+          "description": "Actual Budget persistence existing claim",
+          "required": [],
+          "title": "existingClaim",
+          "type": "string"
+        },
+        "size": {
+          "default": "10Gi",
+          "pattern": "^[0-9]+(Gi|Mi|Ki|G|M|K)$",
+          "description": "Actual Budget persistence size",
+          "required": [],
+          "title": "size",
+          "type": "string"
+        },
+        "storageClass": {
+          "default": "",
+          "description": "Actual Budget persistence storage class",
+          "required": [],
+          "title": "storageClass",
+          "type": "string"
+        },
+        "volumeMode": {
+          "default": "",
+          "description": "Actual Budget persistence volume mode",
+          "required": [],
+          "title": "volumeMode",
+          "type": "string",
+          "enum": ["", "Filesystem", "Block"]
+        }
+      },
+      "required": [
+        "enabled",
+        "annotations",
+        "existingClaim",
+        "storageClass",
+        "volumeMode",
+        "accessModes",
+        "size"
+      ],
+      "title": "persistence",
       "type": "object"
     },
     "nameOverride": {
@@ -525,6 +605,26 @@
       "title": "volumeMounts",
       "type": "array"
     },
+    "initContainers": {
+      "description": "Additional init containers on the output Deployment definition.",
+      "items": {
+        "additionalProperties": true,
+        "required": []
+      },
+      "required": [],
+      "title": "initContainers",
+      "type": "array"
+    },
+    "extraContainers": {
+      "description": "Additional containers (sidecars) on the output Deployment definition.",
+      "items": {
+        "additionalProperties": true,
+        "required": []
+      },
+      "required": [],
+      "title": "extraContainers",
+      "type": "array"
+    },
     "volumes": {
       "description": "Additional volumes on the output Deployment definition.",
       "items": {
@@ -554,6 +654,7 @@
     "resources",
     "livenessProbe",
     "readinessProbe",
+    "persistence",
     "volumes",
     "volumeMounts",
     "nodeSelector",

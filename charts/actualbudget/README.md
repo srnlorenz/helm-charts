@@ -4,7 +4,7 @@
 
 A local-first personal finance app
 
-![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.2.1](https://img.shields.io/badge/AppVersion-25.2.1-informational?style=flat-square)
+![Version: 1.3.0](https://img.shields.io/badge/Version-1.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.2.1](https://img.shields.io/badge/AppVersion-25.2.1-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -47,14 +47,9 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
 
-volumes:
-  - name: data
-    persistentVolumeClaim:
-      claimName: actualbudget-volume
-
-volumeMounts:
-  - name: data
-    mountPath: "/data"
+persistence:
+  enabled: true
+  existingClaim: actualbudget-volume
 ```
 
 ## Requirements
@@ -82,6 +77,7 @@ helm upgrade [RELEASE_NAME] community-charts/actualbudget
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
+| extraContainers | list | `[]` | Additional containers (sidecars) on the output Deployment definition. |
 | extraEnvVars | object | `{}` | Extra environment variables |
 | files.server | string | `"/data/server-files"` |  |
 | files.user | string | `"/data/user-files"` |  |
@@ -91,14 +87,22 @@ helm upgrade [RELEASE_NAME] community-charts/actualbudget
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | ingress | object | `{"annotations":{},"className":"","enabled":false,"hosts":[{"host":"actualbudget.local","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}],"tls":[]}` | This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/ |
-| livenessProbe | object | `{"httpGet":{"path":"/","port":"http"}}` | This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
+| initContainers | list | `[]` | Additional init containers on the output Deployment definition. |
+| livenessProbe | object | `{"httpGet":{"path":"/","port":"http"}}` | This is to setup the liveness probe more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | nameOverride | string | `""` | This is to override the chart name. |
 | nodeSelector | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
+| persistence | object | `{"accessModes":["ReadWriteOnce"],"annotations":{},"enabled":false,"existingClaim":"","size":"10Gi","storageClass":"","volumeMode":""}` | This is to setup the persistence for the pod more information can be found here: https://kubernetes.io/docs/concepts/storage/persistent-volumes/ |
+| persistence.accessModes | list | `["ReadWriteOnce"]` | Actual Budget persistence access mode |
+| persistence.annotations | object | `{}` | Actual Budget persistence annotations |
+| persistence.enabled | bool | `false` | Enable persistence |
+| persistence.existingClaim | string | `""` | Actual Budget persistence existing claim |
+| persistence.size | string | `"10Gi"` | Actual Budget persistence size |
+| persistence.storageClass | string | `""` | Actual Budget persistence storage class |
+| persistence.volumeMode | string | `""` | Actual Budget persistence volume mode |
 | podAnnotations | object | `{}` | This is for setting Kubernetes Annotations to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | podLabels | object | `{}` | This is for setting Kubernetes Labels to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |
 | podSecurityContext | object | `{}` | This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
-| readinessProbe.httpGet.path | string | `"/"` |  |
-| readinessProbe.httpGet.port | string | `"http"` |  |
+| readinessProbe | object | `{"httpGet":{"path":"/","port":"http"}}` | This is to setup the readiness probe more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | replicaCount | int | `1` | This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/ |
 | resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 | securityContext | object | `{}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |

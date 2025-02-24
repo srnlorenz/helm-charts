@@ -50,3 +50,109 @@ tests:
           content:
             name: ACTUAL_USER_FILES
             value: "/somewhere/user"
+
+  - it: should set extra containers (sidecars) when extraContainers are set
+    set:
+      extraContainers:
+        - name: fake-container
+          image: fake-image
+          command: ["fake-command"]
+    asserts:
+      - contains:
+          path: spec.template.spec.containers
+          content:
+            name: fake-container
+            image: fake-image
+            command: ["fake-command"]
+
+  - it: should set init containers when initContainers are set
+    set:
+      initContainers:
+        - name: fake-init-container
+          image: fake-init-image
+          command: ["fake-init-command"]
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: fake-init-container
+            image: fake-init-image
+            command: ["fake-init-command"]
+
+  - it: should set persistence when persistence is enabled
+    set:
+      persistence:
+        enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: data
+            persistentVolumeClaim:
+              claimName: actualbudget-data
+
+  - it: should set volume mounts when volumeMounts are set
+    set:
+      volumeMounts:
+        - name: fake-volume
+          mountPath: /fake/path
+          subPath: fake-sub-path
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].volumeMounts
+          content:
+            name: fake-volume
+            mountPath: /fake/path
+            subPath: fake-sub-path
+
+  - it: should set volumes when volumes are set
+    set:
+      volumes:
+        - name: fake-volume
+          persistentVolumeClaim:
+            claimName: fake-existing-claim
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: fake-volume
+            persistentVolumeClaim:
+              claimName: fake-existing-claim
+
+  - it: should set affinity when affinity is set
+    set:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: disktype
+                    operator: In
+                    values:
+                      - ssd
+    asserts:
+      - contains:
+          path: spec.template.spec.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution
+          content:
+            weight: 1
+            preference:
+              matchExpressions:
+                - key: disktype
+                  operator: In
+                  values:
+                    - ssd
+
+  - it: should set tolerations when tolerations are set
+    set:
+      tolerations:
+        - key: fake-key
+          operator: fake-operator
+          value: fake-value
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: fake-key
+            operator: fake-operator
+            value: fake-value

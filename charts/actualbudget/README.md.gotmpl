@@ -47,14 +47,9 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
 
-volumes:
-  - name: data
-    persistentVolumeClaim:
-      claimName: actualbudget-volume
-
-volumeMounts:
-  - name: data
-    mountPath: "/data"
+persistence:
+  enabled: true
+  existingClaim: actualbudget-volume
 ```
 
 {{ template "chart.requirementsSection" . }}
