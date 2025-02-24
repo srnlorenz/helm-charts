@@ -61,6 +61,138 @@
       "title": "upload",
       "type": "object"
     },
+    "login": {
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "default": "password",
+          "required": [],
+          "title": "method",
+          "type": "string",
+          "enum": ["password", "header", "openid"]
+        },
+        "skipSSLVerification": {
+          "default": false,
+          "required": [],
+          "title": "skipSSLVerification",
+          "type": "boolean"
+        },
+        "allowedLoginMethods": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["password", "header", "openid"]
+          },
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true
+        },
+        "openid": {
+          "additionalProperties": false,
+          "properties": {
+            "enforce": {
+              "default": true,
+              "required": [],
+              "title": "enforce",
+              "type": "boolean"
+            },
+            "providerName": {
+              "default": "OpenID Connect",
+              "required": [],
+              "title": "providerName",
+              "type": "string"
+            },
+            "dicovertUrl": {
+              "default": "",
+              "required": [],
+              "title": "dicovertUrl",
+              "type": "string"
+            },
+            "clientId": {
+              "default": "",
+              "required": [],
+              "title": "clientId",
+              "type": "string"
+            },
+            "clientSecret": {
+              "default": "",
+              "required": [],
+              "title": "clientSecret",
+              "type": "string"
+            },
+            "authorizationEndpoint": {
+              "default": "",
+              "required": [],
+              "title": "authorizationEndpoint",
+              "type": "string"
+            },
+            "tokenEndpoint": {
+              "default": "",
+              "required": [],
+              "title": "tokenEndpoint",
+              "type": "string"
+            },
+            "userInfoEndpoint": {
+              "default": "",
+              "required": [],
+              "title": "userInfoEndpoint",
+              "type": "string"
+            }
+          },
+          "required": [
+            "enforce",
+            "providerName",
+            "dicovertUrl",
+            "clientId",
+            "clientSecret",
+            "authorizationEndpoint",
+            "tokenEndpoint",
+            "userInfoEndpoint"
+          ]
+        }
+      },
+      "required": ["method", "allowedLoginMethods", "skipSSLVerification"],
+      "title": "login",
+      "type": "object",
+      "if": {
+        "properties": {
+          "method": { "const": "openid" }
+        }
+      },
+      "then": {
+        "properties": {
+          "openid": {
+            "oneOf": [
+              {
+                "required": ["dicovertUrl", "clientId", "clientSecret"],
+                "properties": {
+                  "dicovertUrl": { "minLength": 1 },
+                  "clientId": { "minLength": 1 },
+                  "clientSecret": { "minLength": 1 }
+                }
+              },
+              {
+                "required": [
+                  "authorizationEndpoint",
+                  "tokenEndpoint",
+                  "userInfoEndpoint",
+                  "clientId",
+                  "clientSecret"
+                ],
+                "properties": {
+                  "authorizationEndpoint": { "minLength": 1 },
+                  "tokenEndpoint": { "minLength": 1 },
+                  "userInfoEndpoint": { "minLength": 1 },
+                  "clientId": { "minLength": 1 },
+                  "clientSecret": { "minLength": 1 }
+                }
+              }
+            ]
+          }
+        },
+        "required": ["openid"]
+      }
+    },
     "fullnameOverride": {
       "default": "",
       "required": [],
@@ -682,6 +814,7 @@
     "service",
     "files",
     "upload",
+    "login",
     "ingress",
     "extraEnvVars",
     "resources",

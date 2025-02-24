@@ -60,9 +60,22 @@ spec:
               value: {{ .Values.upload.syncEncryptedFileSizeLimitMB | quote }}
             - name: ACTUAL_UPLOAD_FILE_SIZE_LIMIT_MB
               value: {{ .Values.upload.fileSizeLimitMB | quote }}
+            - name: ACTUAL_LOGIN_METHOD
+              value: {{ .Values.login.method | quote }}
+            - name: ACTUAL_ALLOWED_LOGIN_METHODS
+              value: {{ .Values.login.allowedLoginMethods | join "," | quote }}
+          {{- if .Values.login.skipSSLVerification }}
+            - name: NODE_TLS_REJECT_UNAUTHORIZED
+              value: "0"
+          {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
             - name: {{ upper $key }}
               value: {{ $value | quote }}
+          {{- end }}
+          {{- if and .Values.ingress.enabled (eq .Values.login.method "openid") (contains "openid" (.Values.login.allowedLoginMethods | join ",")) (semverCompare ">=25.1.0" (ternary .Chart.AppVersion .Values.image.tag (eq .Values.image.tag ""))) }}
+          envFrom:
+            - secretRef:
+                name: {{ template "actualbudget.fullname" . }}-openid-secret
           {{- end }}
           ports:
             - name: http

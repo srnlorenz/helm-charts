@@ -31,7 +31,17 @@ tests:
             name: ACTUAL_PORT
             value: "1234"
 
-  - it: should show actual server files environment variable
+  - it: should set actual data directory environment variable
+    set:
+      files.dataDirectory: "/somewhere/data"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].env
+          content:
+            name: ACTUAL_DATA_DIR
+            value: "/somewhere/data"
+
+  - it: should set actual server files environment variable
     set:
       files.server: "/somewhere/server"
     asserts:
@@ -41,7 +51,7 @@ tests:
             name: ACTUAL_SERVER_FILES
             value: "/somewhere/server"
 
-  - it: should show actual user files environment variable
+  - it: should set actual user files environment variable
     set:
       files.user: "/somewhere/user"
     asserts:
@@ -50,6 +60,122 @@ tests:
           content:
             name: ACTUAL_USER_FILES
             value: "/somewhere/user"
+
+  - it: should set actual upload file sync limit environment variable
+    set:
+      upload.fileSizeSyncLimitMB: 20
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].env
+          content:
+            name: ACTUAL_UPLOAD_FILE_SYNC_SIZE_LIMIT_MB
+            value: "20"
+
+  - it: should set actual upload sync encrypted file size limit environment variable
+    set:
+      upload.syncEncryptedFileSizeLimitMB: 50
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].env
+          content:
+            name: ACTUAL_UPLOAD_SYNC_ENCRYPTED_FILE_SYNC_SIZE_LIMIT_MB
+            value: "50"
+
+  - it: should set actual upload file size limit environment variable
+    set:
+      upload.fileSizeLimitMB: 20
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].env
+          content:
+            name: ACTUAL_UPLOAD_FILE_SIZE_LIMIT_MB
+            value: "20"
+
+  - it: should set actual login method environment variable
+    set:
+      login.method: "header"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].env
+          content:
+            name: ACTUAL_LOGIN_METHOD
+            value: "header"
+
+  - it: should set actual allowed login methods environment variable
+    set:
+      login.allowedLoginMethods:
+        - openid
+        - password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].env
+          content:
+            name: ACTUAL_ALLOWED_LOGIN_METHODS
+            value: "openid,password"
+
+  - it: should set actual skip SSL verification environment variable when skipSSLVerification is true
+    set:
+      login.skipSSLVerification: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].env
+          content:
+            name: NODE_TLS_REJECT_UNAUTHORIZED
+            value: "0"
+
+  - it: should set openid environment variables from secret when openid is enabled and dicovertUrl is set and clientId is set and clientSecret is set
+    set:
+      ingress:
+        enabled: true
+        hosts:
+          - host: actualbudget.local
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+      login:
+        method: "openid"
+        allowedLoginMethods:
+          - openid
+        openid:
+          dicovertUrl: "https://openid.com/.well-known/openid-configuration"
+          clientId: "openid-client-id"
+          clientSecret: "openid-client-secret"
+    chart:
+      appVersion: 25.1.0
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].envFrom
+          content:
+            secretRef:
+              name: actualbudget-openid-secret
+
+  - it: should set openid environment variables from secret when openid is enabled and authorizationEndpoint is set and tokenEndpoint is set and userInfoEndpoint is set and clientId is set and clientSecret is set
+    set:
+      ingress:
+        enabled: true
+        hosts:
+          - host: actualbudget.local
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+      login:
+        method: "openid"
+        allowedLoginMethods:
+          - openid
+        openid:
+          clientId: "openid-client-id"
+          clientSecret: "openid-client-secret"
+          authorizationEndpoint: "https://openid.com/authorize"
+          tokenEndpoint: "https://openid.com/token"
+          userInfoEndpoint: "https://openid.com/userinfo"
+    chart:
+      appVersion: 25.1.0
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "actualbudget")].envFrom
+          content:
+            secretRef:
+              name: actualbudget-openid-secret
 
   - it: should set extra containers (sidecars) when extraContainers are set
     set:
