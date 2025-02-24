@@ -67,82 +67,84 @@
       "properties": {
         "annotations": {
           "additionalProperties": true,
+          "default": {},
+          "description": "This is for setting up the ingress annotations.",
           "required": [],
           "title": "annotations",
           "type": "object"
         },
         "className": {
           "default": "",
+          "description": "This is for setting up the ingress class name.",
           "required": [],
           "title": "className",
           "type": "string"
         },
         "enabled": {
           "default": false,
+          "description": "This is for setting up the ingress enabled.",
           "required": [],
           "title": "enabled",
           "type": "boolean"
         },
         "hosts": {
-          "description": "kubernetes.io/ingress.class: nginx\nkubernetes.io/tls-acme: \"true\"",
+          "type": "array",
           "items": {
-            "anyOf": [
-              {
-                "additionalProperties": false,
-                "properties": {
-                  "host": {
-                    "default": "pypiserver.local",
-                    "required": [],
-                    "title": "host",
-                    "type": "string"
-                  },
-                  "paths": {
-                    "items": {
-                      "anyOf": [
-                        {
-                          "additionalProperties": false,
-                          "properties": {
-                            "path": {
-                              "default": "/",
-                              "required": [],
-                              "title": "path",
-                              "type": "string"
-                            },
-                            "pathType": {
-                              "default": "ImplementationSpecific",
-                              "required": [],
-                              "title": "pathType",
-                              "type": "string"
-                            }
-                          },
-                          "required": ["path", "pathType"],
-                          "type": "object"
-                        }
-                      ],
-                      "required": []
+            "type": "object",
+            "required": ["host", "paths"],
+            "properties": {
+              "host": {
+                "type": "string"
+              },
+              "paths": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
                     },
-                    "required": [],
-                    "title": "paths",
-                    "type": "array"
-                  }
-                },
-                "required": ["host", "paths"],
-                "type": "object"
+                    "pathType": {
+                      "type": "string",
+                      "enum": ["Exact", "Prefix", "ImplementationSpecific"]
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "pathType"
+                  ],
+                  "title": "paths"
+                }
               }
-            ],
-            "required": []
-          },
-          "required": [],
-          "title": "hosts",
-          "type": "array"
+            },
+            "title": "hosts",
+            "minItems": 1
+          }
         },
         "tls": {
+          "type": "array",
           "items": {
-            "required": []
-          },
-          "required": [],
-          "title": "tls",
-          "type": "array"
+            "type": "object",
+            "properties": {
+              "secretName": {
+                "type": "string"
+              },
+              "hosts": {
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "required": [],
+                "title": "hosts",
+                "type": "array"
+              }
+            },
+            "required": [
+              "secretName",
+              "hosts"
+            ],
+            "title": "tls"
+          }
         }
       },
       "required": ["enabled", "className", "annotations", "hosts", "tls"],

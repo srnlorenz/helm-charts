@@ -81,16 +81,26 @@ service:
 
 # -- This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
+  # -- This is for setting up the ingress enabled
   enabled: false
+  # -- This is for setting up the ingress class name
   className: ""
+  # -- This is for setting up the ingress annotations
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
+
+  # -- This is for setting up the ingress hosts
   hosts:
+    # -- This is for setting up the ingress host
     - host: pypiserver.local
+      # -- This is for setting up the ingress paths
       paths:
+        # -- This is for setting up the ingress path
         - path: /
+          # -- This is for setting up the ingress path type
           pathType: ImplementationSpecific
+  # -- This is for setting up the ingress tls
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:

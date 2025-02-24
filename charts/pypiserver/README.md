@@ -4,7 +4,7 @@
 
 A Helm chart for PyPI Server
 
-![Version: 0.1.6](https://img.shields.io/badge/Version-0.1.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.3.2](https://img.shields.io/badge/AppVersion-v2.3.2-informational?style=flat-square)
+![Version: 0.1.7](https://img.shields.io/badge/Version-0.1.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.3.2](https://img.shields.io/badge/AppVersion-v2.3.2-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -59,6 +59,15 @@ helm upgrade [RELEASE_NAME] community-charts/pypiserver
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | ingress | object | `{"annotations":{},"className":"","enabled":false,"hosts":[{"host":"pypiserver.local","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}],"tls":[]}` | This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/ |
+| ingress.annotations | object | `{}` | This is for setting up the ingress annotations |
+| ingress.className | string | `""` | This is for setting up the ingress class name |
+| ingress.enabled | bool | `false` | This is for setting up the ingress enabled |
+| ingress.hosts | list | `[{"host":"pypiserver.local","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}]` | This is for setting up the ingress hosts |
+| ingress.hosts[0] | object | `{"host":"pypiserver.local","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}` | This is for setting up the ingress host |
+| ingress.hosts[0].paths | list | `[{"path":"/","pathType":"ImplementationSpecific"}]` | This is for setting up the ingress paths |
+| ingress.hosts[0].paths[0] | object | `{"path":"/","pathType":"ImplementationSpecific"}` | This is for setting up the ingress path |
+| ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` | This is for setting up the ingress path type |
+| ingress.tls | list | `[]` | This is for setting up the ingress tls |
 | livenessProbe | object | `{"httpGet":{"path":"/health","port":"http"}}` | This is to setup the liveness probe more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | nameOverride | string | `""` | This is to override the chart name. |
 | nodeSelector | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
