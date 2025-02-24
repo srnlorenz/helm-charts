@@ -12,6 +12,12 @@
     "files": {
       "additionalProperties": false,
       "properties": {
+        "dataDirectory": {
+          "default": "/data",
+          "required": [],
+          "title": "dataDirectory",
+          "type": "string"
+        },
         "server": {
           "default": "/data/server-files",
           "required": [],
@@ -25,8 +31,34 @@
           "type": "string"
         }
       },
-      "required": ["server", "user"],
+      "required": ["dataDirectory", "server", "user"],
       "title": "files",
+      "type": "object"
+    },
+    "upload": {
+      "additionalProperties": false,
+      "properties": {
+        "fileSizeSyncLimitMB": {
+          "default": 20,
+          "required": [],
+          "title": "fileSizeSyncLimitMB",
+          "type": "integer"
+        },
+        "syncEncryptedFileSizeLimitMB": {
+          "default": 50,
+          "required": [],
+          "title": "syncEncryptedFileSizeLimitMB",
+          "type": "integer"
+        },
+        "fileSizeLimitMB": {
+          "default": 20,
+          "required": [],
+          "title": "fileSizeLimitMB",
+          "type": "integer"
+        }
+      },
+      "required": ["fileSizeSyncLimitMB", "syncEncryptedFileSizeLimitMB", "fileSizeLimitMB"],
+      "title": "upload",
       "type": "object"
     },
     "fullnameOverride": {
@@ -649,6 +681,7 @@
     "securityContext",
     "service",
     "files",
+    "upload",
     "ingress",
     "extraEnvVars",
     "resources",

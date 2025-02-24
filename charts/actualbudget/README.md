@@ -4,7 +4,7 @@
 
 A local-first personal finance app
 
-![Version: 1.3.0](https://img.shields.io/badge/Version-1.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.2.1](https://img.shields.io/badge/AppVersion-25.2.1-informational?style=flat-square)
+![Version: 1.3.1](https://img.shields.io/badge/Version-1.3.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.2.1](https://img.shields.io/badge/AppVersion-25.2.1-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -79,8 +79,9 @@ helm upgrade [RELEASE_NAME] community-charts/actualbudget
 | affinity | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | extraContainers | list | `[]` | Additional containers (sidecars) on the output Deployment definition. |
 | extraEnvVars | object | `{}` | Extra environment variables |
-| files.server | string | `"/data/server-files"` |  |
-| files.user | string | `"/data/user-files"` |  |
+| files.dataDirectory | string | `"/data"` | This is where the server stores the budget data files. For more information checkout: https://actualbudget.org/docs/config/#actual_data_dir |
+| files.server | string | `"/data/server-files"` | The server will put an account.sqlite file in this directory, which will contain the (hashed) server password, a list of all the budget files the server knows about, and the active session token (along with anything else the server may want to store in the future). For more information checkout: https://actualbudget.org/docs/config/#serverfiles |
+| files.user | string | `"/data/user-files"` | The server will put all the budget files in this directory as binary blobs. For more information checkout: https://actualbudget.org/docs/config/#userfiles |
 | fullnameOverride | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` | This sets the pull policy for images. |
 | image.repository | string | `"actualbudget/actual-server"` | The docker image repository to use |
@@ -118,6 +119,10 @@ helm upgrade [RELEASE_NAME] community-charts/actualbudget
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
 | strategy | object | `{"rollingUpdate":{"maxSurge":"100%","maxUnavailable":0},"type":"RollingUpdate"}` | This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
 | tolerations | list | `[]` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/ |
+| upload | object | `{"fileSizeLimitMB":20,"fileSizeSyncLimitMB":20,"syncEncryptedFileSizeLimitMB":50}` | This is for setting up the upload limits for the server. For more information checkout: https://github.com/actualbudget/actual/blob/f413fa03ae8f3bffc9c9c8b19885eb9f0f252acc/packages/sync-server/src/load-config.js#L83-L87 |
+| upload.fileSizeLimitMB | int | `20` | This is the maximum size of a file that can be uploaded to the server in megabytes. |
+| upload.fileSizeSyncLimitMB | int | `20` | This is the maximum size of a file that can be uploaded to the server in megabytes. |
+| upload.syncEncryptedFileSizeLimitMB | int | `50` | This is the maximum size of an encrypted file that can be uploaded to the server in megabytes. |
 | volumeMounts | list | `[]` | Additional volumeMounts on the output Deployment definition. |
 | volumes | list | `[]` | Additional volumes on the output Deployment definition. |
 
