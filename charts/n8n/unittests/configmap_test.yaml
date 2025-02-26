@@ -521,6 +521,21 @@ tests:
           path: data.N8N_WORKFLOW_HISTORY_PRUNE_TIME
           value: "100"
 
+  - it: should set task runners mode to internal when taskRunners.mode is internal
+    set:
+      taskRunners:
+        mode: internal
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_ENABLED
+          value: "true"
+      - equal:
+          path: data.N8N_RUNNERS_MODE
+          value: internal
+
   - it: should match snapshot of default values
     release:
       name: n8n

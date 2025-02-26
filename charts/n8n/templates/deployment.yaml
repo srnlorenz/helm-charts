@@ -120,6 +120,8 @@ spec:
           {{- end }}
             - configMapRef:
                 name: {{ template "n8n.fullname" . }}-workflow-history-configmap
+            - configMapRef:
+                name: {{ template "n8n.fullname" . }}-task-runners-configmap
             - secretRef:
                 name: {{ template "n8n.fullname" . }}-encryption-key-secret
           {{- range .Values.extraSecretNamesForEnvFrom }}

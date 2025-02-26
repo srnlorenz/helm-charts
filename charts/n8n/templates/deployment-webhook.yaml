@@ -119,6 +119,8 @@ spec:
                 name: {{ template "n8n.fullname" . }}-public-api-configmap
             - configMapRef:
                 name: {{ template "n8n.fullname" . }}-queue-configmap
+            - configMapRef:
+                name: {{ template "n8n.fullname" . }}-task-runners-configmap
             - secretRef:
                 name: {{ template "n8n.fullname" . }}-encryption-key-secret
           {{- range .Values.extraSecretNamesForEnvFrom }}

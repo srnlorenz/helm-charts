@@ -1209,6 +1209,22 @@
       "title": "worker",
       "type": "object"
     },
+    "taskRunners": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "internal",
+          "description": "Use `internal` to use internal task runner, or use `external` to have external sidecar task runner",
+          "required": [],
+          "title": "mode",
+          "type": "string",
+          "enum": ["internal"]
+        }
+      },
+      "required": ["mode"],
+      "title": "taskRunners",
+      "type": "object"
+    },
     "workflowHistory": {
       "additionalProperties": false,
       "properties": {
@@ -1252,6 +1268,7 @@
     "api",
     "worker",
     "webhook",
+    "taskRunners",
     "workflowHistory",
     "encryptionKey",
     "timezone",

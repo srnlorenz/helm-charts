@@ -146,3 +146,17 @@ metadata:
 data:
   N8N_WORKFLOW_HISTORY_ENABLED: {{ .Values.workflowHistory.enabled | quote }}
   N8N_WORKFLOW_HISTORY_PRUNE_TIME: {{ .Values.workflowHistory.pruneTime | quote }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "n8n.fullname" . }}-task-runners-configmap
+  labels:
+    app: {{ include "n8n.name" . }}
+    chart: {{ include "n8n.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  N8N_RUNNERS_ENABLED: "true"
+  N8N_RUNNERS_MODE: {{ .Values.taskRunners.mode | quote }}
