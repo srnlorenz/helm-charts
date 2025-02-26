@@ -46,9 +46,9 @@ data:
   N8N_LOG_LEVEL: {{ .Values.log.level | quote }}
   N8N_LOG_OUTPUT: {{ join "," .Values.log.output | quote }}
 {{- if has "file" .Values.log.output }}
-  N8N_LOG_FILE_COUNT_MAX: {{ .Values.log.maxcount | quote }}
-  N8N_LOG_FILE_SIZE_MAX: {{ .Values.log.maxsize | quote }}
-  N8N_LOG_FILE_LOCATION: {{ .Values.log.location | quote }}
+  N8N_LOG_FILE_COUNT_MAX: {{ .Values.log.file.maxcount | quote }}
+  N8N_LOG_FILE_SIZE_MAX: {{ .Values.log.file.maxsize | quote }}
+  N8N_LOG_FILE_LOCATION: {{ .Values.log.file.location | quote }}
 {{- end }}
 {{- if gt (len .Values.log.scopes) 0 }}
   N8N_LOG_SCOPES: {{ join "," .Values.log.scopes | quote }}

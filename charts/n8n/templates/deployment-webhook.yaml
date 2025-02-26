@@ -46,7 +46,7 @@ spec:
           command: ["n8n"]
           args: ["webhook"]
           ports:
-            - name: http
+            - name: {{ .Values.service.name }}
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
