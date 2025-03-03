@@ -215,13 +215,6 @@
     "diagnostics": {
       "additionalProperties": false,
       "properties": {
-        "backendConfig": {
-          "default": "1zPn7YoGC3ZXE9zLeTKLuQCB4F6;https://telemetry.n8n.io",
-          "description": "Diagnostics config for backend.",
-          "required": [],
-          "title": "backendConfig",
-          "type": "string"
-        },
         "enabled": {
           "default": false,
           "description": "Whether diagnostics are enabled.",
@@ -229,11 +222,25 @@
           "title": "enabled",
           "type": "boolean"
         },
+        "backendConfig": {
+          "default": "1zPn7YoGC3ZXE9zLeTKLuQCB4F6;https://telemetry.n8n.io",
+          "description": "Diagnostics config for backend.",
+          "required": [],
+          "title": "backendConfig",
+          "type": "string"
+        },
         "frontendConfig": {
           "default": "1zPn9bgWPzlQc0p8Gj1uiK6DOTn;https://telemetry.n8n.io",
           "description": "Diagnostics config for frontend.",
           "required": [],
           "title": "frontendConfig",
+          "type": "string"
+        },
+        "externalTaskRunnersSentryDsn": {
+          "default": "",
+          "description": "Diagnostics config for external task runners.",
+          "required": [],
+          "title": "externalTaskRunnersSentryDsn",
           "type": "string"
         },
         "postHog": {
@@ -259,7 +266,7 @@
           "type": "object"
         }
       },
-      "required": ["enabled", "frontendConfig", "backendConfig", "postHog"],
+      "required": ["enabled", "frontendConfig", "backendConfig", "externalTaskRunnersSentryDsn", "postHog"],
       "title": "diagnostics",
       "type": "object"
     },
@@ -1218,10 +1225,148 @@
           "required": [],
           "title": "mode",
           "type": "string",
-          "enum": ["internal"]
+          "enum": ["internal", "external"]
+        },
+        "taskTimeout": {
+          "default": 60,
+          "description": "The timeout for the task in seconds",
+          "required": [],
+          "title": "taskTimeout",
+          "type": "integer"
+        },
+        "taskHeartbeatInterval": {
+          "default": 30,
+          "description": "The heartbeat interval for the task in seconds",
+          "required": [],
+          "title": "taskHeartbeatInterval",
+          "type": "integer"
+        },
+        "maxConcurrency": {
+          "default": 5,
+          "description": "The maximum concurrency for the task",
+          "required": [],
+          "title": "maxConcurrency",
+          "type": "integer"
+        },
+        "broker": {
+          "additionalProperties": false,
+          "properties": {
+            "address": {
+              "default": "127.0.0.1",
+              "description": "This sets the address for the broker of the external task runner",
+              "required": [],
+              "title": "address",
+              "type": "string"
+            },
+            "port": {
+              "default": 5679,
+              "description": "This sets the port for the broker of the external task runner",
+              "required": [],
+              "title": "port",
+              "type": "integer"
+            }
+          },
+          "required": ["address", "port"],
+          "title": "broker",
+          "type": "object"
+        },
+        "external": {
+          "additionalProperties": false,
+          "properties": {
+            "mainNodeAuthToken": {
+              "default": "",
+              "description": "This sets the auth token for the n8n main node of the external task runner",
+              "required": [],
+              "title": "mainNodeAuthToken",
+              "type": "string"
+            },
+            "workerNodeAuthToken": {
+              "default": "",
+              "description": "This sets the auth token for the n8n worker node of the external task runner",
+              "required": [],
+              "title": "workerNodeAuthToken",
+              "type": "string"
+            },
+            "autoShutdownTimeout": {
+              "default": 15,
+              "description": "This sets the auto shutdown timeout for the external task runner in seconds",
+              "required": [],
+              "title": "autoShutdownTimeout",
+              "type": "integer"
+            },
+            "port": {
+              "default": 5680,
+              "description": "This sets the ports for the external task runner more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports",
+              "required": [],
+              "title": "port",
+              "type": "integer"
+            },
+            "nodeOptions": {
+              "default": [],
+              "description": "This sets the node options for the external task runner",
+              "required": [],
+              "title": "nodeOptions",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "resources": {
+              "additionalProperties": false,
+              "properties": {
+                "requests": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "cpu": {
+                      "type": "string"
+                    },
+                    "memory": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["cpu", "memory"],
+                  "title": "requests",
+                  "type": "object"
+                },
+                "limits": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "cpu": {
+                      "type": "string"
+                    },
+                    "memory": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["cpu", "memory"],
+                  "title": "limits",
+                  "type": "object"
+                }
+              },
+              "required": ["requests", "limits"],
+              "title": "resources",
+              "type": "object"
+            }
+          },
+          "required": ["autoShutdownTimeout", "port", "nodeOptions", "resources"],
+          "title": "external",
+          "type": "object"
         }
       },
-      "required": ["mode"],
+      "required": ["mode", "taskTimeout", "taskHeartbeatInterval", "maxConcurrency", "broker"],
+      "if": {
+        "properties": {
+          "mode": { "const": "external" }
+        }
+      },
+      "then": {
+        "required": ["external"]
+      },
+      "else": {
+        "properties": {
+          "external": { "type": "object" }
+        }
+      },
       "title": "taskRunners",
       "type": "object"
     },

@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 0.2.2](https://img.shields.io/badge/Version-0.2.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.80.5](https://img.shields.io/badge/AppVersion-1.80.5-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.80.5](https://img.shields.io/badge/AppVersion-1.80.5-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -185,6 +185,15 @@ webhook:
   url: "https://webhook.mydomain.com"
 ```
 
+## External Task Runner Example
+
+Please find more detail about external task runners from [here](https://docs.n8n.io/hosting/securing/hardening-task-runners/).
+
+```yaml
+taskRunners:
+  mode: external
+```
+
 ## Full Example
 
 ```yaml
@@ -274,6 +283,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | defaultLocale | string | `"en"` | A locale identifier, compatible with the Accept-Language header. n8n doesn't support regional identifiers, such as de-AT. |
 | diagnostics.backendConfig | string | `"1zPn7YoGC3ZXE9zLeTKLuQCB4F6;https://telemetry.n8n.io"` | Diagnostics config for backend. |
 | diagnostics.enabled | bool | `false` | Whether diagnostics are enabled. |
+| diagnostics.externalTaskRunnersSentryDsn | string | `""` | Diagnostics config for external task runners. |
 | diagnostics.frontendConfig | string | `"1zPn9bgWPzlQc0p8Gj1uiK6DOTn;https://telemetry.n8n.io"` | Diagnostics config for frontend. |
 | diagnostics.postHog.apiHost | string | `"https://ph.n8n.io"` | API host for PostHog. |
 | diagnostics.postHog.apiKey | string | `"phc_4URIAm1uYfJO7j8kWSe0J8lc8IqnstRLS7Jx8NcakHo"` | API key for PostHog. |
@@ -332,8 +342,27 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
 | strategy | object | `{"rollingUpdate":{"maxSurge":"25%","maxUnavailable":"25%"},"type":"RollingUpdate"}` | This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
-| taskRunners | object | `{"mode":"internal"}` | Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/ |
+| taskRunners | object | `{"broker":{"address":"127.0.0.1","port":5679},"external":{"autoShutdownTimeout":15,"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""},"maxConcurrency":5,"mode":"internal","taskHeartbeatInterval":30,"taskTimeout":60}` | Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/ |
+| taskRunners.broker | object | `{"address":"127.0.0.1","port":5679}` | The address for the broker of the external task runner |
+| taskRunners.broker.address | string | `"127.0.0.1"` | The address for the broker of the external task runner |
+| taskRunners.broker.port | int | `5679` | The port for the broker of the external task runner |
+| taskRunners.external | object | `{"autoShutdownTimeout":15,"mainNodeAuthToken":"","nodeOptions":["--max-semi-space-size=16","--max-old-space-size=300"],"port":5680,"resources":{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}},"workerNodeAuthToken":""}` | The configuration for the external task runner |
+| taskRunners.external.autoShutdownTimeout | int | `15` | The auto shutdown timeout for the external task runner in seconds |
+| taskRunners.external.mainNodeAuthToken | string | `""` | The auth token for the main node |
+| taskRunners.external.nodeOptions | list | `["--max-semi-space-size=16","--max-old-space-size=300"]` | The node options for the external task runner |
+| taskRunners.external.port | int | `5680` | The port for the external task runner |
+| taskRunners.external.resources | object | `{"limits":{"cpu":"2000m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"32Mi"}}` | The resources for the external task runner |
+| taskRunners.external.resources.limits | object | `{"cpu":"2000m","memory":"512Mi"}` | The limits for the external task runner |
+| taskRunners.external.resources.limits.cpu | string | `"2000m"` | The CPU limit for the external task runner |
+| taskRunners.external.resources.limits.memory | string | `"512Mi"` | The memory limit for the external task runner |
+| taskRunners.external.resources.requests | object | `{"cpu":"100m","memory":"32Mi"}` | The resources requests for the external task runner |
+| taskRunners.external.resources.requests.cpu | string | `"100m"` | The CPU request for the external task runner |
+| taskRunners.external.resources.requests.memory | string | `"32Mi"` | The memory request for the external task runner |
+| taskRunners.external.workerNodeAuthToken | string | `""` | The auth token for the worker node |
+| taskRunners.maxConcurrency | int | `5` | The maximum concurrency for the task |
 | taskRunners.mode | string | `"internal"` | Use `internal` to use internal task runner, or use `external` to have external sidecar task runner. For more information please follow the documentation: https://docs.n8n.io/hosting/configuration/task-runners/#task-runner-modes |
+| taskRunners.taskHeartbeatInterval | int | `30` | The heartbeat interval for the task in seconds |
+| taskRunners.taskTimeout | int | `60` | The timeout for the task in seconds |
 | timezone | string | `"Europe/Berlin"` | For instance, the Schedule node uses it to know at what time the workflow should start. Find you timezone from here: https://momentjs.com/timezone/ |
 | tolerations | list | `[]` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/ |
 | versionNotifications.enabled | bool | `false` | Whether to request notifications about new n8n versions |
@@ -347,6 +376,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | worker.concurrency | int | `10` | number of concurrency for each worker |
 | worker.count | int | `2` | number of workers |
 | worker.mode | string | `"regular"` | Use `regular` to use main node as executer, or use `queue` to have worker nodes |
+| workflowHistory | object | `{"enabled":true,"pruneTime":336}` | The workflow history configuration |
 | workflowHistory.enabled | bool | `true` | Whether to save workflow history versions |
 | workflowHistory.pruneTime | int | `336` | Time (in hours) to keep workflow history versions for. To disable it, use -1 as a value |
 

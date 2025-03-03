@@ -527,7 +527,7 @@ tests:
         mode: internal
     documentSelector:
       path: metadata.name
-      value: n8n-task-runners-configmap
+      value: n8n-task-broker-configmap
     asserts:
       - equal:
           path: data.N8N_RUNNERS_ENABLED
@@ -535,6 +535,197 @@ tests:
       - equal:
           path: data.N8N_RUNNERS_MODE
           value: internal
+
+  - it: should set task timeout when taskRunners.taskTimeout is set
+    set:
+      taskRunners:
+        taskTimeout: 100
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_TASK_TIMEOUT
+          value: "100"
+
+  - it: should set task heartbeat interval when taskRunners.taskHeartbeatInterval is set
+    set:
+      taskRunners:
+        taskHeartbeatInterval: 100
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_HEARTBEAT_INTERVAL
+          value: "100"
+
+  - it: should set max concurrency when taskRunners.mode is internal
+    set:
+      taskRunners:
+        mode: internal
+        maxConcurrency: 100
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_MAX_CONCURRENCY
+          value: "100"
+
+  - it: should set broker address when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+        broker:
+          address: "somewhereelse"
+          port: 1234
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-broker-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_BROKER_LISTEN_ADDRESS
+          value: "somewhereelse"
+      - equal:
+          path: data.N8N_RUNNERS_BROKER_PORT
+          value: "1234"
+
+  - it: should set launcher log level when taskRunners.mode is external
+    set:
+      log:
+        level: debug
+      taskRunners:
+        mode: external
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_LAUNCHER_LOG_LEVEL
+          value: debug
+
+  - it: should set max concurrency when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+        maxConcurrency: 100
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_MAX_CONCURRENCY
+          value: "100"
+
+  - it: should set auto shutdown timeout when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+        external:
+          autoShutdownTimeout: 100
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_AUTO_SHUTDOWN_TIMEOUT
+          value: "100"
+
+  - it: should set task timeout when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+        taskTimeout: 100
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_TASK_TIMEOUT
+          value: "100"
+
+  - it: should set task broker uri when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+        broker:
+          address: "somewhereelse"
+          port: 1234
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - equal:
+          path: data.N8N_RUNNERS_TASK_BROKER_URI
+          value: "http://somewhereelse:1234"
+
+  - it: should set node options when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+        external:
+          nodeOptions:
+            - "--option1"
+            - "--option2"
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - equal:
+          path: data.NODE_OPTIONS
+          value: "--option1 --option2"
+
+  - it: should set timezone when taskRunners.mode is external
+    set:
+      timezone: "America/New_York"
+      taskRunners:
+        mode: external
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - equal:
+          path: data.GENERIC_TIMEZONE
+          value: "America/New_York"
+
+  - it: should set sentry dsn when taskRunners.mode is external and diagnostics.enabled is true
+    set:
+      diagnostics:
+        enabled: true
+        externalTaskRunnersSentryDsn: "https://sentry.mydomain.com"
+      taskRunners:
+        mode: external
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - equal:
+          path: data.SENTRY_DSN
+          value: "https://sentry.mydomain.com"
+      - equal:
+          path: data.N8N_VERSION
+          value: "1.0.0"
+      - equal:
+          path: data.ENVIRONMENT
+          value: "production"
+      - equal:
+          path: data.DEPLOYMENT_NAME
+          value: "n8n"
+
+  - it: should set sentry dsn empty when taskRunners.mode is external and diagnostics.enabled is false
+    set:
+      diagnostics:
+        enabled: false
+      taskRunners:
+        mode: external
+    documentSelector:
+      path: metadata.name
+      value: n8n-task-runners-configmap
+    asserts:
+      - equal:
+          path: data.SENTRY_DSN
+          value: ""
 
   - it: should match snapshot of default values
     release:

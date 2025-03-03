@@ -170,3 +170,38 @@ Usage: {{ include "n8n.generateRandomHex" 32 }}
 {{- end -}}
 {{- $result -}}
 {{- end -}}
+
+{{/*
+Task runners name
+*/}}
+{{- define "n8n.taskRunners.name" -}}
+{{- printf "%s-task-runners" (include "n8n.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{/*
+Create n8n task runners full name
+*/}}
+{{- define "n8n.taskRunners.fullname" -}}
+{{- printf "%s-task-runners" (include "n8n.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+n8n task runners labels
+*/}}
+{{- define "n8n.taskRunners.labels" -}}
+helm.sh/chart: {{ include "n8n.chart" . }}
+{{ include "n8n.taskRunners.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Task runners selector labels
+*/}}
+{{- define "n8n.taskRunners.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "n8n.taskRunners.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: task-runners
+{{- end }}

@@ -151,7 +151,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "n8n.fullname" . }}-task-runners-configmap
+  name: {{ template "n8n.fullname" . }}-task-broker-configmap
   labels:
     app: {{ include "n8n.name" . }}
     chart: {{ include "n8n.chart" . }}
@@ -160,3 +160,41 @@ metadata:
 data:
   N8N_RUNNERS_ENABLED: "true"
   N8N_RUNNERS_MODE: {{ .Values.taskRunners.mode | quote }}
+  N8N_RUNNERS_TASK_TIMEOUT: {{ .Values.taskRunners.taskTimeout | quote }}
+  N8N_RUNNERS_HEARTBEAT_INTERVAL: {{ .Values.taskRunners.taskHeartbeatInterval | quote }}
+{{- if eq .Values.taskRunners.mode "external" }}
+  N8N_RUNNERS_BROKER_LISTEN_ADDRESS: {{ .Values.taskRunners.broker.address | quote }}
+  N8N_RUNNERS_BROKER_PORT: {{ .Values.taskRunners.broker.port | quote }}
+{{- else }}
+  N8N_RUNNERS_MAX_CONCURRENCY: {{ .Values.taskRunners.maxConcurrency | quote }}
+{{- end }}
+
+{{- if eq .Values.taskRunners.mode "external" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "n8n.taskRunners.fullname" . }}-configmap
+  labels:
+    app: {{ include "n8n.name" . }}
+    chart: {{ include "n8n.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  N8N_RUNNERS_LAUNCHER_LOG_LEVEL: {{ .Values.log.level | quote }}
+  N8N_RUNNERS_MAX_CONCURRENCY: {{ .Values.taskRunners.maxConcurrency | quote }}
+  N8N_RUNNERS_AUTO_SHUTDOWN_TIMEOUT: {{ .Values.taskRunners.external.autoShutdownTimeout | quote }}
+  N8N_RUNNERS_TASK_TIMEOUT: {{ .Values.taskRunners.taskTimeout | quote }}
+  N8N_RUNNERS_TASK_BROKER_URI: {{ (printf "http://%s:%d" .Values.taskRunners.broker.address (.Values.taskRunners.broker.port | int)) | quote }}
+  N8N_RUNNERS_LAUNCHER_HEALTH_CHECK_PORT: {{ .Values.taskRunners.external.port | quote }}
+  NODE_OPTIONS: {{ .Values.taskRunners.external.nodeOptions | join " " | quote }}
+  GENERIC_TIMEZONE: {{ .Values.timezone | quote }}
+{{- if .Values.diagnostics.enabled }}
+  SENTRY_DSN: {{ .Values.diagnostics.externalTaskRunnersSentryDsn | quote }}
+  N8N_VERSION: {{ default .Chart.AppVersion .Values.image.tag | quote }}
+  ENVIRONMENT: "production"
+  DEPLOYMENT_NAME: {{ .Release.Name | quote }}
+{{- else }}
+  SENTRY_DSN: ""
+{{- end }}
+{{- end }}

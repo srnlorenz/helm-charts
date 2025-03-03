@@ -595,6 +595,24 @@ tests:
             value: n8nextraenvvar
         template: deployment-webhook.yaml
 
+  - it: should set n8n runners enabled environment variable
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].env
+          content:
+            name: N8N_RUNNERS_ENABLED
+            value: "true"
+        template: deployment-webhook.yaml
+
+  - it: should set n8n runners mode environment variable
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].env
+          content:
+            name: N8N_RUNNERS_MODE
+            value: internal
+        template: deployment-webhook.yaml
+
   - it: should set database configurations from database configmap
     asserts:
       - contains:
@@ -647,15 +665,6 @@ tests:
           content:
             configMapRef:
               name: n8n-queue-configmap
-        template: deployment-webhook.yaml
-
-  - it: should set task runners configurations from task runners configmap
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].envFrom
-          content:
-            configMapRef:
-              name: n8n-task-runners-configmap
         template: deployment-webhook.yaml
 
   - it: should set encryption key from encryption key secret
@@ -766,4 +775,58 @@ tests:
             key: fake-key
             operator: fake-operator
             value: fake-value
+        template: deployment-webhook.yaml
+
+  - it: should set task runner enabled environment variable
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].env
+          content:
+            name: N8N_RUNNERS_ENABLED
+            value: "true"
+        template: deployment-webhook.yaml
+
+  - it: should set task runner mode environment variable
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].env
+          content:
+            name: N8N_RUNNERS_MODE
+            value: internal
+        template: deployment-webhook.yaml
+
+  - it: should set task runner timeout environment variable
+    set:
+      taskRunners:
+        taskTimeout: 30
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].env
+          content:
+            name: N8N_RUNNERS_TASK_TIMEOUT
+            value: "30"
+        template: deployment-webhook.yaml
+
+  - it: should set task runner heartbeat interval environment variable
+    set:
+      taskRunners:
+        taskHeartbeatInterval: 15
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].env
+          content:
+            name: N8N_RUNNERS_HEARTBEAT_INTERVAL
+            value: "15"
+        template: deployment-webhook.yaml
+
+  - it: should set task runner max concurrency environment variable
+    set:
+      taskRunners:
+        maxConcurrency: 2
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-webhook")].env
+          content:
+            name: N8N_RUNNERS_MAX_CONCURRENCY
+            value: "2"
         template: deployment-webhook.yaml

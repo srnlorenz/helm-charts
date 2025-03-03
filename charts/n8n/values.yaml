@@ -122,6 +122,8 @@ diagnostics:
   frontendConfig: "1zPn9bgWPzlQc0p8Gj1uiK6DOTn;https://telemetry.n8n.io"
   # -- Diagnostics config for backend.
   backendConfig: "1zPn7YoGC3ZXE9zLeTKLuQCB4F6;https://telemetry.n8n.io"
+  # -- Diagnostics config for external task runners.
+  externalTaskRunnersSentryDsn: ""
 
   postHog:
     # -- API key for PostHog.
@@ -167,7 +169,51 @@ webhook:
 taskRunners:
   # -- Use `internal` to use internal task runner, or use `external` to have external sidecar task runner. For more information please follow the documentation: https://docs.n8n.io/hosting/configuration/task-runners/#task-runner-modes
   mode: internal
+  # -- The timeout for the task in seconds
+  taskTimeout: 60
+  # -- The heartbeat interval for the task in seconds
+  taskHeartbeatInterval: 30
+  # -- The maximum concurrency for the task
+  maxConcurrency: 5
 
+  # -- The address for the broker of the external task runner
+  broker:
+    # -- The address for the broker of the external task runner
+    address: "127.0.0.1"
+    # -- The port for the broker of the external task runner
+    port: 5679
+
+  # -- The configuration for the external task runner
+  external:
+    # -- The auth token for the main node
+    mainNodeAuthToken: ""
+    # -- The auth token for the worker node
+    workerNodeAuthToken: ""
+    # -- The auto shutdown timeout for the external task runner in seconds
+    autoShutdownTimeout: 15
+    # -- The port for the external task runner
+    port: 5680
+    # -- The node options for the external task runner
+    nodeOptions:
+      - "--max-semi-space-size=16"
+      - "--max-old-space-size=300"
+
+    # -- The resources for the external task runner
+    resources:
+      # -- The resources requests for the external task runner
+      requests:
+        # -- The CPU request for the external task runner
+        cpu: 100m
+        # -- The memory request for the external task runner
+        memory: 32Mi
+      # -- The limits for the external task runner
+      limits:
+        # -- The CPU limit for the external task runner
+        cpu: 2000m
+        # -- The memory limit for the external task runner
+        memory: 512Mi
+
+# -- The workflow history configuration
 workflowHistory:
   # -- Whether to save workflow history versions
   enabled: true

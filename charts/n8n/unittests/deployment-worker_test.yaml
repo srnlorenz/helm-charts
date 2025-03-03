@@ -2,6 +2,7 @@ suite: test deployment-worker
 
 templates:
   - configmap.yaml
+  - secret.yaml
   - deployment-worker.yaml
 
 release:
@@ -644,13 +645,13 @@ tests:
               name: n8n-queue-configmap
         template: deployment-worker.yaml
 
-  - it: should set task runners configurations from task runners configmap
+  - it: should set task broker configurations from task broker configmap
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
           content:
             configMapRef:
-              name: n8n-task-runners-configmap
+              name: n8n-task-broker-configmap
         template: deployment-worker.yaml
 
   - it: should set encryption key from encryption key secret
@@ -761,4 +762,84 @@ tests:
             key: fake-key
             operator: fake-operator
             value: fake-value
+        template: deployment-worker.yaml
+
+  - it: should set task runner container when taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+        external:
+          port: 1234
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].image
+          value: n8nio/n8n:1.0.0
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].imagePullPolicy
+          value: IfNotPresent
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].command
+          value: ["/usr/local/bin/task-runner-launcher"]
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].args
+          value: ["javascript"]
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].ports[0].containerPort
+          value: 1234
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].ports[0].protocol
+          value: TCP
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].livenessProbe.httpGet.path
+          value: /healthz
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].livenessProbe.httpGet.port
+          value: http
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].readinessProbe.httpGet.path
+          value: /healthz
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].readinessProbe.httpGet.port
+          value: http
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].resources
+          value:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+        template: deployment-worker.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].env
+          content:
+            name: N8N_RUNNERS_AUTH_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: n8n-task-runners-secret
+                key: worker-auth-token
+        template: deployment-worker.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].envFrom
+          content:
+            configMapRef:
+              name: n8n-task-runners-configmap
         template: deployment-worker.yaml
