@@ -251,12 +251,47 @@ auth:
 ldapAuth:
   enabled: true
   uri: "ldap://lldap:3890/dc=mlflow,dc=test"
+  tlsVerification: required
   lookupBind: "uid=%s,ou=people,dc=mlflow,dc=test"
   groupAttribute: "dn"
   searchBaseDistinguishedName: "ou=groups,dc=mlflow,dc=test"
   searchFilter: "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"
   adminGroupDistinguishedName: "cn=test-admin,ou=groups,dc=mlflow,dc=test"
   userGroupDistinguishedName: "cn=test-user,ou=groups,dc=mlflow,dc=test"
+```
+
+## Basic Authentication with LDAP Backend and self-signed CA certificate
+
+If you use self-signed certificate for your LDAP server, you can pass your self-signed CA certificate from `encodedTrustedCACertificate` variable by encoding it.
+
+```yaml
+ldapAuth:
+  enabled: true
+  uri: "ldap://lldap:3890/dc=mlflow,dc=test"
+  tlsVerification: required
+  lookupBind: "uid=%s,ou=people,dc=mlflow,dc=test"
+  groupAttribute: "dn"
+  searchBaseDistinguishedName: "ou=groups,dc=mlflow,dc=test"
+  searchFilter: "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"
+  adminGroupDistinguishedName: "cn=test-admin,ou=groups,dc=mlflow,dc=test"
+  userGroupDistinguishedName: "cn=test-user,ou=groups,dc=mlflow,dc=test"
+  encodedTrustedCACertificate: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURoRENDQW15Z0F3SUJBZ0lSQUx1a3VyZnlCMFF0Z1FtbnphZDlMNWN3RFFZSktvWklodmNOQVFFTEJRQXcKU3pFZ01CNEdBMVVFQXd3WFRVeEdiRzkzSUV4RVFWQXRVMU5NTFZSbGMzUWdRMEV4RHpBTkJnTlZCQW9NQmsxTQpSbXh2ZHpFV01CUUdBMVVFQ3d3TlRFUkJVQzFUVTB3dFZHVnpkREFlRncweU5UQXpNRE14TnpJMU1qVmFGdzB5Ck5UQXpNRFF4TnpJMU1qVmFNRXN4SURBZUJnTlZCQU1NRjAxTVJteHZkeUJNUkVGUUxWTlRUQzFVWlhOMElFTkIKTVE4d0RRWURWUVFLREFaTlRFWnNiM2N4RmpBVUJnTlZCQXNNRFV4RVFWQXRVMU5NTFZSbGMzUXdnZ0VpTUEwRwpDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRRHNBNDc1NkRrZlVXRThZZjRHN0Z4ZFJkL0pnNXNkCjRJUVp1K3ZQcDRMTm5uM3E5VWlZeUtHZkVFRDJTMnRvYUVTS1VNakJyYWVRd3crUDV0dDVHcjNMQ3JQUmpjZTUKQ2xuMEh3NE5pRGJ5bkhWcDkxWXRjdHJObWtGMFRGdUYxNVE5OUMyR1lpbmNYUW93THduMWZXN2pTZjFuU3N1Kwpvek0veHFUa2FyQndtcVFkYTRlcW56cG5Xa2ZqL2ZHQTNVcnpwMHV6ZG1ZdnNhcmtiTkt0aGZSWTJ4UDhQZGc0Cm15dDJ6SmlycjN2MEo1OFNHeFN6ZWlab0tYUTNtTW5hRDZGTUVTcEg5THUydDVTRUVPZjlubFJLS2l4UzF0aWMKVHJUMDkzUVNKcWNRRkMyNTNwWmF1ZkpQNWR2SlVIR0NvcHFzVU5xc0Jkd2Ivd1grNnJFQm5YYUJBZ01CQUFHagpZekJoTUE4R0ExVWRFd0VCL3dRRk1BTUJBZjh3RGdZRFZSMFBBUUgvQkFRREFnRUdNQjBHQTFVZERnUVdCQlJsCnZVRmphb0c5NU1sWmxBSUs2SDRsaVlvMUNqQWZCZ05WSFNNRUdEQVdnQlJsdlVGamFvRzk1TWxabEFJSzZINGwKaVlvMUNqQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFCNy96YWtlOHB6QWF3eHhvUW5mV3N1MkpSNWhyZkpjcQpjdCt1UEVnSWdnc3lFSmRGbndvbSt2UUV3a3NnT2tEYk10UGZnWTdRUVdUeHo4d1pQOXJDZVZaVUJ0T1FrdytKCjZCR2NLc1gwVnl5bUx5a1VOWUF5U2pEUE1Ma0NES2ZsRyt2eWFPWTZQbFdkZVJJTTVRMVZRL1B1SmQrbCtobEgKd2dFbU1RK2VjeVB2Wkhnd0t3cE41Zzh3YzI3bjI3RURqS29wUHpFMXpzRFN0MjFwUnMvcUdnZXZ6QTl2RlB5eAprWXdXdWJkblQ5NkwyTUUrVjcwTmJzbWt5ekl2T2NzajBlRnE0Z2EyNUQxQ2FhLzlyUnVOSlhwanYyQndYUm1tClNDNnBIV1dRWnh3NDRLQnJCM09EM1hLS25rMU94RFBDUzVwMzN2SHo4ZEZOMHNzb3EwV1VPUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
+```
+
+Or if you already stored your self-signed CA certifica in an external secret, you can pass secret name from `externalSecretForTrustedCACertificate` variable. The secret must keep CA certificate with `ca.crt` key.
+
+```yaml
+ldapAuth:
+  enabled: true
+  uri: "ldap://lldap:3890/dc=mlflow,dc=test"
+  tlsVerification: required
+  lookupBind: "uid=%s,ou=people,dc=mlflow,dc=test"
+  groupAttribute: "dn"
+  searchBaseDistinguishedName: "ou=groups,dc=mlflow,dc=test"
+  searchFilter: "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"
+  adminGroupDistinguishedName: "cn=test-admin,ou=groups,dc=mlflow,dc=test"
+  userGroupDistinguishedName: "cn=test-user,ou=groups,dc=mlflow,dc=test"
+  externalSecretForTrustedCACertificate: "external-ca-certificate-secret"
 ```
 
 {{ template "chart.requirementsSection" . }}

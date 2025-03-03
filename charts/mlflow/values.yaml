@@ -199,6 +199,8 @@ ldapAuth:
   enabled: false
   # -- LDAP URI. e.g.: "ldap://lldap:3890/dc=mlflow,dc=test"
   uri: ""
+  # -- TLS verification mode. Options: required, optional, none
+  tlsVerification: required
   # -- LDAP Loopup Bind. e.g.: "uid=%s,ou=people,dc=mlflow,dc=test"
   lookupBind: ""
   # -- LDAP group attribute.
@@ -211,6 +213,10 @@ ldapAuth:
   adminGroupDistinguishedName: ""
   # -- LDAP DN for the user group. e.g.: "cn=test-user,ou=groups,dc=mlflow,dc=test"
   userGroupDistinguishedName: ""
+  # -- Base64 encoded trusted CA certificate for LDAP server connection.
+  encodedTrustedCACertificate: ""
+  # -- External secret name for trusted CA certificate for LDAP server connection.
+  externalSecretForTrustedCACertificate: ""
 
 # -- A map of arguments and values to pass to the `mlflow server` command. Keys must be camelcase. Helm will turn them to kebabcase style.
 extraArgs: {}

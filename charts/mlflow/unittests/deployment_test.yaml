@@ -591,6 +591,56 @@ tests:
             secret:
               secretName: mlflow-auth-config-secret
 
+  - it: should set trusted CA certificate when ldapAuth enabled and encodedTrustedCACertificate is set
+    set:
+      ldapAuth:
+        enabled: true
+        encodedTrustedCACertificate: "c29tZXRoaW5n"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: LDAP_CA
+            value: /etc/mlflow/auth/ca.crt
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
+          content:
+            name: trusted-ca-cert-secret
+            mountPath: /etc/mlflow/auth/ca.crt
+            subPath: ca.crt
+            readOnly: true
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: trusted-ca-cert-secret
+            secret:
+              secretName: mlflow-trusted-ca-cert-secret
+
+  - it: should set trusted CA certificate when ldapAuth enabled and externalSecretForTrustedCACertificate is set
+    set:
+      ldapAuth:
+        enabled: true
+        externalSecretForTrustedCACertificate: "test-secret"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].env
+          content:
+            name: LDAP_CA
+            value: /etc/mlflow/auth/ca.crt
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
+          content:
+            name: trusted-ca-cert-secret
+            mountPath: /etc/mlflow/auth/ca.crt
+            subPath: ca.crt
+            readOnly: true
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: trusted-ca-cert-secret
+            secret:
+              secretName: test-secret
+
   - it: should match snapshot of default values
     release:
       name: mlflow

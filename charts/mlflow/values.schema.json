@@ -1206,6 +1206,14 @@
           "title": "uri",
           "type": "string"
         },
+        "tlsVerification": {
+          "default": "required",
+          "description": "TLS verification mode. Options: required, optional, none",
+          "required": [],
+          "title": "tlsVerification",
+          "type": "string",
+          "enum": ["required", "optional", "none"]
+        },
         "lookupBind": {
           "default": "",
           "description": "LDAP Loopup Bind. e.g.: uid=%s,ou=people,dc=mlflow,dc=test",
@@ -1247,11 +1255,26 @@
           "required": [],
           "title": "userGroupDistinguishedName",
           "type": "string"
+        },
+        "encodedTrustedCACertificate": {
+          "default": "",
+          "description": "Base64 encoded trusted CA certificate for LDAP server connection.",
+          "required": [],
+          "title": "encodedTrustedCACertificate",
+          "type": "string"
+        },
+        "externalSecretForTrustedCACertificate": {
+          "default": "",
+          "description": "External secret name for trusted CA certificate for LDAP server connection.",
+          "required": [],
+          "title": "externalSecretForTrustedCACertificate",
+          "type": "string"
         }
       },
       "required": [
         "enabled",
         "uri",
+        "tlsVerification",
         "lookupBind",
         "groupAttribute",
         "searchBaseDistinguishedName",

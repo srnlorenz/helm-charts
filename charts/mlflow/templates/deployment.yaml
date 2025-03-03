@@ -162,6 +162,10 @@ spec:
           {{- else if .Values.ldapAuth.enabled }}
             - name: MLFLOW_AUTH_CONFIG_PATH
               value: "/etc/mlflow/auth/ldap_basic_auth.ini"
+            {{- if or .Values.ldapAuth.encodedTrustedCACertificate .Values.ldapAuth.externalSecretForTrustedCACertificate }}
+            - name: LDAP_CA
+              value: "/etc/mlflow/auth/ca.crt"
+            {{- end }}
           {{- end }}
           {{- range $key, $value := .Values.extraEnvVars }}
             - name: {{ upper $key }}
@@ -188,6 +192,12 @@ spec:
             - name: auth-config-secret
               mountPath: "/etc/mlflow/auth"
               readOnly: true
+              {{- if or .Values.ldapAuth.encodedTrustedCACertificate .Values.ldapAuth.externalSecretForTrustedCACertificate }}
+            - name: trusted-ca-cert-secret
+              mountPath: /etc/mlflow/auth/ca.crt
+              subPath: ca.crt
+              readOnly: true
+              {{- end }}
             {{- end }}
           {{- with .Values.extraVolumeMounts }}
             {{ toYaml . | nindent 12 }}
@@ -225,6 +235,11 @@ spec:
         - name: auth-config-secret
           secret:
             secretName: {{ template "mlflow.fullname" . }}-auth-config-secret
+          {{- if or .Values.ldapAuth.encodedTrustedCACertificate .Values.ldapAuth.externalSecretForTrustedCACertificate }}
+        - name: trusted-ca-cert-secret
+          secret:
+            secretName: {{ default (printf "%s-trusted-ca-cert-secret" (include "mlflow.fullname" .)) .Values.ldapAuth.externalSecretForTrustedCACertificate }}
+          {{- end }}
         {{- end }}
       {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}

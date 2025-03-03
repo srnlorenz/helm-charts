@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.13.1](https://img.shields.io/badge/Version-0.13.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.20.2](https://img.shields.io/badge/AppVersion-2.20.2-informational?style=flat-square)
+![Version: 0.14.0](https://img.shields.io/badge/Version-0.14.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.20.3](https://img.shields.io/badge/AppVersion-2.20.3-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -251,12 +251,47 @@ auth:
 ldapAuth:
   enabled: true
   uri: "ldap://lldap:3890/dc=mlflow,dc=test"
+  tlsVerification: required
   lookupBind: "uid=%s,ou=people,dc=mlflow,dc=test"
   groupAttribute: "dn"
   searchBaseDistinguishedName: "ou=groups,dc=mlflow,dc=test"
   searchFilter: "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"
   adminGroupDistinguishedName: "cn=test-admin,ou=groups,dc=mlflow,dc=test"
   userGroupDistinguishedName: "cn=test-user,ou=groups,dc=mlflow,dc=test"
+```
+
+## Basic Authentication with LDAP Backend and self-signed CA certificate
+
+If you use self-signed certificate for your LDAP server, you can pass your self-signed CA certificate from `encodedTrustedCACertificate` variable by encoding it.
+
+```yaml
+ldapAuth:
+  enabled: true
+  uri: "ldap://lldap:3890/dc=mlflow,dc=test"
+  tlsVerification: required
+  lookupBind: "uid=%s,ou=people,dc=mlflow,dc=test"
+  groupAttribute: "dn"
+  searchBaseDistinguishedName: "ou=groups,dc=mlflow,dc=test"
+  searchFilter: "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"
+  adminGroupDistinguishedName: "cn=test-admin,ou=groups,dc=mlflow,dc=test"
+  userGroupDistinguishedName: "cn=test-user,ou=groups,dc=mlflow,dc=test"
+  encodedTrustedCACertificate: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURoRENDQW15Z0F3SUJBZ0lSQUx1a3VyZnlCMFF0Z1FtbnphZDlMNWN3RFFZSktvWklodmNOQVFFTEJRQXcKU3pFZ01CNEdBMVVFQXd3WFRVeEdiRzkzSUV4RVFWQXRVMU5NTFZSbGMzUWdRMEV4RHpBTkJnTlZCQW9NQmsxTQpSbXh2ZHpFV01CUUdBMVVFQ3d3TlRFUkJVQzFUVTB3dFZHVnpkREFlRncweU5UQXpNRE14TnpJMU1qVmFGdzB5Ck5UQXpNRFF4TnpJMU1qVmFNRXN4SURBZUJnTlZCQU1NRjAxTVJteHZkeUJNUkVGUUxWTlRUQzFVWlhOMElFTkIKTVE4d0RRWURWUVFLREFaTlRFWnNiM2N4RmpBVUJnTlZCQXNNRFV4RVFWQXRVMU5NTFZSbGMzUXdnZ0VpTUEwRwpDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRRHNBNDc1NkRrZlVXRThZZjRHN0Z4ZFJkL0pnNXNkCjRJUVp1K3ZQcDRMTm5uM3E5VWlZeUtHZkVFRDJTMnRvYUVTS1VNakJyYWVRd3crUDV0dDVHcjNMQ3JQUmpjZTUKQ2xuMEh3NE5pRGJ5bkhWcDkxWXRjdHJObWtGMFRGdUYxNVE5OUMyR1lpbmNYUW93THduMWZXN2pTZjFuU3N1Kwpvek0veHFUa2FyQndtcVFkYTRlcW56cG5Xa2ZqL2ZHQTNVcnpwMHV6ZG1ZdnNhcmtiTkt0aGZSWTJ4UDhQZGc0Cm15dDJ6SmlycjN2MEo1OFNHeFN6ZWlab0tYUTNtTW5hRDZGTUVTcEg5THUydDVTRUVPZjlubFJLS2l4UzF0aWMKVHJUMDkzUVNKcWNRRkMyNTNwWmF1ZkpQNWR2SlVIR0NvcHFzVU5xc0Jkd2Ivd1grNnJFQm5YYUJBZ01CQUFHagpZekJoTUE4R0ExVWRFd0VCL3dRRk1BTUJBZjh3RGdZRFZSMFBBUUgvQkFRREFnRUdNQjBHQTFVZERnUVdCQlJsCnZVRmphb0c5NU1sWmxBSUs2SDRsaVlvMUNqQWZCZ05WSFNNRUdEQVdnQlJsdlVGamFvRzk1TWxabEFJSzZINGwKaVlvMUNqQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFCNy96YWtlOHB6QWF3eHhvUW5mV3N1MkpSNWhyZkpjcQpjdCt1UEVnSWdnc3lFSmRGbndvbSt2UUV3a3NnT2tEYk10UGZnWTdRUVdUeHo4d1pQOXJDZVZaVUJ0T1FrdytKCjZCR2NLc1gwVnl5bUx5a1VOWUF5U2pEUE1Ma0NES2ZsRyt2eWFPWTZQbFdkZVJJTTVRMVZRL1B1SmQrbCtobEgKd2dFbU1RK2VjeVB2Wkhnd0t3cE41Zzh3YzI3bjI3RURqS29wUHpFMXpzRFN0MjFwUnMvcUdnZXZ6QTl2RlB5eAprWXdXdWJkblQ5NkwyTUUrVjcwTmJzbWt5ekl2T2NzajBlRnE0Z2EyNUQxQ2FhLzlyUnVOSlhwanYyQndYUm1tClNDNnBIV1dRWnh3NDRLQnJCM09EM1hLS25rMU94RFBDUzVwMzN2SHo4ZEZOMHNzb3EwV1VPUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
+```
+
+Or if you already stored your self-signed CA certifica in an external secret, you can pass secret name from `externalSecretForTrustedCACertificate` variable. The secret must keep CA certificate with `ca.crt` key.
+
+```yaml
+ldapAuth:
+  enabled: true
+  uri: "ldap://lldap:3890/dc=mlflow,dc=test"
+  tlsVerification: required
+  lookupBind: "uid=%s,ou=people,dc=mlflow,dc=test"
+  groupAttribute: "dn"
+  searchBaseDistinguishedName: "ou=groups,dc=mlflow,dc=test"
+  searchFilter: "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"
+  adminGroupDistinguishedName: "cn=test-admin,ou=groups,dc=mlflow,dc=test"
+  userGroupDistinguishedName: "cn=test-user,ou=groups,dc=mlflow,dc=test"
+  externalSecretForTrustedCACertificate: "external-ca-certificate-secret"
 ```
 
 ## Requirements
@@ -356,13 +391,16 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` | Ingress path type |
 | ingress.tls | list | `[]` | Ingress tls configuration for https access |
 | initContainers | list | `[]` | Init Containers for Mlflow Pod |
-| ldapAuth | object | `{"adminGroupDistinguishedName":"","enabled":false,"groupAttribute":"dn","lookupBind":"","searchBaseDistinguishedName":"","searchFilter":"(&(objectclass=groupOfUniqueNames)(uniquemember=%s))","uri":"","userGroupDistinguishedName":""}` | Basic Authentication with LDAP backend |
+| ldapAuth | object | `{"adminGroupDistinguishedName":"","enabled":false,"encodedTrustedCACertificate":"","externalSecretForTrustedCACertificate":"","groupAttribute":"dn","lookupBind":"","searchBaseDistinguishedName":"","searchFilter":"(&(objectclass=groupOfUniqueNames)(uniquemember=%s))","tlsVerification":"required","uri":"","userGroupDistinguishedName":""}` | Basic Authentication with LDAP backend |
 | ldapAuth.adminGroupDistinguishedName | string | `""` | LDAP DN for the admin group. e.g.: "cn=test-admin,ou=groups,dc=mlflow,dc=test" |
 | ldapAuth.enabled | bool | `false` | Specifies if you want to enable mlflow LDAP authentication. auth and ldapAuth can't be enabled at same time. |
+| ldapAuth.encodedTrustedCACertificate | string | `""` | Base64 encoded trusted CA certificate for LDAP server connection. |
+| ldapAuth.externalSecretForTrustedCACertificate | string | `""` | External secret name for trusted CA certificate for LDAP server connection. |
 | ldapAuth.groupAttribute | string | `"dn"` | LDAP group attribute. |
 | ldapAuth.lookupBind | string | `""` | LDAP Loopup Bind. e.g.: "uid=%s,ou=people,dc=mlflow,dc=test" |
 | ldapAuth.searchBaseDistinguishedName | string | `""` | LDAP base DN for the search. e.g.: "ou=groups,dc=mlflow,dc=test" |
 | ldapAuth.searchFilter | string | `"(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"` | LDAP query filter for search |
+| ldapAuth.tlsVerification | string | `"required"` | TLS verification mode. Options: required, optional, none |
 | ldapAuth.uri | string | `""` | LDAP URI. e.g.: "ldap://lldap:3890/dc=mlflow,dc=test" |
 | ldapAuth.userGroupDistinguishedName | string | `""` | LDAP DN for the user group. e.g.: "cn=test-user,ou=groups,dc=mlflow,dc=test" |
 | livenessProbe | object | `{"failureThreshold":5,"initialDelaySeconds":10,"periodSeconds":30,"timeoutSeconds":3}` | Liveness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
