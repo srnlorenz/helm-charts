@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 0.3.1](https://img.shields.io/badge/Version-0.3.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.81.4](https://img.shields.io/badge/AppVersion-1.81.4-informational?style=flat-square)
+![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.81.4](https://img.shields.io/badge/AppVersion-1.81.4-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -26,6 +26,50 @@ _See [configuration](#configuration) below._
 _See [helm install](https://helm.sh/docs/helm/helm_install/) for command documentation._
 
 > **Tip**: Search all available chart versions using `helm search repo community-charts -l`. Please don't forget to run `helm repo update` before the command.
+
+## Full Example
+
+```yaml
+log:
+  level: warn
+
+db:
+  type: postgresdb
+
+externalPostgresql:
+  host: "postgresql-instance1.ab012cdefghi.eu-central-1.rds.amazonaws.com"
+  username: "n8nuser"
+  password: "Pa33w0rd!"
+  database: "n8n"
+
+worker:
+  mode: queue
+
+externalRedis:
+  host: "redis-instance1.ab012cdefghi.eu-central-1.rds.amazonaws.com"
+  username: "default"
+  password: "Pa33w0rd!"
+
+ingress:
+  enabled: true
+  hosts:
+    - host: n8n.mydomain.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+webhook:
+  mode: queue
+  url: "https://webhook.mydomain.com"
+
+resources:
+  requests:
+    cpu: 1000m
+    memory: 250Mi
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+```
 
 ## Basic Deployment with Ingress
 
@@ -194,49 +238,27 @@ taskRunners:
   mode: external
 ```
 
-## Full Example
+## Upgrading
 
-```yaml
-log:
-  level: warn
+This section outlines major updates and breaking changes for each version of the Helm Chart to help you transition smoothly between releases.
 
-db:
-  type: postgresdb
+---
 
-externalPostgresql:
-  host: "postgresql-instance1.ab012cdefghi.eu-central-1.rds.amazonaws.com"
-  username: "n8nuser"
-  password: "Pa33w0rd!"
-  database: "n8n"
+### Version-Specific Upgrade Notes
 
-worker:
-  mode: queue
+<details>
 
-externalRedis:
-  host: "redis-instance1.ab012cdefghi.eu-central-1.rds.amazonaws.com"
-  username: "default"
-  password: "Pa33w0rd!"
+<summary>Upgrading to 1.x.x</summary>
 
-ingress:
-  enabled: true
-  hosts:
-    - host: n8n.mydomain.com
-      paths:
-        - path: /
-          pathType: Prefix
+#### Breaking Changes
 
-webhook:
-  mode: queue
-  url: "https://webhook.mydomain.com"
+- The `diagnostics.externalTaskRunnersSentryDsn` setting has been relocated to `sentry.externalTaskRunnersDsn`.
 
-resources:
-  requests:
-    cpu: 1000m
-    memory: 250Mi
-  limits:
-    cpu: 2000m
-    memory: 2Gi
-```
+#### Action Required
+
+If you previously configured `diagnostics.externalTaskRunnersSentryDsn`, update your configuration to use `sentry.externalTaskRunnersDsn`. Ensure that any associated flags are enabled as needed.
+
+</details>
 
 ## Requirements
 
@@ -283,7 +305,6 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | defaultLocale | string | `"en"` | A locale identifier, compatible with the Accept-Language header. n8n doesn't support regional identifiers, such as de-AT. |
 | diagnostics.backendConfig | string | `"1zPn7YoGC3ZXE9zLeTKLuQCB4F6;https://telemetry.n8n.io"` | Diagnostics config for backend. |
 | diagnostics.enabled | bool | `false` | Whether diagnostics are enabled. |
-| diagnostics.externalTaskRunnersSentryDsn | string | `""` | Diagnostics config for external task runners. |
 | diagnostics.frontendConfig | string | `"1zPn9bgWPzlQc0p8Gj1uiK6DOTn;https://telemetry.n8n.io"` | Diagnostics config for frontend. |
 | diagnostics.postHog.apiHost | string | `"https://ph.n8n.io"` | API host for PostHog. |
 | diagnostics.postHog.apiKey | string | `"phc_4URIAm1uYfJO7j8kWSe0J8lc8IqnstRLS7Jx8NcakHo"` | API key for PostHog. |
@@ -331,6 +352,10 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | redis.enabled | bool | `false` | Enable redis |
 | resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 | securityContext | object | `{}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
+| sentry.backendDsn | string | `""` | Sentry DSN for backend. |
+| sentry.enabled | bool | `false` | Whether sentry is enabled. |
+| sentry.externalTaskRunnersDsn | string | `""` | Sentry DSN for external task runners. |
+| sentry.frontendDsn | string | `""` | Sentry DSN for frontend. |
 | service | object | `{"annotations":{},"name":"http","port":5678,"type":"ClusterIP"}` | This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/ |
 | service.annotations | object | `{}` | Additional service annotations |
 | service.name | string | `"http"` | Default Service name |

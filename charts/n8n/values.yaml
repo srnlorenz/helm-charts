@@ -114,6 +114,16 @@ db:
     # -- Runs VACUUM operation on startup to rebuild the database. Reduces file size and optimizes indexes. This is a long running blocking operation and increases start-up time.
     vacuum: false
 
+sentry:
+  # -- Whether sentry is enabled.
+  enabled: false
+  # -- Sentry DSN for backend.
+  backendDsn: ""
+  # -- Sentry DSN for frontend.
+  frontendDsn: ""
+  # -- Sentry DSN for external task runners.
+  externalTaskRunnersDsn: ""
+
 diagnostics:
   # -- Whether diagnostics are enabled.
   enabled: false
@@ -122,8 +132,6 @@ diagnostics:
   frontendConfig: "1zPn9bgWPzlQc0p8Gj1uiK6DOTn;https://telemetry.n8n.io"
   # -- Diagnostics config for backend.
   backendConfig: "1zPn7YoGC3ZXE9zLeTKLuQCB4F6;https://telemetry.n8n.io"
-  # -- Diagnostics config for external task runners.
-  externalTaskRunnersSentryDsn: ""
 
   postHog:
     # -- API key for PostHog.

@@ -212,6 +212,42 @@
         "zu"
       ]
     },
+    "sentry": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": false,
+          "description": "Whether sentry is enabled.",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "backendDsn": {
+          "default": "",
+          "description": "Sentry DSN for backend.",
+          "required": [],
+          "title": "backendDsn",
+          "type": "string"
+        },
+        "frontendDsn": {
+          "default": "",
+          "description": "Sentry DSN for frontend.",
+          "required": [],
+          "title": "frontendDsn",
+          "type": "string"
+        },
+        "externalTaskRunnersDsn": {
+          "default": "",
+          "description": "Sentry DSN for external task runners.",
+          "required": [],
+          "title": "externalTaskRunnersDsn",
+          "type": "string"
+        }
+      },
+      "required": ["enabled", "backendDsn", "frontendDsn", "externalTaskRunnersDsn"],
+      "title": "sentry",
+      "type": "object"
+    },
     "diagnostics": {
       "additionalProperties": false,
       "properties": {
@@ -234,13 +270,6 @@
           "description": "Diagnostics config for frontend.",
           "required": [],
           "title": "frontendConfig",
-          "type": "string"
-        },
-        "externalTaskRunnersSentryDsn": {
-          "default": "",
-          "description": "Diagnostics config for external task runners.",
-          "required": [],
-          "title": "externalTaskRunnersSentryDsn",
           "type": "string"
         },
         "postHog": {
@@ -266,7 +295,7 @@
           "type": "object"
         }
       },
-      "required": ["enabled", "frontendConfig", "backendConfig", "externalTaskRunnersSentryDsn", "postHog"],
+      "required": ["enabled", "frontendConfig", "backendConfig", "postHog"],
       "title": "diagnostics",
       "type": "object"
     },
@@ -1408,6 +1437,7 @@
     "service",
     "log",
     "db",
+    "sentry",
     "diagnostics",
     "versionNotifications",
     "api",

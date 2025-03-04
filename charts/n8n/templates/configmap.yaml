@@ -77,6 +77,16 @@ data:
   N8N_DIAGNOSTICS_POSTHOG_API_KEY: ""
   N8N_DIAGNOSTICS_POSTHOG_API_HOST: ""
 {{- end }}
+{{- if .Values.sentry.enabled }}
+  N8N_SENTRY_DSN: {{ .Values.sentry.backendDsn | quote }}
+  N8N_FRONTEND_SENTRY_DSN: {{ .Values.sentry.frontendDsn | quote }}
+  N8N_VERSION: {{ default .Chart.AppVersion .Values.image.tag | quote }}
+  ENVIRONMENT: "production"
+  DEPLOYMENT_NAME: {{ .Release.Name | quote }}
+{{- else }}
+  N8N_SENTRY_DSN: ""
+  N8N_FRONTEND_SENTRY_DSN: ""
+{{- end }}
 
 ---
 apiVersion: v1
@@ -189,8 +199,8 @@ data:
   N8N_RUNNERS_LAUNCHER_HEALTH_CHECK_PORT: {{ .Values.taskRunners.external.port | quote }}
   NODE_OPTIONS: {{ .Values.taskRunners.external.nodeOptions | join " " | quote }}
   GENERIC_TIMEZONE: {{ .Values.timezone | quote }}
-{{- if .Values.diagnostics.enabled }}
-  SENTRY_DSN: {{ .Values.diagnostics.externalTaskRunnersSentryDsn | quote }}
+{{- if .Values.sentry.enabled }}
+  SENTRY_DSN: {{ .Values.sentry.externalTaskRunnersDsn | quote }}
   N8N_VERSION: {{ default .Chart.AppVersion .Values.image.tag | quote }}
   ENVIRONMENT: "production"
   DEPLOYMENT_NAME: {{ .Release.Name | quote }}
