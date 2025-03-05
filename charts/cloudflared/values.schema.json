@@ -177,6 +177,27 @@
           "title": "fsGroupChangePolicy",
           "type": "string",
           "enum": ["OnRootMismatch", "Always"]
+        },
+        "sysctls": {
+          "items": {
+            "properties": {
+              "name": {
+                "required": [],
+                "title": "name",
+                "type": "string"
+              },
+              "value": {
+                "required": [],
+                "title": "value",
+                "type": "string"
+              }
+            },
+            "required": ["name", "value"]
+          },
+          "required": [],
+          "title": "sysctls",
+          "type": "array",
+          "minItems": 1
         }
       },
       "required": [],

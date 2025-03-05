@@ -4,7 +4,7 @@
 
 A Helm chart for cloudflare tunnel
 
-![Version: 1.1.9](https://img.shields.io/badge/Version-1.1.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.2.1](https://img.shields.io/badge/AppVersion-2025.2.1-informational?style=flat-square)
+![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.2.1](https://img.shields.io/badge/AppVersion-2025.2.1-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -94,9 +94,27 @@ _See [helm install](https://helm.sh/docs/helm/helm_install/) for command documen
 
 > **Tip**: Search all available chart versions using `helm search repo community-charts -l`. Please don't forget to run `helm repo update` before the command.
 
+## Upgrading
+
+This section outlines major updates and breaking changes for each version of the Helm Chart to help you transition smoothly between releases.
+
+---
+
+### Version-Specific Upgrade Notes
+
+<details>
+
+<summary>Upgrading to 2.x.x</summary>
+
+#### Breaking Changes
+
+- Your Kubernetes server must be at or later than version v1.21.
+
+</details>
+
 ## Requirements
 
-Kubernetes: `>=1.16.0-0`
+Kubernetes: `>=1.21.0-0`
 
 ## Uninstall Helm Chart
 
@@ -130,12 +148,12 @@ helm upgrade [RELEASE_NAME] community-charts/cloudflared
 | nodeSelector | object | `{"kubernetes.io/os":"linux"}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
 | podAnnotations | object | `{}` | This is for setting Kubernetes Annotations to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | podLabels | object | `{}` | This is for setting Kubernetes Labels to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |
-| podSecurityContext | object | `{}` | This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
+| podSecurityContext | object | `{"fsGroup":65532,"fsGroupChangePolicy":"OnRootMismatch","sysctls":[{"name":"net.ipv4.ping_group_range","value":"0 2147483647"}]}` | This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
 | replica | object | `{"allNodes":true,"count":1}` | This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/ |
 | replica.allNodes | bool | `true` | This will use DaemonSet to deploy cloudflared to all nodes |
 | replica.count | int | `1` | If previous flag disabled, this will use Deployment to deploy cloudflared only number of following count |
 | resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
-| securityContext | object | `{}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
+| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"add":["NET_RAW"],"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true,"runAsGroup":65532,"runAsNonRoot":true,"runAsUser":65532}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
 | serviceAccount | object | `{"annotations":{},"automount":true,"create":true,"name":""}` | This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/ |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
 | serviceAccount.automount | bool | `true` | Automatically mount a ServiceAccount's API credentials? |
