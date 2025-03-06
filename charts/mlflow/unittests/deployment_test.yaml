@@ -601,12 +601,12 @@ tests:
           path: spec.template.spec.containers[?(@.name == "mlflow")].env
           content:
             name: LDAP_CA
-            value: /etc/mlflow/auth/ca.crt
+            value: /certs/ca.crt
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
           content:
             name: trusted-ca-cert-secret
-            mountPath: /etc/mlflow/auth/ca.crt
+            mountPath: /certs/ca.crt
             subPath: ca.crt
             readOnly: true
       - contains:
@@ -626,12 +626,12 @@ tests:
           path: spec.template.spec.containers[?(@.name == "mlflow")].env
           content:
             name: LDAP_CA
-            value: /etc/mlflow/auth/ca.crt
+            value: /certs/ca.crt
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].volumeMounts
           content:
             name: trusted-ca-cert-secret
-            mountPath: /etc/mlflow/auth/ca.crt
+            mountPath: /certs/ca.crt
             subPath: ca.crt
             readOnly: true
       - contains:
