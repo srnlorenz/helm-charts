@@ -1,3 +1,5 @@
+{{- if not .Values.replica.allNodes }}
+---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
@@ -7,4 +9,6 @@ metadata:
 spec:
   minAvailable: 1
   selector:
-    {{- include "cloudflared.selectorLabels" . | nindent 4 }}
+    matchLabels:
+      {{- include "cloudflared.selectorLabels" . | nindent 6 }}
+{{- end }}
