@@ -445,6 +445,9 @@ tests:
       - equal:
           path: data.EXECUTIONS_MODE
           value: "queue"
+      - equal:
+          path: data.OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS
+          value: "true"
 
   - it: should set execution mode to queue when db type set to postgresdb and webhook.mode is queue
     set:
@@ -459,6 +462,9 @@ tests:
       - equal:
           path: data.EXECUTIONS_MODE
           value: "queue"
+      - equal:
+          path: data.OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS
+          value: "true"
 
   - it: should set redis host redis-master when db type set to postgresdb and worker mode is queue and redis.enabled is true
     set:

@@ -133,6 +133,7 @@ metadata:
     heritage: {{ .Release.Service }}
 data:
   EXECUTIONS_MODE: "queue"
+  OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
   {{- if .Values.redis.enabled }}
   QUEUE_BULL_REDIS_HOST: {{ template "n8n.fullname" . }}-redis-master
   {{- else }}
