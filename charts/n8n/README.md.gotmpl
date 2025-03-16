@@ -307,33 +307,25 @@ This section outlines major updates and breaking changes for each version of the
 
 ### Version-Specific Upgrade Notes
 
-<details>
+#### Upgrading to 1.2.x</summary>
 
-<summary>Upgrading to 1.2.x</summary>
-
-#### Deprecation Warnings
+##### Deprecation Warnings
 
 - The top-level fields `extraEnvVars`, `extraSecretNamesForEnvFrom`, `resources`, `volumes` and `volumeMounts` are deprecated.
 
-#### Action Required
+##### Action Required
 
 Please consider using the corresponding fields in the `main`, `worker` and `webhook` blocks instead. The deprecated fields will be removed in the next major release.
 
-</details>
+#### Upgrading to 1.x.x</summary>
 
-<details>
-
-<summary>Upgrading to 1.x.x</summary>
-
-#### Breaking Changes
+##### Breaking Changes
 
 - The `diagnostics.externalTaskRunnersSentryDsn` setting has been relocated to `sentry.externalTaskRunnersDsn`.
 
-#### Action Required
+##### Action Required
 
 If you previously configured `diagnostics.externalTaskRunnersSentryDsn`, update your configuration to use `sentry.externalTaskRunnersDsn`. Ensure that any associated flags are enabled as needed.
-
-</details>
 
 {{ template "chart.requirementsSection" . }}
 

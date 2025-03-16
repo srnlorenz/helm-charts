@@ -15,7 +15,6 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: {{ .Values.strategy.rollingUpdate.maxUnavailable }}
-      maxSurge: {{ .Values.strategy.rollingUpdate.maxSurge }}
   {{- else }}
   {{- if not .Values.worker.autoscaling.enabled }}
   replicas: {{ .Values.worker.count }}

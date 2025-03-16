@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.2.1](https://img.shields.io/badge/Version-1.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.82.3](https://img.shields.io/badge/AppVersion-1.82.3-informational?style=flat-square)
+![Version: 1.2.2](https://img.shields.io/badge/Version-1.2.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.82.3](https://img.shields.io/badge/AppVersion-1.82.3-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -307,33 +307,25 @@ This section outlines major updates and breaking changes for each version of the
 
 ### Version-Specific Upgrade Notes
 
-<details>
+#### Upgrading to 1.2.x</summary>
 
-<summary>Upgrading to 1.2.x</summary>
-
-#### Deprecation Warnings
+##### Deprecation Warnings
 
 - The top-level fields `extraEnvVars`, `extraSecretNamesForEnvFrom`, `resources`, `volumes` and `volumeMounts` are deprecated.
 
-#### Action Required
+##### Action Required
 
 Please consider using the corresponding fields in the `main`, `worker` and `webhook` blocks instead. The deprecated fields will be removed in the next major release.
 
-</details>
+#### Upgrading to 1.x.x</summary>
 
-<details>
-
-<summary>Upgrading to 1.x.x</summary>
-
-#### Breaking Changes
+##### Breaking Changes
 
 - The `diagnostics.externalTaskRunnersSentryDsn` setting has been relocated to `sentry.externalTaskRunnersDsn`.
 
-#### Action Required
+##### Action Required
 
 If you previously configured `diagnostics.externalTaskRunnersSentryDsn`, update your configuration to use `sentry.externalTaskRunnersDsn`. Ensure that any associated flags are enabled as needed.
-
-</details>
 
 ## Requirements
 

@@ -15,7 +15,6 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: {{ .Values.strategy.rollingUpdate.maxUnavailable }}
-      maxSurge: {{ .Values.strategy.rollingUpdate.maxSurge }}
   {{- else }}
   {{- if not .Values.webhook.autoscaling.enabled }}
   replicas: {{ .Values.webhook.count }}
