@@ -306,6 +306,13 @@
       "title": "encryptionKey",
       "type": "string"
     },
+    "existingEncryptionKeySecret": {
+      "default": "",
+      "description": "The name of an existing secret with encryption key. The secret must contain a key with the name N8N_ENCRYPTION_KEY.",
+      "required": [],
+      "title": "existingEncryptionKeySecret",
+      "type": "string"
+    },
     "externalPostgresql": {
       "additionalProperties": false,
       "description": "External PostgreSQL parameters",
@@ -2417,6 +2424,7 @@
     "taskRunners",
     "workflowHistory",
     "encryptionKey",
+    "existingEncryptionKeySecret",
     "timezone",
     "defaultLocale",
     "gracefulShutdownTimeout",

@@ -449,6 +449,9 @@ workflowHistory:
 # -- If you install n8n first time, you can keep this empty and it will be auto generated and never change again. If you already have a encryption key generated before, please use it here.
 encryptionKey: ""
 
+# -- The name of an existing secret with encryption key. The secret must contain a key with the name N8N_ENCRYPTION_KEY.
+existingEncryptionKeySecret: ""
+
 # -- For instance, the Schedule node uses it to know at what time the workflow should start. Find you timezone from here: https://momentjs.com/timezone/
 timezone: "Europe/Berlin"
 
