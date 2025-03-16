@@ -42,8 +42,26 @@ externalPostgresql:
   password: "Pa33w0rd!"
   database: "n8n"
 
+main:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 512m
+      memory: 512Mi
+
 worker:
   mode: queue
+  autoscaling:
+    enabled: true
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 250Mi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
 
 externalRedis:
   host: "redis-instance1.ab012cdefghi.eu-central-1.rds.amazonaws.com"
@@ -61,14 +79,15 @@ ingress:
 webhook:
   mode: queue
   url: "https://webhook.mydomain.com"
-
-resources:
-  requests:
-    cpu: 1000m
-    memory: 250Mi
-  limits:
-    cpu: 2000m
-    memory: 2Gi
+  autoscaling:
+    enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 512m
+      memory: 512Mi
 ```
 
 ## Basic Deployment with Ingress
@@ -237,6 +256,48 @@ Please find more detail about external task runners from [here](https://docs.n8n
 taskRunners:
   mode: external
 ```
+
+## Autoscaling Configuration  
+
+> **Note:** The `autoscaling` and `allNodes` options cannot be enabled simultaneously.  
+
+### Deploying Worker and Webhook Pods on All Nodes  
+
+To deploy worker or webhook pods on all Kubernetes nodes, set the `allNodes` flag to `true`:  
+
+```yaml
+db:
+  type: postgresdb
+
+worker:
+  mode: queue
+  allNodes: true
+
+webhook:
+  mode: queue
+  allNodes: true
+```
+
+### Enabling Autoscaling  
+
+To enable autoscaling, set the `enabled` field under `autoscaling` to `true`:  
+
+```yaml
+db:
+  type: postgresdb
+
+worker:
+  mode: queue
+  autoscaling:
+    enabled: true
+
+webhook:
+  mode: queue
+  autoscaling:
+    enabled: true
+```
+
+Ensure that you configure either `allNodes` or `autoscaling` based on your deployment requirements.
 
 ## Upgrading
 

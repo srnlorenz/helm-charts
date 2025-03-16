@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.82.3](https://img.shields.io/badge/AppVersion-1.82.3-informational?style=flat-square)
+![Version: 1.2.1](https://img.shields.io/badge/Version-1.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.82.3](https://img.shields.io/badge/AppVersion-1.82.3-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -42,8 +42,26 @@ externalPostgresql:
   password: "Pa33w0rd!"
   database: "n8n"
 
+main:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 512m
+      memory: 512Mi
+
 worker:
   mode: queue
+  autoscaling:
+    enabled: true
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 250Mi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
 
 externalRedis:
   host: "redis-instance1.ab012cdefghi.eu-central-1.rds.amazonaws.com"
@@ -61,14 +79,15 @@ ingress:
 webhook:
   mode: queue
   url: "https://webhook.mydomain.com"
-
-resources:
-  requests:
-    cpu: 1000m
-    memory: 250Mi
-  limits:
-    cpu: 2000m
-    memory: 2Gi
+  autoscaling:
+    enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 512m
+      memory: 512Mi
 ```
 
 ## Basic Deployment with Ingress
@@ -238,6 +257,48 @@ taskRunners:
   mode: external
 ```
 
+## Autoscaling Configuration 
+
+> **Note:** The `autoscaling` and `allNodes` options cannot be enabled simultaneously. 
+
+### Deploying Worker and Webhook Pods on All Nodes 
+
+To deploy worker or webhook pods on all Kubernetes nodes, set the `allNodes` flag to `true`: 
+
+```yaml
+db:
+  type: postgresdb
+
+worker:
+  mode: queue
+  allNodes: true
+
+webhook:
+  mode: queue
+  allNodes: true
+```
+
+### Enabling Autoscaling 
+
+To enable autoscaling, set the `enabled` field under `autoscaling` to `true`: 
+
+```yaml
+db:
+  type: postgresdb
+
+worker:
+  mode: queue
+  autoscaling:
+    enabled: true
+
+webhook:
+  mode: queue
+  autoscaling:
+    enabled: true
+```
+
+Ensure that you configure either `allNodes` or `autoscaling` based on your deployment requirements.
+
 ## Upgrading
 
 This section outlines major updates and breaking changes for each version of the Helm Chart to help you transition smoothly between releases.
@@ -353,6 +414,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | log.level | string | `"info"` | The log output level. The available options are (from lowest to highest level) are error, warn, info, and debug. The default value is info. You can learn more about these options [here](https://docs.n8n.io/hosting/logging-monitoring/logging/#log-levels). |
 | log.output | list | `["console"]` | Where to output logs to. Options are: `console` or `file` or both. |
 | log.scopes | list | `[]` | Scopes to filter logs by. Nothing is filtered by default. Supported log scopes: concurrency, external-secrets, license, multi-main-setup, pubsub, redis, scaling, waiting-executions |
+| main | object | `{"count":1,"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"resources":{},"volumeMounts":[],"volumes":[]}` | Main node configurations |
 | main.count | int | `1` | Number of main nodes. Only enterprise license users can have two main nodes. |
 | main.extraEnvVars | object | `{}` | Extra environment variables |
 | main.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
@@ -415,6 +477,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | versionNotifications.infoUrl | string | `"https://docs.n8n.io/hosting/installation/updating/"` | URL for versions panel to page instructing user on how to update n8n instance |
 | volumeMounts | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumeMounts fields instead. This field will be removed in a future release. |
 | volumes | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release. |
+| webhook | object | `{"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":1},"count":2,"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"mode":"regular","resources":{},"url":"","volumeMounts":[],"volumes":[]}` | Webhook node configurations |
 | webhook.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one webhook pod |
 | webhook.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":1}` | If true, the number of webhooks will be automatically scaled based on default metrics. On default, it will scale based on CPU. Scale by requests can be done by setting a custom metric. For more information can be found here: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/ |
 | webhook.autoscaling.behavior | object | `{}` | The behavior of the autoscaler. |
@@ -430,6 +493,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | webhook.url | string | `""` | Webhook url together with http or https schema |
 | webhook.volumeMounts | list | `[]` | Additional volumeMounts on the output Deployment definition. |
 | webhook.volumes | list | `[]` | Additional volumes on the output Deployment definition. |
+| worker | object | `{"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":1},"concurrency":10,"count":2,"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"mode":"regular","resources":{},"volumeMounts":[],"volumes":[]}` | Worker node configurations |
 | worker.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one worker pod |
 | worker.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":1}` | If true, the number of workers will be automatically scaled based on default metrics. On default, it will scale based on CPU and memory. For more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/ |
 | worker.autoscaling.behavior | object | `{}` | The behavior of the autoscaler. |

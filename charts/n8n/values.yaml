@@ -160,6 +160,7 @@ api:
   swagger:
     enabled: true
 
+# -- Main node configurations
 main:
   # -- Number of main nodes. Only enterprise license users can have two main nodes.
   count: 1
@@ -196,6 +197,7 @@ main:
   #   mountPath: "/etc/foo"
   #   readOnly: true
 
+# -- Worker node configurations
 worker:
   # -- Use `regular` to use main node as executer, or use `queue` to have worker nodes
   mode: regular
@@ -286,6 +288,7 @@ worker:
   #   mountPath: "/etc/foo"
   #   readOnly: true
 
+# -- Webhook node configurations
 webhook:
   # -- Use `regular` to use main node as webhook node, or use `queue` to have webhook nodes
   mode: regular
