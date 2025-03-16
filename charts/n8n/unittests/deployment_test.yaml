@@ -290,6 +290,34 @@ tests:
           value: 200Mi
         template: deployment.yaml
 
+  - it: should set resources when main.resources are set
+    set:
+      main:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 200m
+            memory: 200Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].resources.requests.cpu
+          value: 100m
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].resources.requests.memory
+          value: 100Mi
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].resources.limits.cpu
+          value: 200m
+        template: deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n")].resources.limits.memory
+          value: 200Mi
+        template: deployment.yaml
+
   - it: should set hiring banner disabled
     asserts:
       - contains:
@@ -553,6 +581,19 @@ tests:
             value: n8nextraenvvar
         template: deployment.yaml
 
+  - it: should set extra environment variables when main.extraEnvVars is set
+    set:
+      main:
+        extraEnvVars:
+          N8N_EXTRA_ENV_VAR: n8nextraenvvar
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          content:
+            name: N8N_EXTRA_ENV_VAR
+            value: n8nextraenvvar
+        template: deployment.yaml
+
   - it: should set database configurations from database configmap
     asserts:
       - contains:
@@ -672,12 +713,48 @@ tests:
               name: secret2
         template: deployment.yaml
 
+  - it: should set extra secret names for envFrom when main.extraSecretNamesForEnvFrom is set
+    set:
+      main:
+        extraSecretNamesForEnvFrom:
+          - secret1
+          - secret2
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          content:
+            secretRef:
+              name: secret1
+        template: deployment.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
+          content:
+            secretRef:
+              name: secret2
+        template: deployment.yaml
+
   - it: should set extra volume mounts when volumeMounts is set
     set:
       volumeMounts:
         - name: fake-volume
           mountPath: /fake-path
           readOnly: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n")].volumeMounts
+          content:
+            name: fake-volume
+            mountPath: /fake-path
+            readOnly: true
+        template: deployment.yaml
+
+  - it: should set extra volume mounts when main.volumeMounts is set
+    set:
+      main:
+        volumeMounts:
+          - name: fake-volume
+            mountPath: /fake-path
+            readOnly: true
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "n8n")].volumeMounts
@@ -694,6 +771,24 @@ tests:
           secret:
             secretName: mysecret
             optional: false
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: foo
+            secret:
+              secretName: mysecret
+              optional: false
+        template: deployment.yaml
+
+  - it: should set extra volumes when main.volumes is set
+    set:
+      main:
+        volumes:
+          - name: foo
+            secret:
+              secretName: mysecret
+              optional: false
     asserts:
       - contains:
           path: spec.template.spec.volumes

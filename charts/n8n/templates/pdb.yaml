@@ -1,0 +1,42 @@
+{{- if or (eq (int .Values.main.count) 2) (not (eq .Values.strategy.type "Recreate")) }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "n8n.fullname" . }}
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      {{- include "n8n.selectorLabels" . | nindent 6 }}
+{{- end }}
+{{- if and (eq .Values.db.type "postgresdb") (eq .Values.webhook.mode "queue") (not .Values.webhook.allNodes) (or .Values.webhook.autoscaling.enabled (gt (int .Values.webhook.count) 1)) }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "n8n.webhook.fullname" . }}
+  labels:
+    {{- include "n8n.webhook.labels" . | nindent 4 }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      {{- include "n8n.webhook.selectorLabels" . | nindent 6 }}
+{{- end }}
+{{- if and (eq .Values.db.type "postgresdb") (eq .Values.worker.mode "queue") (not .Values.worker.allNodes) (or .Values.worker.autoscaling.enabled (gt (int .Values.worker.count) 1)) }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "n8n.worker.fullname" . }}
+  labels:
+    {{- include "n8n.worker.labels" . | nindent 4 }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      {{- include "n8n.worker.selectorLabels" . | nindent 6 }}
+{{- end }}

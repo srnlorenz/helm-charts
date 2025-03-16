@@ -342,6 +342,34 @@ tests:
           value: 200Mi
         template: deployment-worker.yaml
 
+  - it: should set resources when worker.resources are set
+    set:
+      worker:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 200m
+            memory: 200Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].resources.requests.cpu
+          value: 100m
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].resources.requests.memory
+          value: 100Mi
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].resources.limits.cpu
+          value: 200m
+        template: deployment-worker.yaml
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].resources.limits.memory
+          value: 200Mi
+        template: deployment-worker.yaml
+
   - it: should set hiring banner disabled
     asserts:
       - contains:
@@ -591,6 +619,19 @@ tests:
             value: n8nextraenvvar
         template: deployment-worker.yaml
 
+  - it: should set extra environment variables when worker.extraEnvVars is set
+    set:
+      worker:
+        extraEnvVars:
+          N8N_EXTRA_ENV_VAR: n8nextraenvvar
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].env
+          content:
+            name: N8N_EXTRA_ENV_VAR
+            value: n8nextraenvvar
+        template: deployment-worker.yaml
+
   - it: should set database configurations from database configmap
     asserts:
       - contains:
@@ -682,12 +723,48 @@ tests:
               name: secret2
         template: deployment-worker.yaml
 
+  - it: should set extra secret names for envFrom when worker.extraSecretNamesForEnvFrom is set
+    set:
+      worker:
+        extraSecretNamesForEnvFrom:
+          - secret1
+          - secret2
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
+          content:
+            secretRef:
+              name: secret1
+        template: deployment-worker.yaml
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].envFrom
+          content:
+            secretRef:
+              name: secret2
+        template: deployment-worker.yaml
+
   - it: should set extra volume mounts when volumeMounts is set
     set:
       volumeMounts:
         - name: fake-volume
           mountPath: /fake-path
           readOnly: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
+          content:
+            name: fake-volume
+            mountPath: /fake-path
+            readOnly: true
+        template: deployment-worker.yaml
+
+  - it: should set extra volume mounts when worker.volumeMounts is set
+    set:
+      worker:
+        volumeMounts:
+          - name: fake-volume
+            mountPath: /fake-path
+            readOnly: true
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "n8n-worker")].volumeMounts
@@ -704,6 +781,24 @@ tests:
           secret:
             secretName: mysecret
             optional: false
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: foo
+            secret:
+              secretName: mysecret
+              optional: false
+        template: deployment-worker.yaml
+
+  - it: should set extra volumes when worker.volumes is set
+    set:
+      worker:
+        volumes:
+          - name: foo
+            secret:
+              secretName: mysecret
+              optional: false
     asserts:
       - contains:
           path: spec.template.spec.volumes

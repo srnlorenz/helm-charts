@@ -410,13 +410,13 @@
     },
     "extraEnvVars": {
       "additionalProperties": true,
-      "description": "Extra environment variables",
+      "description": "DEPRECATED: Use main, worker, and webhook blocks extraEnvVars fields instead. This field will be removed in a future release.",
       "required": [],
       "title": "extraEnvVars",
       "type": "object"
     },
     "extraSecretNamesForEnvFrom": {
-      "description": "Extra secrets for environment variables",
+      "description": "DEPRECATED: Use main, worker, and webhook blocks extraSecretNamesForEnvFrom fields instead. This field will be removed in a future release.",
       "items": {
         "required": []
       },
@@ -680,6 +680,107 @@
       "title": "log",
       "type": "object"
     },
+    "main": {
+      "additionalProperties": false,
+      "description": "Main node configuration",
+      "properties": {
+        "count": {
+          "default": 1,
+          "description": "Number of main nodes. Only enterprise license users can have two main nodes.",
+          "required": [],
+          "title": "count",
+          "minimum": 0,
+          "maximum": 2,
+          "type": "integer"
+        },
+        "resources": {
+          "additionalProperties": true,
+          "description": "This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+          "properties": {
+            "limits": {
+              "additionalProperties": true,
+              "properties": {
+                "cpu": {
+                  "default": "2000m",
+                  "required": [],
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "2Gi",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "limits",
+              "type": "object"
+            },
+            "requests": {
+              "additionalProperties": true,
+              "properties": {
+                "cpu": {
+                  "default": "100m",
+                  "required": [],
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "128Mi",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "requests",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "resources",
+          "type": "object"
+        },
+        "extraEnvVars": {
+          "additionalProperties": true,
+          "description": "Extra environment variables",
+          "required": [],
+          "title": "extraEnvVars",
+          "type": "object"
+        },
+        "extraSecretNamesForEnvFrom": {
+          "description": "Extra secrets for environment variables",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraSecretNamesForEnvFrom",
+          "type": "array"
+        },
+        "volumes": {
+          "description": "Additional volumes on the output Deployment definition.",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "volumes",
+          "type": "array"
+        },
+        "volumeMounts": {
+          "description": "Additional volumeMounts on the output Deployment definition.",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "volumeMounts",
+          "type": "array"
+        }
+      },
+      "required": ["count", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts"],
+      "title": "main",
+      "type": "object"
+    },
     "nameOverride": {
       "default": "",
       "description": "This is to override the chart name.",
@@ -924,7 +1025,7 @@
     },
     "resources": {
       "additionalProperties": true,
-      "description": "This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+      "description": "DEPRECATED: Use main, worker, and webhook blocks resources fields instead. This field will be removed in a future release.",
       "properties": {
         "limits": {
           "additionalProperties": true,
@@ -1165,7 +1266,7 @@
       "type": "object"
     },
     "volumeMounts": {
-      "description": "Additional volumeMounts on the output Deployment definition.",
+      "description": "DEPRECATED: Use main, worker, and webhook blocks volumeMounts fields instead. This field will be removed in a future release.",
       "items": {
         "required": []
       },
@@ -1174,7 +1275,7 @@
       "type": "array"
     },
     "volumes": {
-      "description": "Additional volumes on the output Deployment definition.",
+      "description": "DEPRECATED: Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release.",
       "items": {
         "required": []
       },
@@ -1201,15 +1302,450 @@
           "type": "string",
           "enum": ["regular", "queue"]
         },
+        "allNodes": {
+          "default": false,
+          "description": "If true, all k8s nodes will deploy exatly one worker pod",
+          "required": [],
+          "title": "allNodes",
+          "type": "boolean"
+        },
+        "autoscaling": {
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "If true, the number of workers will be automatically scaled based on default metrics. On default, it will scale based on CPU and memory. For more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "minReplicas": {
+              "default": 1,
+              "description": "Minimum number of workers",
+              "required": [],
+              "title": "minReplicas",
+              "type": "integer"
+            },
+            "maxReplicas": {
+              "default": 10,
+              "description": "Maximum number of workers",
+              "required": [],
+              "title": "maxReplicas",
+              "type": "integer"
+            },
+            "metrics": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["type"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["Resource", "Pods", "Object", "External"]
+                  }
+                },
+                "oneOf": [
+                  {
+                    "properties": {
+                      "type": { "const": "Resource" },
+                      "resource": {
+                        "type": "object",
+                        "required": ["name", "target"],
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "enum": ["cpu", "memory"]
+                          },
+                          "target": {
+                            "type": "object",
+                            "required": ["type"],
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": ["Utilization", "AverageValue", "Value"]
+                              },
+                              "averageUtilization": { "type": "integer", "minimum": 0 },
+                              "averageValue": { "type": "string" },
+                              "value": { "type": "string" }
+                            },
+                            "if": { "properties": { "type": { "const": "Utilization" } } },
+                            "then": { "required": ["averageUtilization"] },
+                            "else": {
+                              "if": { "properties": { "type": { "const": "AverageValue" } } },
+                              "then": { "required": ["averageValue"] },
+                              "else": { "required": ["value"] }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "required": ["resource"]
+                  },
+                  {
+                    "properties": {
+                      "type": { "const": "Pods" },
+                      "pods": {
+                        "type": "object",
+                        "required": ["metric", "target"],
+                        "properties": {
+                          "metric": {
+                            "type": "object",
+                            "required": ["name"],
+                            "properties": {
+                              "name": { "type": "string" },
+                              "selector": {
+                                "type": "object",
+                                "properties": {
+                                  "matchLabels": { "type": "object" },
+                                  "matchExpressions": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "required": ["key", "operator"],
+                                      "properties": {
+                                        "key": { "type": "string" },
+                                        "operator": { "type": "string" },
+                                        "values": { "type": "array", "items": { "type": "string" } }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "target": {
+                            "type": "object",
+                            "required": ["type"],
+                            "properties": {
+                              "type": { "type": "string", "enum": ["AverageValue", "Value"] },
+                              "averageValue": { "type": "string" },
+                              "value": { "type": "string" }
+                            },
+                            "if": { "properties": { "type": { "const": "AverageValue" } } },
+                            "then": { "required": ["averageValue"] },
+                            "else": { "required": ["value"] }
+                          }
+                        }
+                      }
+                    },
+                    "required": ["pods"]
+                  },
+                  {
+                    "properties": {
+                      "type": { "const": "Object" },
+                      "object": {
+                        "type": "object",
+                        "required": ["metric", "describedObject", "target"],
+                        "properties": {
+                          "metric": {
+                            "type": "object",
+                            "required": ["name"],
+                            "properties": {
+                              "name": { "type": "string" },
+                              "selector": {
+                                "type": "object",
+                                "properties": {
+                                  "matchLabels": { "type": "object" },
+                                  "matchExpressions": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "required": ["key", "operator"],
+                                      "properties": {
+                                        "key": { "type": "string" },
+                                        "operator": { "type": "string" },
+                                        "values": { "type": "array", "items": { "type": "string" } }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "describedObject": {
+                            "type": "object",
+                            "required": ["apiVersion", "kind", "name"],
+                            "properties": {
+                              "apiVersion": { "type": "string" },
+                              "kind": { "type": "string" },
+                              "name": { "type": "string" }
+                            }
+                          },
+                          "target": {
+                            "type": "object",
+                            "required": ["type"],
+                            "properties": {
+                              "type": { "type": "string", "enum": ["Value", "AverageValue"] },
+                              "value": { "type": "string" },
+                              "averageValue": { "type": "string" }
+                            },
+                            "if": { "properties": { "type": { "const": "Value" } } },
+                            "then": { "required": ["value"] },
+                            "else": { "required": ["averageValue"] }
+                          }
+                        }
+                      }
+                    },
+                    "required": ["object"]
+                  },
+                  {
+                    "properties": {
+                      "type": { "const": "External" },
+                      "external": {
+                        "type": "object",
+                        "required": ["metric", "target"],
+                        "properties": {
+                          "metric": {
+                            "type": "object",
+                            "required": ["name"],
+                            "properties": {
+                              "name": { "type": "string" },
+                              "selector": {
+                                "type": "object",
+                                "properties": {
+                                  "matchLabels": { "type": "object" },
+                                  "matchExpressions": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "required": ["key", "operator"],
+                                      "properties": {
+                                        "key": { "type": "string" },
+                                        "operator": { "type": "string" },
+                                        "values": { "type": "array", "items": { "type": "string" } }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "target": {
+                            "type": "object",
+                            "required": ["type"],
+                            "properties": {
+                              "type": { "type": "string", "enum": ["Value", "AverageValue"] },
+                              "value": { "type": "string" },
+                              "averageValue": { "type": "string" }
+                            },
+                            "if": { "properties": { "type": { "const": "Value" } } },
+                            "then": { "required": ["value"] },
+                            "else": { "required": ["averageValue"] }
+                          }
+                        }
+                      }
+                    },
+                    "required": ["external"]
+                  }
+                ]
+              }
+            },
+            "behavior": {
+              "type": "object",
+              "properties": {
+                "scaleUp": {
+                  "type": "object",
+                  "properties": {
+                    "stabilizationWindowSeconds": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Time in seconds to wait before scaling up again (default: 0)"
+                    },
+                    "policies": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "minItems": 1,
+                        "required": ["type", "value", "periodSeconds"],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": ["Pods", "Percent"],
+                            "description": "Type of scaling policy: Pods (fixed number) or Percent (percentage of current replicas)"
+                          },
+                          "value": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "The value to scale by (number of pods or percentage)"
+                          },
+                          "periodSeconds": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Time in seconds over which the policy is evaluated"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "description": "List of scaling policies for scale-up"
+                    },
+                    "selectPolicy": {
+                      "type": "string",
+                      "enum": ["Max", "Min", "Disabled"],
+                      "description": "Policy to select among multiple policies: Max (default), Min, or Disabled"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "scaleDown": {
+                  "type": "object",
+                  "properties": {
+                    "stabilizationWindowSeconds": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Time in seconds to wait before scaling down again (default: 300)"
+                    },
+                    "policies": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "minItems": 1,
+                        "required": ["type", "value", "periodSeconds"],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": ["Pods", "Percent"],
+                            "description": "Type of scaling policy: Pods (fixed number) or Percent (percentage of current replicas)"
+                          },
+                          "value": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "The value to scale by (number of pods or percentage)"
+                          },
+                          "periodSeconds": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Time in seconds over which the policy is evaluated"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "description": "List of scaling policies for scale-down"
+                    },
+                    "selectPolicy": {
+                      "type": "string",
+                      "enum": ["Max", "Min", "Disabled"],
+                      "description": "Policy to select among multiple policies: Max (default), Min, or Disabled"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "required": ["enabled", "minReplicas", "maxReplicas", "metrics", "behavior"],
+          "title": "autoscaling",
+          "type": "object"
+        },
         "url": {
           "default": "",
           "description": "Webhook url together with http schema",
           "required": [],
           "title": "url",
           "type": "string"
+        },
+        "resources": {
+          "additionalProperties": true,
+          "description": "This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+          "properties": {
+            "limits": {
+              "additionalProperties": true,
+              "properties": {
+                "cpu": {
+                  "default": "2000m",
+                  "required": [],
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "2Gi",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "limits",
+              "type": "object"
+            },
+            "requests": {
+              "additionalProperties": true,
+              "properties": {
+                "cpu": {
+                  "default": "100m",
+                  "required": [],
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "128Mi",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "requests",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "resources",
+          "type": "object"
+        },
+        "extraEnvVars": {
+          "additionalProperties": true,
+          "description": "Extra environment variables",
+          "required": [],
+          "title": "extraEnvVars",
+          "type": "object"
+        },
+        "extraSecretNamesForEnvFrom": {
+          "description": "Extra secrets for environment variables",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraSecretNamesForEnvFrom",
+          "type": "array"
+        },
+        "volumes": {
+          "description": "Additional volumes on the output Deployment definition.",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "volumes",
+          "type": "array"
+        },
+        "volumeMounts": {
+          "description": "Additional volumeMounts on the output Deployment definition.",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "volumeMounts",
+          "type": "array"
         }
       },
-      "required": ["mode", "count", "url"],
+      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts"],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "allNodes": { "const": true },
+              "autoscaling": {
+                "properties": { "enabled": { "const": true } }
+              }
+            }
+          },
+          "then": {
+            "not": { "type": "object" },
+            "description": "allNodes and autoscaling.enabled cannot both be true"
+          }
+        }
+      ],
       "title": "webhook",
       "type": "object"
     },
@@ -1239,9 +1775,444 @@
           "title": "mode",
           "type": "string",
           "enum": ["regular", "queue"]
+        },
+        "allNodes": {
+          "default": false,
+          "description": "If true, all k8s nodes will deploy exatly one worker pod",
+          "required": [],
+          "title": "allNodes",
+          "type": "boolean"
+        },
+        "autoscaling": {
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "If true, the number of workers will be automatically scaled based on default metrics. On default, it will scale based on CPU and memory. For more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "minReplicas": {
+              "default": 1,
+              "description": "Minimum number of workers",
+              "required": [],
+              "title": "minReplicas",
+              "type": "integer"
+            },
+            "maxReplicas": {
+              "default": 10,
+              "description": "Maximum number of workers",
+              "required": [],
+              "title": "maxReplicas",
+              "type": "integer"
+            },
+            "metrics": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["type"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["Resource", "Pods", "Object", "External"]
+                  }
+                },
+                "oneOf": [
+                  {
+                    "properties": {
+                      "type": { "const": "Resource" },
+                      "resource": {
+                        "type": "object",
+                        "required": ["name", "target"],
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "enum": ["cpu", "memory"]
+                          },
+                          "target": {
+                            "type": "object",
+                            "required": ["type"],
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": ["Utilization", "AverageValue", "Value"]
+                              },
+                              "averageUtilization": { "type": "integer", "minimum": 0 },
+                              "averageValue": { "type": "string" },
+                              "value": { "type": "string" }
+                            },
+                            "if": { "properties": { "type": { "const": "Utilization" } } },
+                            "then": { "required": ["averageUtilization"] },
+                            "else": {
+                              "if": { "properties": { "type": { "const": "AverageValue" } } },
+                              "then": { "required": ["averageValue"] },
+                              "else": { "required": ["value"] }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "required": ["resource"]
+                  },
+                  {
+                    "properties": {
+                      "type": { "const": "Pods" },
+                      "pods": {
+                        "type": "object",
+                        "required": ["metric", "target"],
+                        "properties": {
+                          "metric": {
+                            "type": "object",
+                            "required": ["name"],
+                            "properties": {
+                              "name": { "type": "string" },
+                              "selector": {
+                                "type": "object",
+                                "properties": {
+                                  "matchLabels": { "type": "object" },
+                                  "matchExpressions": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "required": ["key", "operator"],
+                                      "properties": {
+                                        "key": { "type": "string" },
+                                        "operator": { "type": "string" },
+                                        "values": { "type": "array", "items": { "type": "string" } }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "target": {
+                            "type": "object",
+                            "required": ["type"],
+                            "properties": {
+                              "type": { "type": "string", "enum": ["AverageValue", "Value"] },
+                              "averageValue": { "type": "string" },
+                              "value": { "type": "string" }
+                            },
+                            "if": { "properties": { "type": { "const": "AverageValue" } } },
+                            "then": { "required": ["averageValue"] },
+                            "else": { "required": ["value"] }
+                          }
+                        }
+                      }
+                    },
+                    "required": ["pods"]
+                  },
+                  {
+                    "properties": {
+                      "type": { "const": "Object" },
+                      "object": {
+                        "type": "object",
+                        "required": ["metric", "describedObject", "target"],
+                        "properties": {
+                          "metric": {
+                            "type": "object",
+                            "required": ["name"],
+                            "properties": {
+                              "name": { "type": "string" },
+                              "selector": {
+                                "type": "object",
+                                "properties": {
+                                  "matchLabels": { "type": "object" },
+                                  "matchExpressions": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "required": ["key", "operator"],
+                                      "properties": {
+                                        "key": { "type": "string" },
+                                        "operator": { "type": "string" },
+                                        "values": { "type": "array", "items": { "type": "string" } }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "describedObject": {
+                            "type": "object",
+                            "required": ["apiVersion", "kind", "name"],
+                            "properties": {
+                              "apiVersion": { "type": "string" },
+                              "kind": { "type": "string" },
+                              "name": { "type": "string" }
+                            }
+                          },
+                          "target": {
+                            "type": "object",
+                            "required": ["type"],
+                            "properties": {
+                              "type": { "type": "string", "enum": ["Value", "AverageValue"] },
+                              "value": { "type": "string" },
+                              "averageValue": { "type": "string" }
+                            },
+                            "if": { "properties": { "type": { "const": "Value" } } },
+                            "then": { "required": ["value"] },
+                            "else": { "required": ["averageValue"] }
+                          }
+                        }
+                      }
+                    },
+                    "required": ["object"]
+                  },
+                  {
+                    "properties": {
+                      "type": { "const": "External" },
+                      "external": {
+                        "type": "object",
+                        "required": ["metric", "target"],
+                        "properties": {
+                          "metric": {
+                            "type": "object",
+                            "required": ["name"],
+                            "properties": {
+                              "name": { "type": "string" },
+                              "selector": {
+                                "type": "object",
+                                "properties": {
+                                  "matchLabels": { "type": "object" },
+                                  "matchExpressions": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "required": ["key", "operator"],
+                                      "properties": {
+                                        "key": { "type": "string" },
+                                        "operator": { "type": "string" },
+                                        "values": { "type": "array", "items": { "type": "string" } }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "target": {
+                            "type": "object",
+                            "required": ["type"],
+                            "properties": {
+                              "type": { "type": "string", "enum": ["Value", "AverageValue"] },
+                              "value": { "type": "string" },
+                              "averageValue": { "type": "string" }
+                            },
+                            "if": { "properties": { "type": { "const": "Value" } } },
+                            "then": { "required": ["value"] },
+                            "else": { "required": ["averageValue"] }
+                          }
+                        }
+                      }
+                    },
+                    "required": ["external"]
+                  }
+                ]
+              }
+            },
+            "behavior": {
+              "type": "object",
+              "properties": {
+                "scaleUp": {
+                  "type": "object",
+                  "properties": {
+                    "stabilizationWindowSeconds": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Time in seconds to wait before scaling up again (default: 0)"
+                    },
+                    "policies": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "required": ["type", "value", "periodSeconds"],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": ["Pods", "Percent"],
+                            "description": "Type of scaling policy: Pods (fixed number) or Percent (percentage of current replicas)"
+                          },
+                          "value": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "The value to scale by (number of pods or percentage)"
+                          },
+                          "periodSeconds": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Time in seconds over which the policy is evaluated"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "description": "List of scaling policies for scale-up"
+                    },
+                    "selectPolicy": {
+                      "type": "string",
+                      "enum": ["Max", "Min", "Disabled"],
+                      "description": "Policy to select among multiple policies: Max (default), Min, or Disabled"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "scaleDown": {
+                  "type": "object",
+                  "properties": {
+                    "stabilizationWindowSeconds": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Time in seconds to wait before scaling down again (default: 300)"
+                    },
+                    "policies": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "required": ["type", "value", "periodSeconds"],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": ["Pods", "Percent"],
+                            "description": "Type of scaling policy: Pods (fixed number) or Percent (percentage of current replicas)"
+                          },
+                          "value": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "The value to scale by (number of pods or percentage)"
+                          },
+                          "periodSeconds": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Time in seconds over which the policy is evaluated"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "description": "List of scaling policies for scale-down"
+                    },
+                    "selectPolicy": {
+                      "type": "string",
+                      "enum": ["Max", "Min", "Disabled"],
+                      "description": "Policy to select among multiple policies: Max (default), Min, or Disabled"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "required": ["enabled", "minReplicas", "maxReplicas", "metrics", "behavior"],
+          "title": "autoscaling",
+          "type": "object"
+        },
+        "resources": {
+          "additionalProperties": true,
+          "description": "This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+          "properties": {
+            "limits": {
+              "additionalProperties": true,
+              "properties": {
+                "cpu": {
+                  "default": "2000m",
+                  "required": [],
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "2Gi",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "limits",
+              "type": "object"
+            },
+            "requests": {
+              "additionalProperties": true,
+              "properties": {
+                "cpu": {
+                  "default": "100m",
+                  "required": [],
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "128Mi",
+                  "required": [],
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "requests",
+              "type": "object"
+            }
+          },
+          "required": [],
+          "title": "resources",
+          "type": "object"
+        },
+        "extraEnvVars": {
+          "additionalProperties": true,
+          "description": "Extra environment variables",
+          "required": [],
+          "title": "extraEnvVars",
+          "type": "object"
+        },
+        "extraSecretNamesForEnvFrom": {
+          "description": "Extra secrets for environment variables",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraSecretNamesForEnvFrom",
+          "type": "array"
+        },
+        "volumes": {
+          "description": "Additional volumes on the output Deployment definition.",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "volumes",
+          "type": "array"
+        },
+        "volumeMounts": {
+          "description": "Additional volumeMounts on the output Deployment definition.",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "volumeMounts",
+          "type": "array"
         }
       },
-      "required": ["mode", "count", "concurrency"],
+      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts"],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "allNodes": { "const": true },
+              "autoscaling": {
+                "properties": { "enabled": { "const": true } }
+              }
+            }
+          },
+          "then": {
+            "not": { "type": "object" },
+            "description": "allNodes and autoscaling.enabled cannot both be true"
+          }
+        }
+      ],
       "title": "worker",
       "type": "object"
     },
@@ -1457,6 +2428,7 @@
     "readinessProbe",
     "volumes",
     "volumeMounts",
+    "main",
     "nodeSelector",
     "tolerations",
     "affinity",

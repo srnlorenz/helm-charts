@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.1.3](https://img.shields.io/badge/Version-1.1.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.82.3](https://img.shields.io/badge/AppVersion-1.82.3-informational?style=flat-square)
+![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.82.3](https://img.shields.io/badge/AppVersion-1.82.3-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -248,6 +248,20 @@ This section outlines major updates and breaking changes for each version of the
 
 <details>
 
+<summary>Upgrading to 1.2.x</summary>
+
+#### Deprecation Warnings
+
+- The top-level fields `extraEnvVars`, `extraSecretNamesForEnvFrom`, `resources`, `volumes` and `volumeMounts` are deprecated.
+
+#### Action Required
+
+Please consider using the corresponding fields in the `main`, `worker` and `webhook` blocks instead. The deprecated fields will be removed in the next major release.
+
+</details>
+
+<details>
+
 <summary>Upgrading to 1.x.x</summary>
 
 #### Breaking Changes
@@ -322,8 +336,8 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | externalRedis.password | string | `""` | External Redis password |
 | externalRedis.port | int | `6379` | External Redis server port |
 | externalRedis.username | string | `""` | External Redis username |
-| extraEnvVars | object | `{}` | Extra environment variables |
-| extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
+| extraEnvVars | object | `{}` | DEPRECATED: Use main, worker, and webhook blocks extraEnvVars fields instead. This field will be removed in a future release. |
+| extraSecretNamesForEnvFrom | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks extraSecretNamesForEnvFrom fields instead. This field will be removed in a future release. |
 | fullnameOverride | string | `""` |  |
 | gracefulShutdownTimeout | int | `30` | graceful shutdown timeout in seconds |
 | image | object | `{"pullPolicy":"IfNotPresent","repository":"n8nio/n8n","tag":""}` | This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/ |
@@ -339,6 +353,12 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | log.level | string | `"info"` | The log output level. The available options are (from lowest to highest level) are error, warn, info, and debug. The default value is info. You can learn more about these options [here](https://docs.n8n.io/hosting/logging-monitoring/logging/#log-levels). |
 | log.output | list | `["console"]` | Where to output logs to. Options are: `console` or `file` or both. |
 | log.scopes | list | `[]` | Scopes to filter logs by. Nothing is filtered by default. Supported log scopes: concurrency, external-secrets, license, multi-main-setup, pubsub, redis, scaling, waiting-executions |
+| main.count | int | `1` | Number of main nodes. Only enterprise license users can have two main nodes. |
+| main.extraEnvVars | object | `{}` | Extra environment variables |
+| main.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
+| main.resources | object | `{}` | This block is for setting up the resource management for the main pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
+| main.volumeMounts | list | `[]` | Additional volumeMounts on the output Deployment definition. |
+| main.volumes | list | `[]` | Additional volumes on the output Deployment definition. |
 | nameOverride | string | `""` | This is to override the chart name. |
 | nodeSelector | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
 | podAnnotations | object | `{}` | This is for setting Kubernetes Annotations to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
@@ -350,7 +370,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | readinessProbe | object | `{"httpGet":{"path":"/healthz/readiness","port":"http"}}` | This is to setup the readiness probe more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | redis | object | `{"architecture":"standalone","enabled":false,"master":{"persistence":{"enabled":false}}}` | Bitnami Redis configuration |
 | redis.enabled | bool | `false` | Enable redis |
-| resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
+| resources | object | `{}` | DEPRECATED: Use main, worker, and webhook blocks resources fields instead. This field will be removed in a future release. |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":false,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000}` | This is for setting Security Context to a Container. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
 | sentry.backendDsn | string | `""` | Sentry DSN for backend. |
 | sentry.enabled | bool | `false` | Whether sentry is enabled. |
@@ -393,14 +413,38 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | versionNotifications.enabled | bool | `false` | Whether to request notifications about new n8n versions |
 | versionNotifications.endpoint | string | `"https://api.n8n.io/api/versions/"` | Endpoint to retrieve n8n version information from |
 | versionNotifications.infoUrl | string | `"https://docs.n8n.io/hosting/installation/updating/"` | URL for versions panel to page instructing user on how to update n8n instance |
-| volumeMounts | list | `[]` | Additional volumeMounts on the output Deployment definition. |
-| volumes | list | `[]` | Additional volumes on the output Deployment definition. |
-| webhook.count | int | `2` | number of webhooks |
+| volumeMounts | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumeMounts fields instead. This field will be removed in a future release. |
+| volumes | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release. |
+| webhook.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one webhook pod |
+| webhook.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":1}` | If true, the number of webhooks will be automatically scaled based on default metrics. On default, it will scale based on CPU. Scale by requests can be done by setting a custom metric. For more information can be found here: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/ |
+| webhook.autoscaling.behavior | object | `{}` | The behavior of the autoscaler. |
+| webhook.autoscaling.enabled | bool | `false` | Whether autoscaling is enabled. |
+| webhook.autoscaling.maxReplicas | int | `10` | The maximum number of replicas. |
+| webhook.autoscaling.metrics | list | `[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}]` | The metrics to use for autoscaling. |
+| webhook.autoscaling.minReplicas | int | `1` | The minimum number of replicas. |
+| webhook.count | int | `2` | Static number of webhooks. If allNodes or autoscaling is enabled, this value will be ignored. |
+| webhook.extraEnvVars | object | `{}` | Extra environment variables |
+| webhook.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | webhook.mode | string | `"regular"` | Use `regular` to use main node as webhook node, or use `queue` to have webhook nodes |
-| webhook.url | string | `""` | Webhook url together with http schema |
+| webhook.resources | object | `{}` | This block is for setting up the resource management for the webhook pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
+| webhook.url | string | `""` | Webhook url together with http or https schema |
+| webhook.volumeMounts | list | `[]` | Additional volumeMounts on the output Deployment definition. |
+| webhook.volumes | list | `[]` | Additional volumes on the output Deployment definition. |
+| worker.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one worker pod |
+| worker.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":1}` | If true, the number of workers will be automatically scaled based on default metrics. On default, it will scale based on CPU and memory. For more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/ |
+| worker.autoscaling.behavior | object | `{}` | The behavior of the autoscaler. |
+| worker.autoscaling.enabled | bool | `false` | Whether autoscaling is enabled. |
+| worker.autoscaling.maxReplicas | int | `10` | The maximum number of replicas. |
+| worker.autoscaling.metrics | list | `[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}]` | The metrics to use for autoscaling. |
+| worker.autoscaling.minReplicas | int | `1` | The minimum number of replicas. |
 | worker.concurrency | int | `10` | number of concurrency for each worker |
-| worker.count | int | `2` | number of workers |
+| worker.count | int | `2` | Static number of workers. If allNodes or autoscaling is enabled, this value will be ignored. |
+| worker.extraEnvVars | object | `{}` | Extra environment variables |
+| worker.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | worker.mode | string | `"regular"` | Use `regular` to use main node as executer, or use `queue` to have worker nodes |
+| worker.resources | object | `{}` | This block is for setting up the resource management for the worker pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
+| worker.volumeMounts | list | `[]` | Additional volumeMounts on the output Deployment definition. |
+| worker.volumes | list | `[]` | Additional volumes on the output Deployment definition. |
 | workflowHistory | object | `{"enabled":true,"pruneTime":336}` | The workflow history configuration |
 | workflowHistory.enabled | bool | `true` | Whether to save workflow history versions |
 | workflowHistory.pruneTime | int | `336` | Time (in hours) to keep workflow history versions for. To disable it, use -1 as a value |
