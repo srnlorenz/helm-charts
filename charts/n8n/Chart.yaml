@@ -57,7 +57,7 @@ annotations:
       url: https://docs.n8n.io/
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |
-    - Fix invalid: spec.updateStrategy.rollingUpdate.maxSurge problem for allNodes usage
+    - Fix invalid spec.updateStrategy.rollingUpdate.maxSurge problem for allNodes usage
   artifacthub.io/images: |
     - name: n8n
       image: n8nio/n8n:1.82.3
