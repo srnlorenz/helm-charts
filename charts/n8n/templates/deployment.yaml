@@ -133,7 +133,7 @@ spec:
             - configMapRef:
                 name: {{ template "n8n.fullname" . }}-task-broker-configmap
             - secretRef:
-                name: {{ default (printf "%s-encryption-key-secret" (include "n8n.fullname" .)) .Values.existingEncryptionKeySecret }}
+                name: {{ default (printf "%s-encryption-key-secret-v2" (include "n8n.fullname" .)) .Values.existingEncryptionKeySecret }}
           {{- range (default .Values.extraSecretNamesForEnvFrom .Values.main.extraSecretNamesForEnvFrom) }}
             - secretRef:
                 name: {{ . }}

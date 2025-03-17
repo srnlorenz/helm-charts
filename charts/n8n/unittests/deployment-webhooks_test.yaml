@@ -714,7 +714,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n-webhook")].envFrom
           content:
             secretRef:
-              name: n8n-encryption-key-secret
+              name: n8n-encryption-key-secret-v2
         template: deployment-webhook.yaml
 
   - it: should set extra secret names for envFrom when extraSecretNamesForEnvFrom is set

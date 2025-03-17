@@ -143,7 +143,7 @@ spec:
             - configMapRef:
                 name: {{ template "n8n.fullname" . }}-queue-configmap
             - secretRef:
-                name: {{ default (printf "%s-encryption-key-secret" (include "n8n.fullname" .)) .Values.existingEncryptionKeySecret }}
+                name: {{ default (printf "%s-encryption-key-secret-v2" (include "n8n.fullname" .)) .Values.existingEncryptionKeySecret }}
           {{- range (default .Values.extraSecretNamesForEnvFrom .Values.webhook.extraSecretNamesForEnvFrom) }}
             - secretRef:
                 name: {{ . }}

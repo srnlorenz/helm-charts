@@ -663,7 +663,7 @@ tests:
           path: spec.template.spec.containers[?(@.name == "n8n")].envFrom
           content:
             secretRef:
-              name: n8n-encryption-key-secret
+              name: n8n-encryption-key-secret-v2
         template: deployment.yaml
 
   - it: should set queue configurations from queue configmap when db type is postgresdb and worker mode is queue
