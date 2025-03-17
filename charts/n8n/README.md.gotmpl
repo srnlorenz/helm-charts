@@ -305,11 +305,29 @@ This section outlines major updates and breaking changes for each version of the
 
 ---
 
-### Version-Specific Upgrade Notes
+###  Version-Specific Upgrade Notes
 
-#### Upgrading to 1.2.x</summary>
+#### Upgrading to Version 1.3.1
 
-##### Deprecation Warnings
+##### Deprecation Notices
+
+* **Secret Name Change**: The secret `RELEASE_NAME-encryption-key-secret` is deprecated. Starting with this release, the chart now uses `RELEASE_NAME-encryption-key-secret-v2` to manage the `N8N_ENCRYPTION_KEY`. This change ensures compatibility with Helm’s resource ownership model and resolves previous upgrade issues.
+
+##### Actions Required
+
+* **Verify the Upgrade**: After successfully upgrading to version 1.3.1, confirm that your `n8n` deployment is using the new secret (`RELEASE_NAME-encryption-key-secret-v2`). The old secret (`RELEASE_NAME-encryption-key-secret`) is preserved in the namespace and will not be automatically deleted.
+* **Optional Cleanup**: If the old secret is no longer needed, you may manually remove it from your namespace using the following command:
+bash
+
+```bash
+kubectl delete secret RELEASE_NAME-encryption-key-secret -n YOUR_NAMESPACE
+```
+
+Replace `RELEASE_NAME` and `YOUR_NAMESPACE` with your specific release name and namespace.
+
+#### Upgrading to Version 1.2.x
+
+##### Deprecation Notices
 
 - The top-level fields `extraEnvVars`, `extraSecretNamesForEnvFrom`, `resources`, `volumes` and `volumeMounts` are deprecated.
 
@@ -317,7 +335,7 @@ This section outlines major updates and breaking changes for each version of the
 
 Please consider using the corresponding fields in the `main`, `worker` and `webhook` blocks instead. The deprecated fields will be removed in the next major release.
 
-#### Upgrading to 1.x.x</summary>
+#### Upgrading to Version 1.x.x
 
 ##### Breaking Changes
 

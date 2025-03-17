@@ -217,7 +217,7 @@ worker:
     enabled: false
 
     # -- The minimum number of replicas.
-    minReplicas: 1
+    minReplicas: 2
 
     # -- The maximum number of replicas.
     maxReplicas: 10
@@ -226,13 +226,13 @@ worker:
     metrics:
       - type: Resource
         resource:
-          name: cpu
+          name: memory
           target:
             type: Utilization
             averageUtilization: 80
       - type: Resource
         resource:
-          name: memory
+          name: cpu
           target:
             type: Utilization
             averageUtilization: 80
@@ -308,7 +308,7 @@ webhook:
     enabled: false
 
     # -- The minimum number of replicas.
-    minReplicas: 1
+    minReplicas: 2
 
     # -- The maximum number of replicas.
     maxReplicas: 10

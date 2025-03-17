@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.3.2](https://img.shields.io/badge/Version-1.3.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.82.3](https://img.shields.io/badge/AppVersion-1.82.3-informational?style=flat-square)
+![Version: 1.3.3](https://img.shields.io/badge/Version-1.3.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.82.3](https://img.shields.io/badge/AppVersion-1.82.3-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -305,11 +305,29 @@ This section outlines major updates and breaking changes for each version of the
 
 ---
 
-### Version-Specific Upgrade Notes
+###  Version-Specific Upgrade Notes
 
-#### Upgrading to 1.2.x</summary>
+#### Upgrading to Version 1.3.1
 
-##### Deprecation Warnings
+##### Deprecation Notices
+
+* **Secret Name Change**: The secret `RELEASE_NAME-encryption-key-secret` is deprecated. Starting with this release, the chart now uses `RELEASE_NAME-encryption-key-secret-v2` to manage the `N8N_ENCRYPTION_KEY`. This change ensures compatibility with Helm’s resource ownership model and resolves previous upgrade issues.
+
+##### Actions Required
+
+* **Verify the Upgrade**: After successfully upgrading to version 1.3.1, confirm that your `n8n` deployment is using the new secret (`RELEASE_NAME-encryption-key-secret-v2`). The old secret (`RELEASE_NAME-encryption-key-secret`) is preserved in the namespace and will not be automatically deleted.
+* **Optional Cleanup**: If the old secret is no longer needed, you may manually remove it from your namespace using the following command:
+bash
+
+```bash
+kubectl delete secret RELEASE_NAME-encryption-key-secret -n YOUR_NAMESPACE
+```
+
+Replace `RELEASE_NAME` and `YOUR_NAMESPACE` with your specific release name and namespace.
+
+#### Upgrading to Version 1.2.x
+
+##### Deprecation Notices
 
 - The top-level fields `extraEnvVars`, `extraSecretNamesForEnvFrom`, `resources`, `volumes` and `volumeMounts` are deprecated.
 
@@ -317,7 +335,7 @@ This section outlines major updates and breaking changes for each version of the
 
 Please consider using the corresponding fields in the `main`, `worker` and `webhook` blocks instead. The deprecated fields will be removed in the next major release.
 
-#### Upgrading to 1.x.x</summary>
+#### Upgrading to Version 1.x.x
 
 ##### Breaking Changes
 
@@ -470,14 +488,14 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | versionNotifications.infoUrl | string | `"https://docs.n8n.io/hosting/installation/updating/"` | URL for versions panel to page instructing user on how to update n8n instance |
 | volumeMounts | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumeMounts fields instead. This field will be removed in a future release. |
 | volumes | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release. |
-| webhook | object | `{"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":1},"count":2,"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"mode":"regular","resources":{},"url":"","volumeMounts":[],"volumes":[]}` | Webhook node configurations |
+| webhook | object | `{"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"count":2,"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"mode":"regular","resources":{},"url":"","volumeMounts":[],"volumes":[]}` | Webhook node configurations |
 | webhook.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one webhook pod |
-| webhook.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":1}` | If true, the number of webhooks will be automatically scaled based on default metrics. On default, it will scale based on CPU. Scale by requests can be done by setting a custom metric. For more information can be found here: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/ |
+| webhook.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2}` | If true, the number of webhooks will be automatically scaled based on default metrics. On default, it will scale based on CPU. Scale by requests can be done by setting a custom metric. For more information can be found here: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/ |
 | webhook.autoscaling.behavior | object | `{}` | The behavior of the autoscaler. |
 | webhook.autoscaling.enabled | bool | `false` | Whether autoscaling is enabled. |
 | webhook.autoscaling.maxReplicas | int | `10` | The maximum number of replicas. |
 | webhook.autoscaling.metrics | list | `[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}]` | The metrics to use for autoscaling. |
-| webhook.autoscaling.minReplicas | int | `1` | The minimum number of replicas. |
+| webhook.autoscaling.minReplicas | int | `2` | The minimum number of replicas. |
 | webhook.count | int | `2` | Static number of webhooks. If allNodes or autoscaling is enabled, this value will be ignored. |
 | webhook.extraEnvVars | object | `{}` | Extra environment variables |
 | webhook.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
@@ -486,14 +504,14 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | webhook.url | string | `""` | Webhook url together with http or https schema |
 | webhook.volumeMounts | list | `[]` | Additional volumeMounts on the output Deployment definition. |
 | webhook.volumes | list | `[]` | Additional volumes on the output Deployment definition. |
-| worker | object | `{"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":1},"concurrency":10,"count":2,"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"mode":"regular","resources":{},"volumeMounts":[],"volumes":[]}` | Worker node configurations |
+| worker | object | `{"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"concurrency":10,"count":2,"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"mode":"regular","resources":{},"volumeMounts":[],"volumes":[]}` | Worker node configurations |
 | worker.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one worker pod |
-| worker.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":1}` | If true, the number of workers will be automatically scaled based on default metrics. On default, it will scale based on CPU and memory. For more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/ |
+| worker.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2}` | If true, the number of workers will be automatically scaled based on default metrics. On default, it will scale based on CPU and memory. For more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/ |
 | worker.autoscaling.behavior | object | `{}` | The behavior of the autoscaler. |
 | worker.autoscaling.enabled | bool | `false` | Whether autoscaling is enabled. |
 | worker.autoscaling.maxReplicas | int | `10` | The maximum number of replicas. |
-| worker.autoscaling.metrics | list | `[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}]` | The metrics to use for autoscaling. |
-| worker.autoscaling.minReplicas | int | `1` | The minimum number of replicas. |
+| worker.autoscaling.metrics | list | `[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}]` | The metrics to use for autoscaling. |
+| worker.autoscaling.minReplicas | int | `2` | The minimum number of replicas. |
 | worker.concurrency | int | `10` | number of concurrency for each worker |
 | worker.count | int | `2` | Static number of workers. If allNodes or autoscaling is enabled, this value will be ignored. |
 | worker.extraEnvVars | object | `{}` | Extra environment variables |
