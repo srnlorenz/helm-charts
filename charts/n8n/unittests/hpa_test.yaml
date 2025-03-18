@@ -135,3 +135,25 @@ tests:
       - equal:
           path: spec.metrics[0].resource.target.averageUtilization
           value: 80
+
+  - it: should match snapshot of worker hpa default values
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+        autoscaling:
+          enabled: true
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should match snapshot of webhook hpa default values
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+        autoscaling:
+          enabled: true
+    asserts:
+      - matchSnapshot: { }

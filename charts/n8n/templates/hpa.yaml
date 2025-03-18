@@ -17,9 +17,9 @@ spec:
   metrics:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.worker.autoscaling.behavior }}
+  {{- if and .Values.worker.autoscaling.behavior (gt (len .Values.worker.autoscaling.behavior) 0) }}
   behavior:
-    {{- toYaml . | nindent 4 }}
+    {{- toYaml .Values.worker.autoscaling.behavior | nindent 4 }}
   {{- end }}
 {{- end }}
 {{- if and .Values.webhook.autoscaling.enabled (eq .Values.db.type "postgresdb") (eq .Values.webhook.mode "queue") (not .Values.webhook.allNodes) }}
@@ -41,8 +41,8 @@ spec:
   metrics:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.webhook.autoscaling.behavior }}
+  {{- if and .Values.webhook.autoscaling.behavior (gt (len .Values.webhook.autoscaling.behavior) 0) }}
   behavior:
-    {{- toYaml . | nindent 4 }}
+    {{- toYaml .Values.webhook.autoscaling.behavior | nindent 4 }}
   {{- end }}
 {{- end }}
