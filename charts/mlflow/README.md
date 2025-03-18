@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.14.5](https://img.shields.io/badge/Version-0.14.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.21.0](https://img.shields.io/badge/AppVersion-2.21.0-informational?style=flat-square)
+![Version: 0.15.0](https://img.shields.io/badge/Version-0.15.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.21.0](https://img.shields.io/badge/AppVersion-2.21.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -294,6 +294,110 @@ ldapAuth:
   externalSecretForTrustedCACertificate: "external-ca-certificate-secret"
 ```
 
+## Auto Scaling Example
+
+This Helm chart supports Horizontal Pod Autoscaling (HPA) to dynamically scale the MLflow `Deployment` based on metrics. The HPA resource is created when `autoscaling.enabled` is `true` and specific conditions are met (see Prerequisites).
+
+### Prerequisites
+
+The HPA is created only if:
+
+- `autoscaling.enabled: true`
+- A backend store is enabled (`backendStore.postgres.enabled` or `backendStore.mysql.enabled`).
+- An artifact store is enabled (`artifactRoot.azureBlob.enabled`, `artifactRoot.s3.enabled`, or `artifactRoot.gcs.enabled`).
+- Auth is either enabled with Postgres (`auth.enabled` and `auth.postgres.enabled`) or disabled (`auth.enabled: false`).
+
+A metrics source (e.g., Metrics Server) is required for scaling.
+
+### Example 1: Basic CPU Scaling
+
+Scale between 1 and 5 replicas based on CPU usage:
+
+```yaml
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+backendStore:
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
+
+artifactRoot:
+  s3:
+    enabled: true
+    bucket: "my-mlflow-artifact-root-backend"
+    awsAccessKeyId: "a1b2c3d4"
+    awsSecretAccessKey: "a1b2c3d4"
+```
+
+### Example 2: Custom Scaling Behavior
+
+Scale with custom behavior (1.18+):
+
+```yaml
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+
+backendStore:
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
+
+artifactRoot:
+  s3:
+    enabled: true
+    bucket: "my-mlflow-artifact-root-backend"
+    awsAccessKeyId: "a1b2c3d4"
+    awsSecretAccessKey: "a1b2c3d4"
+
+auth:
+  enabled: true
+  adminUsername: "admin"
+  adminPassword: "S3cr3+"
+  postgres:
+    enabled: true
+    host: "postgresql--auth-instance1.abcdef1234.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "auth"
+    user: "mlflowauth"
+    password: "A4m1nPa33w0rd!"
+```
+
 ## Requirements
 
 Kubernetes: `>=1.16.0-0`
@@ -319,16 +423,19 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
+| artifactRoot.azureBlob | object | `{"accessKey":"","connectionString":"","container":"","enabled":false,"path":"","storageAccount":""}` | Specifies if you want to use Azure Blob Storage Mlflow Artifact Root |
 | artifactRoot.azureBlob.accessKey | string | `""` | Azure Cloud Storage Account Access Key for the container |
 | artifactRoot.azureBlob.connectionString | string | `""` | Azure Cloud Connection String for the container. Only onnectionString or accessKey required |
 | artifactRoot.azureBlob.container | string | `""` | Azure blob container name |
 | artifactRoot.azureBlob.enabled | bool | `false` | Specifies if you want to use Azure Blob Storage Mlflow Artifact Root |
 | artifactRoot.azureBlob.path | string | `""` | Azure blobk container folder. If you want to use root level, please don't set anything. |
 | artifactRoot.azureBlob.storageAccount | string | `""` | Azure storage account name |
+| artifactRoot.gcs | object | `{"bucket":"","enabled":false,"path":""}` | Specifies if you want to use Google Cloud Storage Mlflow Artifact Root |
 | artifactRoot.gcs.bucket | string | `""` | Google Cloud Storage bucket name |
 | artifactRoot.gcs.enabled | bool | `false` | Specifies if you want to use Google Cloud Storage Mlflow Artifact Root |
 | artifactRoot.gcs.path | string | `""` | Google Cloud Storage bucket folder. If you want to use root level, please don't set anything. |
 | artifactRoot.proxiedArtifactStorage | bool | `false` | Specifies if you want to enable proxied artifact storage access |
+| artifactRoot.s3 | object | `{"awsAccessKeyId":"","awsSecretAccessKey":"","bucket":"","enabled":false,"path":""}` | Specifies if you want to use AWS S3 Mlflow Artifact Root |
 | artifactRoot.s3.awsAccessKeyId | string | `""` | AWS IAM user AWS_ACCESS_KEY_ID which has attached policy for access to the S3 bucket |
 | artifactRoot.s3.awsSecretAccessKey | string | `""` | AWS IAM user AWS_SECRET_ACCESS_KEY which has attached policy for access to the S3 bucket |
 | artifactRoot.s3.bucket | string | `""` | S3 bucket name |
@@ -353,6 +460,12 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | auth.postgres.user | string | `""` | postgres database user name which can access to mlflow authorization database |
 | auth.sqliteFile | string | `"basic_auth.db"` | SQLite database file |
 | auth.sqliteFullPath | string | `""` | SQLite database folder. Default is user home directory. |
+| autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":5,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":1}` | Autoscaling settings. Can be enabled only when backendStore is not sqlite and artifactRoot is one of blob storage systems. |
+| autoscaling.behavior | object | `{}` | The behavior of the autoscaler. Only supported on K8s 1.18.0 or later. |
+| autoscaling.enabled | bool | `false` | If true, the number of replicas will be automatically scaled based on default metrics. On default, it will scale based on CPU and memory. For more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/" |
+| autoscaling.maxReplicas | int | `5` | The maximum number of replicas. |
+| autoscaling.metrics | list | `[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}]` | The metrics to use for autoscaling. |
+| autoscaling.minReplicas | int | `1` | The minimum number of replicas. |
 | backendStore | object | `{"databaseConnectionCheck":false,"databaseMigration":false,"mysql":{"database":"","driver":"pymysql","enabled":false,"host":"","password":"","port":3306,"user":""},"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}}` | Mlflow database connection settings |
 | backendStore.databaseConnectionCheck | bool | `false` | Add an additional init container, which checks for database availability |
 | backendStore.databaseMigration | bool | `false` | Specifies if you want to run database migration |

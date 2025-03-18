@@ -294,6 +294,110 @@ ldapAuth:
   externalSecretForTrustedCACertificate: "external-ca-certificate-secret"
 ```
 
+## Auto Scaling Example
+
+This Helm chart supports Horizontal Pod Autoscaling (HPA) to dynamically scale the MLflow `Deployment` based on metrics. The HPA resource is created when `autoscaling.enabled` is `true` and specific conditions are met (see Prerequisites).
+
+### Prerequisites
+
+The HPA is created only if:
+
+- `autoscaling.enabled: true`
+- A backend store is enabled (`backendStore.postgres.enabled` or `backendStore.mysql.enabled`).
+- An artifact store is enabled (`artifactRoot.azureBlob.enabled`, `artifactRoot.s3.enabled`, or `artifactRoot.gcs.enabled`).
+- Auth is either enabled with Postgres (`auth.enabled` and `auth.postgres.enabled`) or disabled (`auth.enabled: false`).
+
+A metrics source (e.g., Metrics Server) is required for scaling.
+
+### Example 1: Basic CPU Scaling
+
+Scale between 1 and 5 replicas based on CPU usage:
+
+```yaml
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+backendStore:
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
+
+artifactRoot:
+  s3:
+    enabled: true
+    bucket: "my-mlflow-artifact-root-backend"
+    awsAccessKeyId: "a1b2c3d4"
+    awsSecretAccessKey: "a1b2c3d4"
+```
+
+### Example 2: Custom Scaling Behavior
+
+Scale with custom behavior (1.18+):
+
+```yaml
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+
+backendStore:
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
+
+artifactRoot:
+  s3:
+    enabled: true
+    bucket: "my-mlflow-artifact-root-backend"
+    awsAccessKeyId: "a1b2c3d4"
+    awsSecretAccessKey: "a1b2c3d4"
+
+auth:
+  enabled: true
+  adminUsername: "admin"
+  adminPassword: "S3cr3+"
+  postgres:
+    enabled: true
+    host: "postgresql--auth-instance1.abcdef1234.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "auth"
+    user: "mlflowauth"
+    password: "A4m1nPa33w0rd!"
+```
+
 {{ template "chart.requirementsSection" . }}
 
 ## Uninstall Helm Chart

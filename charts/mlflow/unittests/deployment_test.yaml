@@ -641,6 +641,22 @@ tests:
             secret:
               secretName: test-secret
 
+  - it: should set replicas when autoscaling is not enabled
+    set:
+      autoscaling.enabled: false
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+
+  - it: should not set replicas when autoscaling is enabled
+    set:
+      autoscaling.enabled: true
+    asserts:
+      - notEqual:
+          path: spec.replicas
+          value: 1
+
   - it: should match snapshot of default values
     release:
       name: mlflow

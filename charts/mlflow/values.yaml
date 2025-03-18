@@ -119,6 +119,8 @@ backendStore:
 artifactRoot:
   # -- Specifies if you want to enable proxied artifact storage access
   proxiedArtifactStorage: false
+
+  # -- Specifies if you want to use Azure Blob Storage Mlflow Artifact Root
   azureBlob:
     # -- Specifies if you want to use Azure Blob Storage Mlflow Artifact Root
     enabled: false
@@ -132,6 +134,8 @@ artifactRoot:
     connectionString: "" # connectionString or accessKey required
     # -- Azure Cloud Storage Account Access Key for the container
     accessKey: "" # connectionString or accessKey required. Only onnectionString or accessKey required
+
+  # -- Specifies if you want to use AWS S3 Mlflow Artifact Root
   s3:
     # -- Specifies if you want to use AWS S3 Mlflow Artifact Root
     enabled: false
@@ -143,6 +147,8 @@ artifactRoot:
     awsAccessKeyId: "" # (awsAccessKeyId and awsSecretAccessKey) or roleArn serviceaccount annotation required
     # -- AWS IAM user AWS_SECRET_ACCESS_KEY which has attached policy for access to the S3 bucket
     awsSecretAccessKey: "" # (awsAccessKeyId and awsSecretAccessKey) or roleArn serviceaccount annotation required
+
+  # -- Specifies if you want to use Google Cloud Storage Mlflow Artifact Root
   gcs:
     # -- Specifies if you want to use Google Cloud Storage Mlflow Artifact Root
     enabled: false
@@ -217,6 +223,51 @@ ldapAuth:
   encodedTrustedCACertificate: ""
   # -- External secret name for trusted CA certificate for LDAP server connection.
   externalSecretForTrustedCACertificate: ""
+
+# -- Autoscaling settings. Can be enabled only when backendStore is not sqlite and artifactRoot is one of blob storage systems.
+autoscaling:
+  # -- If true, the number of replicas will be automatically scaled based on default metrics. On default, it will scale based on CPU and memory. For more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/"
+  enabled: false
+
+  # -- The minimum number of replicas.
+  minReplicas: 1
+
+  # -- The maximum number of replicas.
+  maxReplicas: 5
+
+  # -- The metrics to use for autoscaling.
+  metrics:
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+  # -- The behavior of the autoscaler. Only supported on K8s 1.18.0 or later.
+  behavior: {}
+    # scaleDown:
+    #   stabilizationWindowSeconds: 300
+    #   policies:
+    #   - type: Percent
+    #     value: 100
+    #     periodSeconds: 15
+    # scaleUp:
+    #   stabilizationWindowSeconds: 0
+    #   policies:
+    #   - type: Percent
+    #     value: 100
+    #     periodSeconds: 15
+    #   - type: Pods
+    #     value: 4
+    #     periodSeconds: 15
+    #   selectPolicy: Max
 
 # -- A map of arguments and values to pass to the `mlflow server` command. Keys must be camelcase. Helm will turn them to kebabcase style.
 extraArgs: {}

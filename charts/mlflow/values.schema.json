@@ -1284,6 +1284,340 @@
       ],
       "title": "ldapAuth",
       "type": "object"
+    },
+    "autoscaling": {
+      "additionalProperties": false,
+      "description": "Autoscaling settings. Can be enabled only when backendStore is not sqlite and artifactRoot is one of blob storage systems.",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "description": "If true, the number of replicas will be automatically scaled based on default metrics. On default, it will scale based on CPU and memory. For more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "minReplicas": {
+          "default": 1,
+          "description": "The minimum number of replicas.",
+          "required": [],
+          "title": "minReplicas",
+          "type": "integer"
+        },
+        "maxReplicas": {
+          "default": 5,
+          "description": "The maximum number of replicas.",
+          "required": [],
+          "title": "maxReplicas",
+          "type": "integer"
+        },
+        "metrics": {
+          "type": "array",
+          "minItems": 1,
+          "description": "The metrics to use for autoscaling.",
+          "items": {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["Resource", "Pods", "Object", "External"]
+              }
+            },
+            "oneOf": [
+              {
+                "properties": {
+                  "type": { "const": "Resource" },
+                  "resource": {
+                    "type": "object",
+                    "required": ["name", "target"],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "enum": ["cpu", "memory"]
+                      },
+                      "target": {
+                        "type": "object",
+                        "required": ["type"],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": ["Utilization", "AverageValue", "Value"]
+                          },
+                          "averageUtilization": { "type": "integer", "minimum": 0 },
+                          "averageValue": { "type": "string" },
+                          "value": { "type": "string" }
+                        },
+                        "if": { "properties": { "type": { "const": "Utilization" } } },
+                        "then": { "required": ["averageUtilization"] },
+                        "else": {
+                          "if": { "properties": { "type": { "const": "AverageValue" } } },
+                          "then": { "required": ["averageValue"] },
+                          "else": { "required": ["value"] }
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": ["resource"]
+              },
+              {
+                "properties": {
+                  "type": { "const": "Pods" },
+                  "pods": {
+                    "type": "object",
+                    "required": ["metric", "target"],
+                    "properties": {
+                      "metric": {
+                        "type": "object",
+                        "required": ["name"],
+                        "properties": {
+                          "name": { "type": "string" },
+                          "selector": {
+                            "type": "object",
+                            "properties": {
+                              "matchLabels": { "type": "object" },
+                              "matchExpressions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "required": ["key", "operator"],
+                                  "properties": {
+                                    "key": { "type": "string" },
+                                    "operator": { "type": "string" },
+                                    "values": { "type": "array", "items": { "type": "string" } }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "target": {
+                        "type": "object",
+                        "required": ["type"],
+                        "properties": {
+                          "type": { "type": "string", "enum": ["AverageValue", "Value"] },
+                          "averageValue": { "type": "string" },
+                          "value": { "type": "string" }
+                        },
+                        "if": { "properties": { "type": { "const": "AverageValue" } } },
+                        "then": { "required": ["averageValue"] },
+                        "else": { "required": ["value"] }
+                      }
+                    }
+                  }
+                },
+                "required": ["pods"]
+              },
+              {
+                "properties": {
+                  "type": { "const": "Object" },
+                  "object": {
+                    "type": "object",
+                    "required": ["metric", "describedObject", "target"],
+                    "properties": {
+                      "metric": {
+                        "type": "object",
+                        "required": ["name"],
+                        "properties": {
+                          "name": { "type": "string" },
+                          "selector": {
+                            "type": "object",
+                            "properties": {
+                              "matchLabels": { "type": "object" },
+                              "matchExpressions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "required": ["key", "operator"],
+                                  "properties": {
+                                    "key": { "type": "string" },
+                                    "operator": { "type": "string" },
+                                    "values": { "type": "array", "items": { "type": "string" } }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "describedObject": {
+                        "type": "object",
+                        "required": ["apiVersion", "kind", "name"],
+                        "properties": {
+                          "apiVersion": { "type": "string" },
+                          "kind": { "type": "string" },
+                          "name": { "type": "string" }
+                        }
+                      },
+                      "target": {
+                        "type": "object",
+                        "required": ["type"],
+                        "properties": {
+                          "type": { "type": "string", "enum": ["Value", "AverageValue"] },
+                          "value": { "type": "string" },
+                          "averageValue": { "type": "string" }
+                        },
+                        "if": { "properties": { "type": { "const": "Value" } } },
+                        "then": { "required": ["value"] },
+                        "else": { "required": ["averageValue"] }
+                      }
+                    }
+                  }
+                },
+                "required": ["object"]
+              },
+              {
+                "properties": {
+                  "type": { "const": "External" },
+                  "external": {
+                    "type": "object",
+                    "required": ["metric", "target"],
+                    "properties": {
+                      "metric": {
+                        "type": "object",
+                        "required": ["name"],
+                        "properties": {
+                          "name": { "type": "string" },
+                          "selector": {
+                            "type": "object",
+                            "properties": {
+                              "matchLabels": { "type": "object" },
+                              "matchExpressions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "required": ["key", "operator"],
+                                  "properties": {
+                                    "key": { "type": "string" },
+                                    "operator": { "type": "string" },
+                                    "values": { "type": "array", "items": { "type": "string" } }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "target": {
+                        "type": "object",
+                        "required": ["type"],
+                        "properties": {
+                          "type": { "type": "string", "enum": ["Value", "AverageValue"] },
+                          "value": { "type": "string" },
+                          "averageValue": { "type": "string" }
+                        },
+                        "if": { "properties": { "type": { "const": "Value" } } },
+                        "then": { "required": ["value"] },
+                        "else": { "required": ["averageValue"] }
+                      }
+                    }
+                  }
+                },
+                "required": ["external"]
+              }
+            ]
+          }
+        },
+        "behavior": {
+          "type": "object",
+          "description": "The behavior of the autoscaler. Only supported on K8s 1.18.0 or later.",
+          "properties": {
+            "scaleUp": {
+              "type": "object",
+              "description": "The behavior of the autoscaler when scaling up.",
+              "properties": {
+                "stabilizationWindowSeconds": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Time in seconds to wait before scaling up again (default: 0)"
+                },
+                "policies": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "minItems": 1,
+                    "required": ["type", "value", "periodSeconds"],
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["Pods", "Percent"],
+                        "description": "Type of scaling policy: Pods (fixed number) or Percent (percentage of current replicas)"
+                      },
+                      "value": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "The value to scale by (number of pods or percentage)"
+                      },
+                      "periodSeconds": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Time in seconds over which the policy is evaluated"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "List of scaling policies for scale-up"
+                },
+                "selectPolicy": {
+                  "type": "string",
+                  "enum": ["Max", "Min", "Disabled"],
+                  "description": "Policy to select among multiple policies: Max (default), Min, or Disabled"
+                }
+              },
+              "additionalProperties": false
+            },
+            "scaleDown": {
+              "type": "object",
+              "description": "The behavior of the autoscaler when scaling down.",
+              "properties": {
+                "stabilizationWindowSeconds": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Time in seconds to wait before scaling down again (default: 300)"
+                },
+                "policies": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "minItems": 1,
+                    "required": ["type", "value", "periodSeconds"],
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["Pods", "Percent"],
+                        "description": "Type of scaling policy: Pods (fixed number) or Percent (percentage of current replicas)"
+                      },
+                      "value": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "The value to scale by (number of pods or percentage)"
+                      },
+                      "periodSeconds": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Time in seconds over which the policy is evaluated"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "description": "List of scaling policies for scale-down"
+                },
+                "selectPolicy": {
+                  "type": "string",
+                  "enum": ["Max", "Min", "Disabled"],
+                  "description": "Policy to select among multiple policies: Max (default), Min, or Disabled"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["enabled", "minReplicas", "maxReplicas", "metrics", "behavior"],
+      "title": "autoscaling",
+      "type": "object"
     }
   },
   "required": [
@@ -1318,7 +1652,8 @@
     "readinessProbe",
     "flaskServerSecretKey",
     "auth",
-    "ldapAuth"
+    "ldapAuth",
+    "autoscaling"
   ],
   "allOf": [
     {
