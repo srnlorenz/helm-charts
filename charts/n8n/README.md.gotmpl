@@ -299,6 +299,108 @@ webhook:
 
 Ensure that you configure either `allNodes` or `autoscaling` based on your deployment requirements.
 
+## Service Monitor Examples
+
+The n8n Helm chart supports optional integration with Prometheus via `ServiceMonitor` and `PodMonitor` resources, compatible with the Prometheus Operator (API version `monitoring.coreos.com/v1`). These resources allow Prometheus to scrape metrics from n8n services and worker pods. This section provides examples to help you enable and configure monitoring.
+
+### Prerequisites
+
+* The Prometheus Operator must be installed in your cluster.
+* Your Prometheus instance must be configured to discover `ServiceMonitor` and `PodMonitor` resources (e.g., via a matching `release` label).
+
+### Enabling the ServiceMonitor
+
+To enable monitoring, set `serviceMonitor.enabled` to `true` in your `values.yaml` file or via a Helm override. By default, the `ServiceMonitor` is disabled (`false`).
+
+#### Basic Example
+
+Enable the `ServiceMonitor` with default settings:
+
+```yaml
+serviceMonitor:
+  enabled: true
+```
+
+This deploys a `ServiceMonitor` in the same namespace as the chart (e.g., `n8n`), scraping the n8n service's `/metrics` endpoint every 30 seconds with a 10-second timeout. The default label `release: prometheus` is applied, which should match your Prometheus instance's service monitor selector.
+
+#### Custom Namespace and Interval
+
+Deploy the `ServiceMonitor` in a specific namespace (e.g., `monitoring`) with a custom scrape interval:
+
+```yaml
+serviceMonitor:
+  enabled: true
+  namespace: monitoring
+  interval: 1m
+```
+
+This scrapes metrics every minute from the n8n service in the release namespace (e.g., `n8n`), with the `ServiceMonitor` itself residing in the `monitoring` namespace.
+
+#### Relabeling Metrics
+
+Add custom metric relabeling to drop unwanted labels:
+
+```yaml
+serviceMonitor:
+  enabled: true
+  labels:
+    release: my-prometheus
+  metricRelabelings:
+    - regex: prometheus_replica
+      action: labeldrop
+```
+
+This deploys a `ServiceMonitor` with a custom `release: my-prometheus` label and drops the `prometheus_replica` label from scraped metrics.
+
+### Enabling the PodMonitor (Worker Mode)
+
+If using a PostgreSQL database (`db.type: postgresdb`) and queue mode (`worker.mode: queue`), a `PodMonitor` is available to scrape metrics from n8n worker pods.
+
+#### Worker Monitoring Example
+
+Enable both `ServiceMonitor` and `PodMonitor` for a full setup:
+
+```yaml
+db:
+  type: postgresdb
+
+externalPostgresql:
+  host: "postgresql-instance1.ab012cdefghi.eu-central-1.rds.amazonaws.com"
+  username: "n8nuser"
+  password: "Pa33w0rd!"
+  database: "n8n"
+
+worker:
+  mode: queue
+
+externalRedis:
+  host: "redis-instance1.ab012cdefghi.eu-central-1.rds.amazonaws.com"
+  username: "default"
+  password: "Pa33w0rd!"
+
+serviceMonitor:
+  enabled: true
+  interval: 15s
+  timeout: 5s
+```
+
+This scrapes the main n8n service and worker pods every 15 seconds with a 5-second timeout. The `PodMonitor` targets worker pods with the label `role: worker`.
+
+### Troubleshooting
+
+* Ensure the `release` label matches your Prometheus configuration (see [Prometheus Operator docs](https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/troubleshooting.md#troubleshooting-servicemonitor-changes)).
+* Verify RBAC permissions for the Prometheus service account (e.g., system:serviceaccount:monitoring:prometheus-k8s) to list/watch Pods, Services, and Endpoints. You can use something similar as the following command.
+
+```bash
+kubectl auth can-i list pods --namespace n8n --as=system:serviceaccount:monitoring:prometheus-k8s
+kubectl auth can-i list services --namespace n8n --as=system:serviceaccount:monitoring:prometheus-k8s
+kubectl auth can-i list endpoints --namespace n8n --as=system:serviceaccount:monitoring:prometheus-k8s
+
+kubectl auth can-i watch pods --namespace n8n --as=system:serviceaccount:monitoring:prometheus-k8s
+kubectl auth can-i watch services --namespace n8n --as=system:serviceaccount:monitoring:prometheus-k8s
+kubectl auth can-i watch endpoints --namespace n8n --as=system:serviceaccount:monitoring:prometheus-k8s
+```
+
 ## Upgrading
 
 This section outlines major updates and breaking changes for each version of the Helm Chart to help you transition smoothly between releases.

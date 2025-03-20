@@ -700,6 +700,77 @@
           "maximum": 2,
           "type": "integer"
         },
+        "pdb": {
+          "additionalProperties": false,
+          "description": "PodDisruptionBudget configuration for the main node",
+          "properties": {
+            "enabled": {
+              "default": true,
+              "description": "Whether to enable the PodDisruptionBudget for the main node",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "minAvailable": {
+              "default": 1,
+              "description": "Minimum number of available replicas for the main node",
+              "required": [],
+              "title": "minAvailable",
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[0-9]+%$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "maxUnavailable": {
+              "default": null,
+              "description": "Maximum number of unavailable replicas for the main node",
+              "required": [],
+              "title": "maxUnavailable",
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[0-9]+%$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": ["enabled", "minAvailable", "maxUnavailable"],
+          "title": "pdb",
+          "type": "object",
+          "if": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            },
+            "required": ["enabled"]
+          },
+          "then": {
+            "not": {
+              "properties": {
+                "minAvailable": { "type": "null" },
+                "maxUnavailable": { "type": "null" }
+              },
+              "required": ["minAvailable", "maxUnavailable"]
+            }
+          }
+        },
         "resources": {
           "additionalProperties": true,
           "description": "This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
@@ -784,7 +855,7 @@
           "type": "array"
         }
       },
-      "required": ["count", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts"],
+      "required": ["count", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb"],
       "title": "main",
       "type": "object"
     },
@@ -1645,6 +1716,77 @@
           "title": "autoscaling",
           "type": "object"
         },
+        "pdb": {
+          "additionalProperties": false,
+          "description": "PodDisruptionBudget configuration for the worker node",
+          "properties": {
+            "enabled": {
+              "default": true,
+              "description": "Whether to enable the PodDisruptionBudget for the worker node",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "minAvailable": {
+              "default": 1,
+              "description": "Minimum number of available replicas for the worker node",
+              "required": [],
+              "title": "minAvailable",
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[0-9]+%$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "maxUnavailable": {
+              "default": null,
+              "description": "Maximum number of unavailable replicas for the worker node",
+              "required": [],
+              "title": "maxUnavailable",
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[0-9]+%$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": ["enabled", "minAvailable", "maxUnavailable"],
+          "title": "pdb",
+          "type": "object",
+          "if": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            },
+            "required": ["enabled"]
+          },
+          "then": {
+            "not": {
+              "properties": {
+                "minAvailable": { "type": "null" },
+                "maxUnavailable": { "type": "null" }
+              },
+              "required": ["minAvailable", "maxUnavailable"]
+            }
+          }
+        },
         "url": {
           "default": "",
           "description": "Webhook url together with http schema",
@@ -1736,7 +1878,7 @@
           "type": "array"
         }
       },
-      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts"],
+      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb"],
       "allOf": [
         {
           "if": {
@@ -2119,6 +2261,77 @@
           "title": "autoscaling",
           "type": "object"
         },
+        "pdb": {
+          "additionalProperties": false,
+          "description": "PodDisruptionBudget configuration for the worker node",
+          "properties": {
+            "enabled": {
+              "default": true,
+              "description": "Whether to enable the PodDisruptionBudget for the worker node",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "minAvailable": {
+              "default": 1,
+              "description": "Minimum number of available replicas for the worker node",
+              "required": [],
+              "title": "minAvailable",
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[0-9]+%$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "maxUnavailable": {
+              "default": null,
+              "description": "Maximum number of unavailable replicas for the worker node",
+              "required": [],
+              "title": "maxUnavailable",
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[0-9]+%$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": ["enabled", "minAvailable", "maxUnavailable"],
+          "title": "pdb",
+          "type": "object",
+          "if": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            },
+            "required": ["enabled"]
+          },
+          "then": {
+            "not": {
+              "properties": {
+                "minAvailable": { "type": "null" },
+                "maxUnavailable": { "type": "null" }
+              },
+              "required": ["minAvailable", "maxUnavailable"]
+            }
+          }
+        },
         "resources": {
           "additionalProperties": true,
           "description": "This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
@@ -2203,7 +2416,7 @@
           "type": "array"
         }
       },
-      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts"],
+      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb"],
       "allOf": [
         {
           "if": {
@@ -2399,6 +2612,202 @@
       "required": ["enabled", "pruneTime"],
       "title": "workflowHistory",
       "type": "object"
+    },
+    "serviceMonitor": {
+      "additionalProperties": false,
+      "description": "The ServiceMonitor configuration for the n8n deployment. Please refer to the following link for more information: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "description": "Whether to enable the ServiceMonitor for the n8n deployment",
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "namespace": {
+          "default": "",
+          "description": "The namespace for the ServiceMonitor. If empty, the ServiceMonitor will be deployed in the same namespace as the n8n chart.",
+          "title": "namespace",
+          "type": "string"
+        },
+        "interval": {
+          "default": "30s",
+          "description": "The interval for the ServiceMonitor (e.g., 30s, 1m, 1h)",
+          "title": "interval",
+          "type": "string",
+          "pattern": "^\\d+(ms|s|m|h|d|w|y)$"
+        },
+        "labels": {
+          "default": {
+            "release": "prometheus"
+          },
+          "description": "The labels for the ServiceMonitor, use this to define your scrape label for Prometheus Operator",
+          "title": "labels",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "timeout": {
+          "default": "10s",
+          "description": "The timeout for the ServiceMonitor (e.g., 10s, 1m)",
+          "title": "timeout",
+          "type": "string",
+          "pattern": "^\\d+(ms|s|m|h|d|w|y)$"
+        },
+        "targetLabels": {
+          "default": [],
+          "description": "Set of labels to transfer from the Kubernetes Service onto the target",
+          "title": "targetLabels",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "metricRelabelings": {
+          "default": [],
+          "description": "The metric relabelings for the ServiceMonitor, following Prometheus relabel_config structure",
+          "title": "metricRelabelings",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "sourceLabels": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "The source labels to relabel from"
+              },
+              "regex": {
+                "type": "string",
+                "description": "The regular expression to match against source labels"
+              },
+              "targetLabel": {
+                "type": "string",
+                "description": "The label to write the result to"
+              },
+              "action": {
+                "type": "string",
+                "enum": ["replace", "keep", "drop", "labeldrop", "labelkeep", "hashmod"],
+                "description": "The relabeling action to perform"
+              },
+              "separator": {
+                "type": "string",
+                "default": ";",
+                "description": "Separator used when concatenating source labels"
+              },
+              "modulus": {
+                "type": "integer",
+                "description": "Modulus to use with hashmod action"
+              },
+              "replacement": {
+                "type": "string",
+                "default": "$1",
+                "description": "Replacement value for the 'replace' action"
+              }
+            },
+            "required": ["action"],
+            "additionalProperties": true
+          }
+        },
+        "metricsPrefix": {
+          "default": "n8n_",
+          "description": "The metrics prefix for the ServiceMonitor",
+          "title": "metricsPrefix",
+          "type": "string"
+        },
+        "include": {
+          "default": {
+            "defaultMetrics": true,
+            "cacheMetrics": false,
+            "messageEventBusMetrics": false,
+            "workflowIdLabel": false,
+            "nodeTypeLabel": false,
+            "credentialTypeLabel": false,
+            "apiEndpoints": false,
+            "apiPathLabel": false,
+            "apiMethodLabel": false,
+            "apiStatusCodeLabel": false,
+            "queueMetrics": false
+          },
+          "description": "Metrics and labels to include in the ServiceMonitor",
+          "title": "include",
+          "type": "object",
+          "properties": {
+            "defaultMetrics": {
+              "default": true,
+              "description": "Whether to include default metrics",
+              "title": "defaultMetrics",
+              "type": "boolean"
+            },
+            "cacheMetrics": {
+              "default": false,
+              "description": "Whether to include cache metrics",
+              "title": "cacheMetrics",
+              "type": "boolean"
+            },
+            "messageEventBusMetrics": {
+              "default": false,
+              "description": "Whether to include message event bus metrics",
+              "title": "messageEventBusMetrics",
+              "type": "boolean"
+            },
+            "workflowIdLabel": {
+              "default": false,
+              "description": "Whether to include workflow id label",
+              "title": "workflowIdLabel",
+              "type": "boolean"
+            },
+            "nodeTypeLabel": {
+              "default": false,
+              "description": "Whether to include node type label",
+              "title": "nodeTypeLabel",
+              "type": "boolean"
+            },
+            "credentialTypeLabel": {
+              "default": false,
+              "description": "Whether to include credential type label",
+              "title": "credentialTypeLabel",
+              "type": "boolean"
+            },
+            "apiEndpoints": {
+              "default": false,
+              "description": "Whether to include api endpoints",
+              "title": "apiEndpoints",
+              "type": "boolean"
+            },
+            "apiPathLabel": {
+              "default": false,
+              "description": "Whether to include api path label",
+              "title": "apiPathLabel",
+              "type": "boolean"
+            },
+            "apiMethodLabel": {
+              "default": false,
+              "description": "Whether to include api method label",
+              "title": "apiMethodLabel",
+              "type": "boolean"
+            },
+            "apiStatusCodeLabel": {
+              "default": false,
+              "description": "Whether to include api status code label",
+              "title": "apiStatusCodeLabel",
+              "type": "boolean"
+            },
+            "queueMetrics": {
+              "default": false,
+              "description": "Whether to include queue metrics",
+              "title": "queueMetrics",
+              "type": "boolean"
+            }
+          },
+          "required": ["defaultMetrics", "cacheMetrics", "messageEventBusMetrics", "workflowIdLabel", "nodeTypeLabel", "credentialTypeLabel", "apiEndpoints", "apiPathLabel", "apiMethodLabel", "apiStatusCodeLabel", "queueMetrics"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["enabled", "namespace", "interval", "labels", "timeout", "targetLabels", "metricRelabelings", "metricsPrefix", "include"],
+      "title": "serviceMonitor",
+      "type": "object"
     }
   },
   "required": [
@@ -2443,7 +2852,8 @@
     "redis",
     "externalRedis",
     "postgresql",
-    "externalPostgresql"
+    "externalPostgresql",
+    "serviceMonitor"
   ],
   "type": "object"
 }

@@ -142,6 +142,8 @@ spec:
                 name: {{ template "n8n.fullname" . }}-queue-configmap
             - configMapRef:
                 name: {{ template "n8n.fullname" . }}-task-broker-configmap
+            - configMapRef:
+                name: {{ template "n8n.fullname" . }}-metrics-configmap
             - secretRef:
                 name: {{ default (printf "%s-encryption-key-secret-v2" (include "n8n.fullname" .)) .Values.existingEncryptionKeySecret }}
           {{- range (default .Values.extraSecretNamesForEnvFrom .Values.worker.extraSecretNamesForEnvFrom) }}

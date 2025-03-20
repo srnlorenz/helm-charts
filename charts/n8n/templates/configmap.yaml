@@ -180,6 +180,31 @@ data:
   N8N_RUNNERS_MAX_CONCURRENCY: {{ .Values.taskRunners.maxConcurrency | quote }}
 {{- end }}
 
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "n8n.fullname" . }}-metrics-configmap
+  labels:
+    app: {{ include "n8n.name" . }}
+    chart: {{ include "n8n.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  N8N_METRICS: {{ .Values.serviceMonitor.enabled | quote }}
+  N8N_METRICS_PREFIX: {{ .Values.serviceMonitor.metricsPrefix | quote }}
+  N8N_METRICS_INCLUDE_DEFAULT_METRICS: {{ .Values.serviceMonitor.include.defaultMetrics | quote }}
+  N8N_METRICS_INCLUDE_CACHE_METRICS: {{ .Values.serviceMonitor.include.cacheMetrics | quote }}
+  N8N_METRICS_INCLUDE_MESSAGE_EVENT_BUS_METRICS: {{ .Values.serviceMonitor.include.messageEventBusMetrics | quote }}
+  N8N_METRICS_INCLUDE_WORKFLOW_ID_LABEL: {{ .Values.serviceMonitor.include.workflowIdLabel | quote }}
+  N8N_METRICS_INCLUDE_NODE_TYPE_LABEL: {{ .Values.serviceMonitor.include.nodeTypeLabel | quote }}
+  N8N_METRICS_INCLUDE_CREDENTIAL_TYPE_LABEL: {{ .Values.serviceMonitor.include.credentialTypeLabel | quote }}
+  N8N_METRICS_INCLUDE_API_ENDPOINTS: {{ .Values.serviceMonitor.include.apiEndpoints | quote }}
+  N8N_METRICS_INCLUDE_API_PATH_LABEL: {{ .Values.serviceMonitor.include.apiPathLabel | quote }}
+  N8N_METRICS_INCLUDE_API_METHOD_LABEL: {{ .Values.serviceMonitor.include.apiMethodLabel | quote }}
+  N8N_METRICS_INCLUDE_API_STATUS_CODE_LABEL: {{ .Values.serviceMonitor.include.apiStatusCodeLabel | quote }}
+  N8N_METRICS_INCLUDE_QUEUE_METRICS: {{ .Values.serviceMonitor.include.queueMetrics | quote }}
+
 {{- if eq .Values.taskRunners.mode "external" }}
 ---
 apiVersion: v1

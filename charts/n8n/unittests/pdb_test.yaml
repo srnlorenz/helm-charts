@@ -28,6 +28,21 @@ tests:
       - hasDocuments:
           count: 0
 
+  - it: should not create pdb resource for main, worker and webhook nodes when main.pdb.enabled is false and webhook.pdb.enabled is false and worker.pdb.enabled is false
+    set:
+      main:
+        pdb:
+          enabled: false
+      worker:
+        pdb:
+          enabled: false
+      webhook:
+        pdb:
+          enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
   - it: should create pdb resource for main node when main.count is 2 and deployment strategy is Recreate
     set:
       strategy:

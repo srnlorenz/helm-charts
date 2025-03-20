@@ -165,6 +165,15 @@ main:
   # -- Number of main nodes. Only enterprise license users can have two main nodes.
   count: 1
 
+  # -- Whether to enable the PodDisruptionBudget for the main pod.
+  pdb:
+    # -- Whether to enable the PodDisruptionBudget
+    enabled: true
+    # -- Minimum number of available replicas
+    minAvailable: 1
+    # -- Maximum number of unavailable replicas
+    maxUnavailable: null
+
   # -- This block is for setting up the resource management for the main pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -255,6 +264,15 @@ worker:
       #     value: 4
       #     periodSeconds: 15
       #   selectPolicy: Max
+
+  # -- Whether to enable the PodDisruptionBudget for the worker pod
+  pdb:
+    # -- Whether to enable the PodDisruptionBudget
+    enabled: true
+    # -- Minimum number of available replicas
+    minAvailable: 1
+    # -- Maximum number of unavailable replicas
+    maxUnavailable: null
 
   # -- This block is for setting up the resource management for the worker pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources: {}
@@ -358,6 +376,15 @@ webhook:
       #     value: 4
       #     periodSeconds: 15
       #   selectPolicy: Max
+
+  # -- Whether to enable the PodDisruptionBudget for the webhook pod
+  pdb:
+    # -- Whether to enable the PodDisruptionBudget
+    enabled: true
+    # -- Minimum number of available replicas
+    minAvailable: 1
+    # -- Maximum number of unavailable replicas
+    maxUnavailable: null
 
   # -- This block is for setting up the resource management for the webhook pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources: {}
@@ -477,6 +504,62 @@ ingress:
   #  - secretName: n8n-tls
   #    hosts:
   #      - n8n.local
+
+# -- The service monitor configuration. Please refer to the following link for more information: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api-reference/api.md
+serviceMonitor:
+  # -- When set true then use a ServiceMonitor to configure scraping
+  enabled: false
+  # -- Set the namespace the ServiceMonitor should be deployed. If empty, the ServiceMonitor will be deployed in the same namespace as the n8n chart.
+  namespace: ""
+  # -- Set how frequently Prometheus should scrape
+  interval: 30s
+  # -- Set labels for the ServiceMonitor, use this to define your scrape label for Prometheus Operator
+  labels:
+    # -- default `kube prometheus stack` helm chart serviceMonitor selector label
+    # Mostly it's your prometheus helm release name. Please find more information from here:
+    # https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/troubleshooting.md#troubleshooting-servicemonitor-changes
+    release: prometheus
+  # -- Set timeout for scrape
+  timeout: 10s
+  # -- Set of labels to transfer on the Kubernetes Service onto the target.
+  targetLabels: []
+
+  # -- Set of rules to relabel your exist metric labels
+  metricRelabelings: []
+    # - sourceLabels: [prometheus_replica]
+    #   regex: (.*)
+    #   targetLabel: another_prometheus_replica
+    #   action: replace
+    # - regex: prometheus_replica
+    #   action: labeldrop
+
+  # -- The prefix for the metrics
+  metricsPrefix: "n8n_"
+
+  # -- Whether to include metrics
+  include:
+    # -- Whether to include default metrics
+    defaultMetrics: true
+    # -- Whether to include cache metrics
+    cacheMetrics: false
+    # -- Whether to include message event bus metrics
+    messageEventBusMetrics: false
+    # -- Whether to include workflow id label
+    workflowIdLabel: false
+    # -- Whether to include node type label
+    nodeTypeLabel: false
+    # -- Whether to include credential type label
+    credentialTypeLabel: false
+    # -- Whether to include api endpoints
+    apiEndpoints: false
+    # -- Whether to include api path label
+    apiPathLabel: false
+    # -- Whether to include api method label
+    apiMethodLabel: false
+    # -- Whether to include api status code label
+    apiStatusCodeLabel: false
+    # -- Whether to include queue metrics
+    queueMetrics: false
 
 # -- DEPRECATED: Use main, worker, and webhook blocks extraEnvVars fields instead. This field will be removed in a future release.
 extraEnvVars: {}
