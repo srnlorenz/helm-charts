@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.4.0](https://img.shields.io/badge/Version-1.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.83.2](https://img.shields.io/badge/AppVersion-1.83.2-informational?style=flat-square)
+![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.83.2](https://img.shields.io/badge/AppVersion-1.83.2-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -401,6 +401,55 @@ kubectl auth can-i watch services --namespace n8n --as=system:serviceaccount:mon
 kubectl auth can-i watch endpoints --namespace n8n --as=system:serviceaccount:monitoring:prometheus-k8s
 ```
 
+## Enterprise License Configuration
+
+The chart now supports enterprise license configuration. To enable and configure it, update the `values.yaml` file:
+
+```yaml
+license:
+  enabled: true
+  activationKey: "your-activation-key"
+```
+
+If you have an existing secret for the activation key with `N8N_LICENSE_ACTIVATION_KEY` secret key, configure it as follows:
+
+```yaml
+license:
+  enabled: true
+  existingActivationKeySecret: "your-existing-secret"
+```
+
+## S3 Binary Storage Configuration
+
+The chart now supports storing binary data in S3-compatible external storage. To enable and configure it, update the `values.yaml` file:
+
+```yaml
+binaryData:
+  availableModes:
+    - s3
+  mode: "s3"
+  s3:
+    host: "s3.us-east-1.amazonaws.com"
+    bucketName: "your-bucket-name"
+    bucketRegion: "us-east-1"
+    accessKey: "your-access-key"
+    accessSecret: "your-secret-access-key"
+```
+
+If you have an existing secret for the s3 access key and access secret with `access-key-id` and `secret-access-key` seret key names respectively, configure it as follows:
+
+```yaml
+binaryData:
+  availableModes:
+    - s3
+  mode: "s3"
+  s3:
+    host: "s3.us-east-1.amazonaws.com"
+    bucketName: "your-bucket-name"
+    bucketRegion: "us-east-1"
+    existingSecret: "your-existing-secret"
+```
+
 ## Upgrading
 
 This section outlines major updates and breaking changes for each version of the Helm Chart to help you transition smoothly between releases.
@@ -455,6 +504,7 @@ Kubernetes: `>=1.23.0-0`
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | postgresql | 16.5.2 |
 | https://charts.bitnami.com/bitnami | redis | 20.11.3 |
+| https://charts.min.io/ | minio | 5.4.0 |
 
 ## Uninstall Helm Chart
 
@@ -480,6 +530,16 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | api.enabled | bool | `true` | Whether to enable the Public API |
 | api.path | string | `"api"` | Path segment for the Public API |
 | api.swagger | object | `{"enabled":true}` | Whether to enable the Swagger UI for the Public API |
+| binaryData.availableModes | list | `[]` | Available modes of binary data storage. If not set, the default mode will be used. For more information, see https://docs.n8n.io/hosting/configuration/environment-variables/binary-data/ |
+| binaryData.localStoragePath | string | `""` | Path for binary data storage in "filesystem" mode. If not set, the default path will be used. For more information, see https://docs.n8n.io/hosting/configuration/environment-variables/binary-data/ |
+| binaryData.mode | string | `"default"` | The default binary data mode. default keeps binary data in memory. Set to filesystem to use the filesystem, or s3 to AWS S3. Note that binary data pruning operates on the active binary data mode. For example, if your instance stored data in S3, and you later switched to filesystem mode, n8n only prunes binary data in the filesystem. This may change in future. Valid values are 'default' | 'filesystem' | 's3'. For more information, see https://docs.n8n.io/hosting/configuration/environment-variables/binary-data/ |
+| binaryData.s3 | object | `{"accessKey":"","accessSecret":"","bucketName":"","bucketRegion":"us-east-1","existingSecret":"","host":""}` | S3-compatible external storage configurations. For more information, see https://docs.n8n.io/hosting/configuration/environment-variables/external-data-storage/ |
+| binaryData.s3.accessKey | string | `""` | Access key in S3-compatible external storage |
+| binaryData.s3.accessSecret | string | `""` | Access secret in S3-compatible external storage. |
+| binaryData.s3.bucketName | string | `""` | Name of the n8n bucket in S3-compatible external storage. |
+| binaryData.s3.bucketRegion | string | `"us-east-1"` | Region of the n8n bucket in S3-compatible external storage. For example, us-east-1 |
+| binaryData.s3.existingSecret | string | `""` | This is for setting up the s3 file storage existing secret. Must contain access-key-id and secret-access-key keys. |
+| binaryData.s3.host | string | `""` | Host of the n8n bucket in S3-compatible external storage. For example, s3.us-east-1.amazonaws.com |
 | db | object | `{"logging":{"enabled":false,"maxQueryExecutionTime":0,"options":"error"},"sqlite":{"database":"database.sqlite","poolSize":0,"vacuum":false},"tablePrefix":"","type":"sqlite"}` | n8n database configurations |
 | db.logging.enabled | bool | `false` | Whether database logging is enabled. |
 | db.logging.maxQueryExecutionTime | int | `0` | Only queries that exceed this time (ms) will be logged. Set `0` to disable. |
@@ -519,6 +579,15 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | ingress | object | `{"annotations":{},"className":"","enabled":false,"hosts":[{"host":"n8n.local","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[]}` | This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/ |
+| license | object | `{"activationKey":"","autoNenew":{"enabled":true,"offsetInHours":72},"enabled":false,"existingActivationKeySecret":"","serverUrl":"http://license.n8n.io/v1","tenantId":1}` | n8n enterprise license configurations |
+| license.activationKey | string | `""` | Activation key to initialize license. Not applicable if the n8n instance was already activated. For more information please refer to the following link: https://docs.n8n.io/enterprise-key/ |
+| license.autoNenew | object | `{"enabled":true,"offsetInHours":72}` | The auto new license configuration |
+| license.autoNenew.enabled | bool | `true` | Enables (true) or disables (false) autorenewal for licenses. If disabled, you need to manually renew the license every 10 days by navigating to Settings > Usage and plan, and pressing F5. Failure to renew the license will disable Enterprise features. |
+| license.autoNenew.offsetInHours | int | `72` | Time in hours before expiry a license should automatically renew. |
+| license.enabled | bool | `false` | Whether to enable the enterprise license |
+| license.existingActivationKeySecret | string | `""` | The name of an existing secret with license activation key. The secret must contain a key with the name N8N_LICENSE_ACTIVATION_KEY. |
+| license.serverUrl | string | `"http://license.n8n.io/v1"` | Server URL to retrieve license. |
+| license.tenantId | int | `1` | Tenant ID associated with the license. Only set this variable if explicitly instructed by n8n. |
 | livenessProbe | object | `{"httpGet":{"path":"/healthz","port":"http"}}` | This is to setup the liveness probe more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | log | object | `{"file":{"location":"logs/n8n.log","maxcount":"100","maxsize":16},"level":"info","output":["console"],"scopes":[]}` | n8n log configurations |
 | log.file.location | string | `"logs/n8n.log"` | Location of the log files inside `~/.n8n`. Only for `file` log output. |
@@ -528,7 +597,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | log.output | list | `["console"]` | Where to output logs to. Options are: `console` or `file` or both. |
 | log.scopes | list | `[]` | Scopes to filter logs by. Nothing is filtered by default. Supported log scopes: concurrency, external-secrets, license, multi-main-setup, pubsub, redis, scaling, waiting-executions |
 | main | object | `{"count":1,"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"resources":{},"volumeMounts":[],"volumes":[]}` | Main node configurations |
-| main.count | int | `1` | Number of main nodes. Only enterprise license users can have two main nodes. |
+| main.count | int | `1` | Number of main nodes. Only enterprise license users can have one leader main node and mutiple follower main nodes. |
 | main.extraEnvVars | object | `{}` | Extra environment variables |
 | main.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | main.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Whether to enable the PodDisruptionBudget for the main pod. |
@@ -538,6 +607,46 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | main.resources | object | `{}` | This block is for setting up the resource management for the main pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 | main.volumeMounts | list | `[]` | Additional volumeMounts on the output Deployment definition. |
 | main.volumes | list | `[]` | Additional volumes on the output Deployment definition. |
+| minio | object | `{"buckets":[{"name":"n8n-bucket","policy":"none","purge":false,"versioning":false}],"consoleIngress":{"enabled":false,"hosts":["minio-console.mydomain.com"],"path":"/"},"deploymentUpdate":{"type":"Recreate"},"drivesPerNode":1,"enabled":false,"ingress":{"enabled":true,"hosts":["minio.mydomain.com"],"path":"/"},"mode":"standalone","persistence":{"accessMode":"ReadWriteOnce","annotations":{},"enabled":true,"existingClaim":"","size":"40Gi","storageClass":"","subPath":"","volumeName":""},"policies":[{"name":"n8n-policy","statements":[{"actions":["s3:AbortMultipartUpload","s3:GetObject","s3:DeleteObject","s3:PutObject","s3:ListMultipartUploadParts"],"resources":["arn:aws:s3:::n8n-bucket/*"]},{"actions":["s3:GetBucketLocation","s3:ListBucket","s3:ListBucketMultipartUploads"],"resources":["arn:aws:s3:::n8n-bucket"]}]}],"pools":1,"replicas":1,"resources":{"requests":{"memory":"1Gi"}},"rootPassword":"","rootUser":"","statefulSetUpdate":{"updateStrategy":"Recreate"},"users":[{"accessKey":"n8n-user","policy":"n8n-policy","secretKey":"Change_Me"}]}` | Minio configuration |
+| minio.buckets | list | `[{"name":"n8n-bucket","policy":"none","purge":false,"versioning":false}]` | Minio buckets |
+| minio.buckets[0] | object | `{"name":"n8n-bucket","policy":"none","purge":false,"versioning":false}` | n8n bucket |
+| minio.buckets[0].policy | string | `"none"` | Policy to be set on the bucket [none|download|upload|public] |
+| minio.consoleIngress | object | `{"enabled":false,"hosts":["minio-console.mydomain.com"],"path":"/"}` | Minio console ingress |
+| minio.consoleIngress.enabled | bool | `false` | Enable ingress |
+| minio.consoleIngress.hosts | list | `["minio-console.mydomain.com"]` | Ingress hosts |
+| minio.consoleIngress.path | string | `"/"` | Ingress path |
+| minio.deploymentUpdate | object | `{"type":"Recreate"}` | Minio deployment update strategy |
+| minio.drivesPerNode | int | `1` | Number of drives attached to a node |
+| minio.enabled | bool | `false` | Enable minio |
+| minio.ingress | object | `{"enabled":true,"hosts":["minio.mydomain.com"],"path":"/"}` | Minio ingress. n8n will use this ingress to access Minio. It's required when binaryData.mode has s3. |
+| minio.ingress.enabled | bool | `true` | Enable ingress |
+| minio.ingress.hosts | list | `["minio.mydomain.com"]` | Ingress hosts |
+| minio.ingress.path | string | `"/"` | Ingress path |
+| minio.mode | string | `"standalone"` | Minio mode |
+| minio.persistence | object | `{"accessMode":"ReadWriteOnce","annotations":{},"enabled":true,"existingClaim":"","size":"40Gi","storageClass":"","subPath":"","volumeName":""}` | Minio persistence |
+| minio.persistence.accessMode | string | `"ReadWriteOnce"` | Minio persistence access mode |
+| minio.persistence.annotations | object | `{}` | Minio persistence annotations |
+| minio.persistence.enabled | bool | `true` | Enable persistence |
+| minio.persistence.existingClaim | string | `""` | Minio persistence existing claim |
+| minio.persistence.size | string | `"40Gi"` | Minio persistence size |
+| minio.persistence.storageClass | string | `""` | Minio persistence storage class |
+| minio.persistence.subPath | string | `""` | Minio persistence sub path |
+| minio.persistence.volumeName | string | `""` | Minio persistence volume name |
+| minio.policies | list | `[{"name":"n8n-policy","statements":[{"actions":["s3:AbortMultipartUpload","s3:GetObject","s3:DeleteObject","s3:PutObject","s3:ListMultipartUploadParts"],"resources":["arn:aws:s3:::n8n-bucket/*"]},{"actions":["s3:GetBucketLocation","s3:ListBucket","s3:ListBucketMultipartUploads"],"resources":["arn:aws:s3:::n8n-bucket"]}]}]` | Minio policies |
+| minio.policies[0] | object | `{"name":"n8n-policy","statements":[{"actions":["s3:AbortMultipartUpload","s3:GetObject","s3:DeleteObject","s3:PutObject","s3:ListMultipartUploadParts"],"resources":["arn:aws:s3:::n8n-bucket/*"]},{"actions":["s3:GetBucketLocation","s3:ListBucket","s3:ListBucketMultipartUploads"],"resources":["arn:aws:s3:::n8n-bucket"]}]}` | n8n policy |
+| minio.policies[0].statements[0] | object | `{"actions":["s3:AbortMultipartUpload","s3:GetObject","s3:DeleteObject","s3:PutObject","s3:ListMultipartUploadParts"],"resources":["arn:aws:s3:::n8n-bucket/*"]}` | n8n policy statements |
+| minio.pools | int | `1` | Number of expanded MinIO clusters |
+| minio.replicas | int | `1` | Number of MinIO containers running |
+| minio.resources | object | `{"requests":{"memory":"1Gi"}}` | Minio resources |
+| minio.resources.requests | object | `{"memory":"1Gi"}` | Minio requests |
+| minio.resources.requests.memory | string | `"1Gi"` | Minio requests memory |
+| minio.rootPassword | string | `""` | Minio root password. Length should be at least 8 characters. |
+| minio.rootUser | string | `""` | Minio root user. Length should be at least 3 characters. |
+| minio.statefulSetUpdate | object | `{"updateStrategy":"Recreate"}` | Minio statefulset update strategy |
+| minio.users | list | `[{"accessKey":"n8n-user","policy":"n8n-policy","secretKey":"Change_Me"}]` | Minio users |
+| minio.users[0] | object | `{"accessKey":"n8n-user","policy":"n8n-policy","secretKey":"Change_Me"}` | n8n user |
+| minio.users[0].policy | string | `"n8n-policy"` | n8n user policy |
+| minio.users[0].secretKey | string | `"Change_Me"` | n8n user secret key |
 | nameOverride | string | `""` | This is to override the chart name. |
 | nodeSelector | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
 | podAnnotations | object | `{}` | This is for setting Kubernetes Annotations to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
