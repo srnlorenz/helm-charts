@@ -537,7 +537,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | serviceMonitor.enabled | bool | `false` | When set true then use a ServiceMonitor to configure scraping |
 | serviceMonitor.interval | string | `"30s"` | Set how frequently Prometheus should scrape |
 | serviceMonitor.labels | object | `{"release":"prometheus"}` | Set labels for the ServiceMonitor, use this to define your scrape label for Prometheus Operator |
-| serviceMonitor.labels.release | string | `"prometheus"` | default `kube prometheus stack` helm chart serviceMonitor selector label Mostly it's your prometheus helm release name. Please find more information from here: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/troubleshooting.md#troubleshooting-servicemonitor-changes |
+| serviceMonitor.labels.release | string | `"prometheus"` | default `kube prometheus stack` helm chart serviceMonitor selector label Mostly it's your prometheus helm release name. Please find more information from here: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/troubleshooting.md#troubleshooting-servicemonitor-changes |
 | serviceMonitor.metricRelabelings | list | `[]` | Set of rules to relabel your exist metric labels |
 | serviceMonitor.namespace | string | `"monitoring"` | Set the namespace the ServiceMonitor should be deployed |
 | serviceMonitor.targetLabels | list | `[]` | Set of labels to transfer on the Kubernetes Service onto the target. |

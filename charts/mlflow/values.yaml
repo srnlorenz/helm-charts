@@ -354,7 +354,7 @@ serviceMonitor:
   labels:
     # -- default `kube prometheus stack` helm chart serviceMonitor selector label
     # Mostly it's your prometheus helm release name. Please find more information from here:
-    # https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/troubleshooting.md#troubleshooting-servicemonitor-changes
+    # https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/troubleshooting.md#troubleshooting-servicemonitor-changes
     release: prometheus
   # -- Set timeout for scrape
   timeout: 10s

@@ -23,3 +23,6 @@
 .vscode/
 
 unittests/
+
+README.md.gotmpl
+values-kind.yaml
