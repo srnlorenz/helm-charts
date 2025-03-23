@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.15.0](https://img.shields.io/badge/Version-0.15.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.21.0](https://img.shields.io/badge/AppVersion-2.21.0-informational?style=flat-square)
+![Version: 0.16.0](https://img.shields.io/badge/Version-0.16.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.21.0](https://img.shields.io/badge/AppVersion-2.21.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -58,6 +58,31 @@ backendStore:
     password: "Pa33w0rd!"
 ```
 
+## Postgres Database with Existing Database Secret Example
+
+```yaml
+backendStore:
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+
+  existingDatabaseSecret:
+    name: "postgres-database-secret"
+    usernameKey: "username"
+    passwordKey: "password"
+```
+
+## Bitnami's Postgres Database Migration Values Files Example
+
+```yaml
+backendStore:
+  databaseMigration: true
+postgres:
+  enabled: true
+```
+
 ## MySQL Database Migration Values Files Example
 
 ```yaml
@@ -70,6 +95,31 @@ backendStore:
     database: "mlflow"
     user: "mlflowuser"
     password: "Pa33w0rd!"
+```
+
+## MySQL Database with Existing Database Secret Example
+
+```yaml
+backendStore:
+  mysql:
+    enabled: true
+    host: "mysql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 3306
+    database: "mlflow"
+
+  existingDatabaseSecret:
+    name: "mysql-database-secret"
+    usernameKey: "username"
+    passwordKey: "password"
+```
+
+## Bitnami's MySQL Database Migration Values Files Example
+
+```yaml
+backendStore:
+  databaseMigration: true
+mysql:
+  enabled: true
 ```
 
 ## Postgres Database Connection Check Values Files Example
@@ -86,6 +136,15 @@ backendStore:
     password: "Pa33w0rd!"
 ```
 
+## Bitnami's Postgres Database Connection Check Values Files Example
+
+```yaml
+backendStore:
+  databaseConnectionCheck: true
+postgres:
+  enabled: true
+```
+
 ## MySQL Database Connection Check Values Files Example
 
 ```yaml
@@ -98,6 +157,15 @@ backendStore:
     database: "mlflow"
     user: "mlflowuser"
     password: "Pa33w0rd!"
+```
+
+## Bitnami's MySQL Database Connection Check Values Files Example
+
+```yaml
+backendStore:
+  databaseConnectionCheck: true
+mysql:
+  enabled: true
 ```
 
 ## AWS Installation Examples
@@ -402,6 +470,11 @@ auth:
 
 Kubernetes: `>=1.16.0-0`
 
+| Repository | Name | Version |
+|------------|------|---------|
+| https://charts.bitnami.com/bitnami | mysql | 12.3.2 |
+| https://charts.bitnami.com/bitnami | postgresql | 16.5.2 |
+
 ## Uninstall Helm Chart
 
 ```console
@@ -466,9 +539,13 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | autoscaling.maxReplicas | int | `5` | The maximum number of replicas. |
 | autoscaling.metrics | list | `[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}]` | The metrics to use for autoscaling. |
 | autoscaling.minReplicas | int | `1` | The minimum number of replicas. |
-| backendStore | object | `{"databaseConnectionCheck":false,"databaseMigration":false,"mysql":{"database":"","driver":"pymysql","enabled":false,"host":"","password":"","port":3306,"user":""},"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}}` | Mlflow database connection settings |
+| backendStore | object | `{"databaseConnectionCheck":false,"databaseMigration":false,"existingDatabaseSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"mysql":{"database":"","driver":"pymysql","enabled":false,"host":"","password":"","port":3306,"user":""},"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}}` | Mlflow database connection settings |
 | backendStore.databaseConnectionCheck | bool | `false` | Add an additional init container, which checks for database availability |
 | backendStore.databaseMigration | bool | `false` | Specifies if you want to run database migration |
+| backendStore.existingDatabaseSecret | object | `{"name":"","passwordKey":"password","usernameKey":"username"}` | Specifies if you want to use an existing database secret. |
+| backendStore.existingDatabaseSecret.name | string | `""` | The name of the existing database secret. |
+| backendStore.existingDatabaseSecret.passwordKey | string | `"password"` | The key of the password in the existing database secret. |
+| backendStore.existingDatabaseSecret.usernameKey | string | `"username"` | The key of the username in the existing database secret. |
 | backendStore.mysql.database | string | `""` | mlflow database name created before in the mysql instance |
 | backendStore.mysql.driver | string | `"pymysql"` | mysql database connection driver. e.g.: "pymysql" |
 | backendStore.mysql.enabled | bool | `false` | Specifies if you want to use mysql backend storage |
@@ -517,10 +594,16 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | ldapAuth.uri | string | `""` | LDAP URI. e.g.: "ldap://lldap:3890/dc=mlflow,dc=test" |
 | ldapAuth.userGroupDistinguishedName | string | `""` | LDAP DN for the user group. e.g.: "cn=test-user,ou=groups,dc=mlflow,dc=test" |
 | livenessProbe | object | `{"failureThreshold":5,"initialDelaySeconds":10,"periodSeconds":30,"timeoutSeconds":3}` | Liveness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
+| mysql | object | `{"architecture":"standalone","auth":{"database":"mlflow","password":"","username":""},"enabled":false,"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"mysql":3306}}}}` | Bitnami MySQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/mysql |
+| mysql.auth.database | string | `"mlflow"` | The name of the MySQL database. |
+| mysql.enabled | bool | `false` | Enable mysql |
 | nameOverride | string | `""` | String to override the default generated name |
 | nodeSelector | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
 | podAnnotations | object | `{}` | Annotations for the pod |
 | podSecurityContext | object | `{}` | This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
+| postgresql | object | `{"architecture":"standalone","auth":{"database":"mlflow","password":"","username":""},"enabled":false,"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"postgresql":5432}}}}` | Bitnami PostgreSQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/postgresql |
+| postgresql.auth.database | string | `"mlflow"` | The name of the PostgreSQL database. |
+| postgresql.enabled | bool | `false` | Enable postgresql |
 | readinessProbe | object | `{"failureThreshold":5,"initialDelaySeconds":10,"periodSeconds":30,"timeoutSeconds":3}` | Readiness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
 | replicaCount | int | `1` | Numbers of replicas |
 | resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
