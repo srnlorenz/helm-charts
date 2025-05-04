@@ -174,7 +174,7 @@ artifactRoot:
   # -- Specifies if you want to enable proxied artifact storage access
   proxiedArtifactStorage: false
 
-  # -- Specifies the default artifact root. Please find more information from here: https://github.com/mlflow/mlflow/tree/master/examples/mlflow_artifacts
+  # -- Specifies the default artifact root.
   defaultArtifactRoot: "./mlruns"
 
   # -- Specifies the default artifacts destination

@@ -164,11 +164,11 @@ tests:
     set:
       artifactRoot:
         proxiedArtifactStorage: true
-        defaultArtifactsDestination: ./data/mlartifacts
+        defaultArtifactsDestination: /mlflow/data/mlartifacts
     asserts:
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
-          content: --artifacts-destination=./data/mlartifacts
+          content: --artifacts-destination=/mlflow/data/mlartifacts
       - contains:
           path: spec.template.spec.containers[?(@.name == "mlflow")].args
           content: --serve-artifacts

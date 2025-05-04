@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.17.1](https://img.shields.io/badge/Version-0.17.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.22.0](https://img.shields.io/badge/AppVersion-2.22.0-informational?style=flat-square)
+![Version: 0.17.2](https://img.shields.io/badge/Version-0.17.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.22.0](https://img.shields.io/badge/AppVersion-2.22.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -326,8 +326,7 @@ backendStore:
 
 artifactRoot:
   proxiedArtifactStorage: true
-  defaultArtifactRoot: "http://my-mlflow-server-domain-name.com/api/2.0/mlflow-artifacts/artifacts/experiments"
-  defaultArtifactsDestination: "./data/mlartifacts"
+  defaultArtifactsDestination: "/mlflow/data/mlartifacts"
 
 ingress:
   enabled: true
@@ -557,7 +556,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | artifactRoot.azureBlob.enabled | bool | `false` | Specifies if you want to use Azure Blob Storage Mlflow Artifact Root |
 | artifactRoot.azureBlob.path | string | `""` | Azure blob container folder. If you want to use root level, please don't set anything. |
 | artifactRoot.azureBlob.storageAccount | string | `""` | Azure storage account name |
-| artifactRoot.defaultArtifactRoot | string | `"./mlruns"` | Specifies the default artifact root. Please find more information from here: https://github.com/mlflow/mlflow/tree/master/examples/mlflow_artifacts |
+| artifactRoot.defaultArtifactRoot | string | `"./mlruns"` | Specifies the default artifact root. |
 | artifactRoot.defaultArtifactsDestination | string | `"./mlartifacts"` | Specifies the default artifacts destination |
 | artifactRoot.gcs | object | `{"bucket":"","enabled":false,"path":""}` | Specifies if you want to use Google Cloud Storage Mlflow Artifact Root |
 | artifactRoot.gcs.bucket | string | `""` | Google Cloud Storage bucket name |

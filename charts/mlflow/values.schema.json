@@ -14,7 +14,7 @@
       "properties": {
         "defaultArtifactRoot": {
           "default": "./mlruns",
-          "description": "Specifies the default artifact root. Please find more information from here: https://www.mlflow.org/docs/latest/tracking.html#artifact-stores",
+          "description": "Specifies the default artifact root.",
           "required": [],
           "title": "defaultArtifactRoot",
           "type": "string"
