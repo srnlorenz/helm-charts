@@ -297,7 +297,7 @@ metadata:
   name: mlflow-pvc
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 5Gi
