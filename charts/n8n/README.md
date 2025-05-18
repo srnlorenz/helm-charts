@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.5.11](https://img.shields.io/badge/Version-1.5.11-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.91.3](https://img.shields.io/badge/AppVersion-1.91.3-informational?style=flat-square)
+![Version: 1.6.0](https://img.shields.io/badge/Version-1.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.91.3](https://img.shields.io/badge/AppVersion-1.91.3-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -278,6 +278,87 @@ webhook:
   allNodes: true
 ```
 
+### Enabling Support for Node.js Core and External/Private NPM Packages
+
+Easily incorporate Node.js core packages, public NPM packages, or private NPM packages from your registry into your n8n Code blocks with this Helm chart. Below, we guide you through enabling and configuring these options.
+
+#### Using Node.js Core Packages
+
+To enable Node.js core packages, set the `nodes.builtin.enabled` flag to `true`. This allows access to all built-in Node.js modules.
+
+```yaml
+nodes:
+  builtin:
+    enabled: true
+```
+
+If you prefer to enable only specific core modules, list them in `nodes.builtin.modules`. Here's an example:
+
+```yaml
+nodes:
+  builtin:
+    enabled: true
+    modules:
+      - crypto
+      - fs
+      - http
+      - https
+      - querystring
+      - url
+```
+
+#### Installing External NPM Packages
+
+To install packages from the public NPM registry, add them to the `nodes.external.packages` list. You can specify versions or omit them to use the latest available version.
+
+```yaml
+nodes:
+  external:
+    packages:
+      - "moment@2.29.4"
+      - "lodash@4.17.21"
+      - "date-fns"
+```
+
+#### Using Private NPM Packages
+
+For packages hosted in a private NPM registry, configure access by providing a valid `.npmrc` file. You can either reference an existing Kubernetes secret containing the `.npmrc` content or define custom `.npmrc` content directly in the chart values.
+
+##### Option 1: Using a Secret for `.npmrc`
+
+If your `.npmrc` file is stored in a Kubernetes secret, specify the secret details as shown below:
+
+```yaml
+nodes:
+  external:
+    packages:
+      - "my-private-package"
+
+npmRegistry:
+  enabled: true
+  url: "https://internal.npm.registry.mycompany.com"
+  secretName: "npmrc-secret"
+  secretKey: "npmrc"
+```
+
+##### Option 2: Providing Custom `.npmrc` Content
+
+Alternatively, you can define the `.npmrc` content directly in the chart values. This is useful for registries like GitHub Packages that require authentication tokens:
+
+```yaml
+nodes:
+  external:
+    packages:
+      - "my-private-package"
+
+npmRegistry:
+  enabled: true
+  url: "https://npm.pkg.github.com"
+  customNpmrc: |
+    @myGithubOrg:registry=https://npm.pkg.github.com
+    //npm.pkg.github.com/:_authToken=ghp_MyGithubClassicToken
+```
+
 ### Enabling Autoscaling 
 
 To enable autoscaling, set the `enabled` field under `autoscaling` to `true`: 
@@ -530,6 +611,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | api.enabled | bool | `true` | Whether to enable the Public API |
 | api.path | string | `"api"` | Path segment for the Public API |
 | api.swagger | object | `{"enabled":true}` | Whether to enable the Swagger UI for the Public API |
+| binaryData | object | `{"availableModes":[],"localStoragePath":"","mode":"default","s3":{"accessKey":"","accessSecret":"","bucketName":"","bucketRegion":"us-east-1","existingSecret":"","host":""}}` | Configuration for binary data storage |
 | binaryData.availableModes | list | `[]` | Available modes of binary data storage. If not set, the default mode will be used. For more information, see https://docs.n8n.io/hosting/configuration/environment-variables/binary-data/ |
 | binaryData.localStoragePath | string | `""` | Path for binary data storage in "filesystem" mode. If not set, the default path will be used. For more information, see https://docs.n8n.io/hosting/configuration/environment-variables/binary-data/ |
 | binaryData.mode | string | `"default"` | The default binary data mode. default keeps binary data in memory. Set to filesystem to use the filesystem, or s3 to AWS S3. Note that binary data pruning operates on the active binary data mode. For example, if your instance stored data in S3, and you later switched to filesystem mode, n8n only prunes binary data in the filesystem. This may change in future. Valid values are 'default' | 'filesystem' | 's3'. For more information, see https://docs.n8n.io/hosting/configuration/environment-variables/binary-data/ |
@@ -555,6 +637,8 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | diagnostics.frontendConfig | string | `"1zPn9bgWPzlQc0p8Gj1uiK6DOTn;https://telemetry.n8n.io"` | Diagnostics config for frontend. |
 | diagnostics.postHog.apiHost | string | `"https://ph.n8n.io"` | API host for PostHog. |
 | diagnostics.postHog.apiKey | string | `"phc_4URIAm1uYfJO7j8kWSe0J8lc8IqnstRLS7Jx8NcakHo"` | API key for PostHog. |
+| dnsConfig | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config |
+| dnsPolicy | string | `""` | For more information checkout: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy |
 | encryptionKey | string | `""` | If you install n8n first time, you can keep this empty and it will be auto generated and never change again. If you already have a encryption key generated before, please use it here. |
 | existingEncryptionKeySecret | string | `""` | The name of an existing secret with encryption key. The secret must contain a key with the name N8N_ENCRYPTION_KEY. |
 | externalPostgresql | object | `{"database":"n8n","existingSecret":"","host":"","password":"","port":5432,"username":"postgres"}` | External PostgreSQL parameters |
@@ -596,10 +680,12 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | log.level | string | `"info"` | The log output level. The available options are (from lowest to highest level) are error, warn, info, and debug. The default value is info. You can learn more about these options [here](https://docs.n8n.io/hosting/logging-monitoring/logging/#log-levels). |
 | log.output | list | `["console"]` | Where to output logs to. Options are: `console` or `file` or both. |
 | log.scopes | list | `[]` | Scopes to filter logs by. Nothing is filtered by default. Supported log scopes: concurrency, external-secrets, license, multi-main-setup, pubsub, redis, scaling, waiting-executions |
-| main | object | `{"count":1,"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"resources":{},"volumeMounts":[],"volumes":[]}` | Main node configurations |
+| main | object | `{"count":1,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"initContainers":[],"pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"resources":{},"volumeMounts":[],"volumes":[]}` | Main node configurations |
 | main.count | int | `1` | Number of main nodes. Only enterprise license users can have one leader main node and mutiple follower main nodes. |
+| main.extraContainers | list | `[]` | Additional containers for the main pod |
 | main.extraEnvVars | object | `{}` | Extra environment variables |
 | main.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
+| main.initContainers | list | `[]` | Additional init containers for the main pod |
 | main.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Whether to enable the PodDisruptionBudget for the main pod. |
 | main.pdb.enabled | bool | `true` | Whether to enable the PodDisruptionBudget |
 | main.pdb.maxUnavailable | string | `nil` | Maximum number of unavailable replicas |
@@ -649,6 +735,24 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | minio.users[0].secretKey | string | `"Change_Me"` | n8n user secret key |
 | nameOverride | string | `""` | This is to override the chart name. |
 | nodeSelector | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
+| nodes | object | `{"builtin":{"enabled":false,"modules":[]},"external":{"packages":[]},"initContainer":{"image":{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"},"resources":{}}}` | Node configurations for built-in and external npm packages |
+| nodes.builtin | object | `{"enabled":false,"modules":[]}` | Enable built-in node functions (e.g., HTTP Request, Code Node, etc.) |
+| nodes.builtin.enabled | bool | `false` | Enable built-in modules for the Code node |
+| nodes.builtin.modules | list | `[]` | List of built-in Node.js modules to allow in the Code node (e.g., crypto, fs). Use '*' to allow all. |
+| nodes.external | object | `{"packages":[]}` | External npm packages to install and allow in the Code node |
+| nodes.external.packages | list | `[]` | List of npm package names and versions (e.g., "package-name@1.0.0") |
+| nodes.initContainer | object | `{"image":{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"},"resources":{}}` | Image for the init container to install npm packages |
+| nodes.initContainer.image | object | `{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"}` | Image for the init container to install npm packages |
+| nodes.initContainer.image.pullPolicy | string | `"IfNotPresent"` | Pull policy for the init container to install npm packages |
+| nodes.initContainer.image.repository | string | `"node"` | Repository for the init container to install npm packages |
+| nodes.initContainer.image.tag | string | `"20-alpine"` | Tag for the init container to install npm packages |
+| nodes.initContainer.resources | object | `{}` | Resources for the init container |
+| npmRegistry | object | `{"customNpmrc":"","enabled":false,"secretKey":"npmrc","secretName":"","url":""}` | Configuration for private npm registry |
+| npmRegistry.customNpmrc | string | `""` | Custom .npmrc content (optional, overrides secret if provided) |
+| npmRegistry.enabled | bool | `false` | Enable private npm registry |
+| npmRegistry.secretKey | string | `"npmrc"` | Key in the secret for the .npmrc content or auth token |
+| npmRegistry.secretName | string | `""` | Name of the Kubernetes secret containing npm registry credentials |
+| npmRegistry.url | string | `""` | URL of the private npm registry (e.g., https://registry.npmjs.org/) |
 | podAnnotations | object | `{}` | This is for setting Kubernetes Annotations to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | podLabels | object | `{}` | This is for setting Kubernetes Labels to a Pod. For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |
 | podSecurityContext | object | `{"fsGroup":1000,"fsGroupChangePolicy":"OnRootMismatch"}` | This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
@@ -725,7 +829,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | versionNotifications.infoUrl | string | `"https://docs.n8n.io/hosting/installation/updating/"` | URL for versions panel to page instructing user on how to update n8n instance |
 | volumeMounts | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumeMounts fields instead. This field will be removed in a future release. |
 | volumes | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release. |
-| webhook | object | `{"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"count":2,"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"mode":"regular","pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"resources":{},"url":"","volumeMounts":[],"volumes":[]}` | Webhook node configurations |
+| webhook | object | `{"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"count":2,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"initContainers":[],"mode":"regular","pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"resources":{},"url":"","volumeMounts":[],"volumes":[]}` | Webhook node configurations |
 | webhook.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one webhook pod |
 | webhook.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2}` | If true, the number of webhooks will be automatically scaled based on default metrics. On default, it will scale based on CPU. Scale by requests can be done by setting a custom metric. For more information can be found here: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/ |
 | webhook.autoscaling.behavior | object | `{}` | The behavior of the autoscaler. |
@@ -734,8 +838,10 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | webhook.autoscaling.metrics | list | `[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}]` | The metrics to use for autoscaling. |
 | webhook.autoscaling.minReplicas | int | `2` | The minimum number of replicas. |
 | webhook.count | int | `2` | Static number of webhooks. If allNodes or autoscaling is enabled, this value will be ignored. |
+| webhook.extraContainers | list | `[]` | Additional containers for the webhook pod |
 | webhook.extraEnvVars | object | `{}` | Extra environment variables |
 | webhook.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
+| webhook.initContainers | list | `[]` | Additional init containers for the webhook pod |
 | webhook.mode | string | `"regular"` | Use `regular` to use main node as webhook node, or use `queue` to have webhook nodes |
 | webhook.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Whether to enable the PodDisruptionBudget for the webhook pod |
 | webhook.pdb.enabled | bool | `true` | Whether to enable the PodDisruptionBudget |
@@ -745,7 +851,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | webhook.url | string | `""` | Webhook url together with http or https schema |
 | webhook.volumeMounts | list | `[]` | Additional volumeMounts on the output Deployment definition. |
 | webhook.volumes | list | `[]` | Additional volumes on the output Deployment definition. |
-| worker | object | `{"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"concurrency":10,"count":2,"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"mode":"regular","pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"resources":{},"volumeMounts":[],"volumes":[]}` | Worker node configurations |
+| worker | object | `{"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"concurrency":10,"count":2,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"initContainers":[],"mode":"regular","pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"resources":{},"volumeMounts":[],"volumes":[]}` | Worker node configurations |
 | worker.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one worker pod |
 | worker.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2}` | If true, the number of workers will be automatically scaled based on default metrics. On default, it will scale based on CPU and memory. For more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/ |
 | worker.autoscaling.behavior | object | `{}` | The behavior of the autoscaler. |
@@ -755,8 +861,10 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | worker.autoscaling.minReplicas | int | `2` | The minimum number of replicas. |
 | worker.concurrency | int | `10` | number of concurrency for each worker |
 | worker.count | int | `2` | Static number of workers. If allNodes or autoscaling is enabled, this value will be ignored. |
+| worker.extraContainers | list | `[]` | Additional containers for the worker pod |
 | worker.extraEnvVars | object | `{}` | Extra environment variables |
 | worker.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
+| worker.initContainers | list | `[]` | Additional init containers for the worker pod |
 | worker.mode | string | `"regular"` | Use `regular` to use main node as executer, or use `queue` to have worker nodes |
 | worker.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Whether to enable the PodDisruptionBudget for the worker pod |
 | worker.pdb.enabled | bool | `true` | Whether to enable the PodDisruptionBudget |
