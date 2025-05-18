@@ -807,6 +807,13 @@
           "additionalProperties": false,
           "description": "External npm packages to install and allow in the Code node",
           "properties": {
+            "allowAll": {
+              "default": false,
+              "description": "Allow all external npm packages",
+              "required": [],
+              "title": "allowAll",
+              "type": "boolean"
+            },
             "packages": {
               "default": [],
               "description": "List of npm package names and versions (e.g., \"package-name@1.0.0\")",
@@ -820,7 +827,7 @@
               "type": "array"
             }
           },
-          "required": ["packages"],
+          "required": ["allowAll", "packages"],
           "title": "external",
           "type": "object"
         },

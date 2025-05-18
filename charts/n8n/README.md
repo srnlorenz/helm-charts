@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.6.0](https://img.shields.io/badge/Version-1.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.91.3](https://img.shields.io/badge/AppVersion-1.91.3-informational?style=flat-square)
+![Version: 1.6.1](https://img.shields.io/badge/Version-1.6.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.91.3](https://img.shields.io/badge/AppVersion-1.91.3-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -259,7 +259,7 @@ taskRunners:
 
 ## Autoscaling Configuration 
 
-> **Note:** The `autoscaling` and `allNodes` options cannot be enabled simultaneously. 
+> **Note:** The `autoscaling` and `allNodes` options cannot be enabled simultaneously.
 
 ### Deploying Worker and Webhook Pods on All Nodes 
 
@@ -320,6 +320,27 @@ nodes:
       - "date-fns"
 ```
 
+##### Supporting Scoped NPM Packages (e.g., @scoped/package)
+
+Our Helm chart supports installing NPM packages, including scoped packages (those starting with `@`, such as `@stdlib/math`). However, the Node.js Task Runner may encounter issues when processing internal package definitions that include scoped package names. To address this, we've implemented a convenient workaround: enabling the `nodes.external.allowAll` option allows all external package definitions, including scoped packages, to be processed seamlessly.
+
+Here's an example configuration to install both regular and scoped packages:
+
+```yaml
+nodes:
+  external:
+    allowAll: true
+    packages:
+      - "moment@2.29.4"
+      - "lodash@4.17.21"
+      - "date-fns"
+      - "@stdlib/math@0.3.3"
+```
+
+###### How It Works
+
+By setting `nodes.external.allowAll` to `true`, the chart bypasses the Node.js Task Runner's limitations for scoped packages, ensuring smooth installation of all listed packages. You can include both scoped (e.g., `@stdlib/math`) and non-scoped packages in the `nodes.external.packages` list, with or without specific versions.
+
 #### Using Private NPM Packages
 
 For packages hosted in a private NPM registry, configure access by providing a valid `.npmrc` file. You can either reference an existing Kubernetes secret containing the `.npmrc` content or define custom `.npmrc` content directly in the chart values.
@@ -349,7 +370,7 @@ Alternatively, you can define the `.npmrc` content directly in the chart values.
 nodes:
   external:
     packages:
-      - "my-private-package"
+      - "@myGithubOrg/my-private-package"
 
 npmRegistry:
   enabled: true
@@ -735,11 +756,12 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | minio.users[0].secretKey | string | `"Change_Me"` | n8n user secret key |
 | nameOverride | string | `""` | This is to override the chart name. |
 | nodeSelector | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
-| nodes | object | `{"builtin":{"enabled":false,"modules":[]},"external":{"packages":[]},"initContainer":{"image":{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"},"resources":{}}}` | Node configurations for built-in and external npm packages |
+| nodes | object | `{"builtin":{"enabled":false,"modules":[]},"external":{"allowAll":false,"packages":[]},"initContainer":{"image":{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"},"resources":{}}}` | Node configurations for built-in and external npm packages |
 | nodes.builtin | object | `{"enabled":false,"modules":[]}` | Enable built-in node functions (e.g., HTTP Request, Code Node, etc.) |
 | nodes.builtin.enabled | bool | `false` | Enable built-in modules for the Code node |
 | nodes.builtin.modules | list | `[]` | List of built-in Node.js modules to allow in the Code node (e.g., crypto, fs). Use '*' to allow all. |
-| nodes.external | object | `{"packages":[]}` | External npm packages to install and allow in the Code node |
+| nodes.external | object | `{"allowAll":false,"packages":[]}` | External npm packages to install and allow in the Code node |
+| nodes.external.allowAll | bool | `false` | Allow all external npm packages |
 | nodes.external.packages | list | `[]` | List of npm package names and versions (e.g., "package-name@1.0.0") |
 | nodes.initContainer | object | `{"image":{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"},"resources":{}}` | Image for the init container to install npm packages |
 | nodes.initContainer.image | object | `{"pullPolicy":"IfNotPresent","repository":"node","tag":"20-alpine"}` | Image for the init container to install npm packages |

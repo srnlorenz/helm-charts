@@ -205,3 +205,17 @@ app.kubernetes.io/name: {{ include "n8n.taskRunners.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: task-runners
 {{- end }}
+
+{{/*
+Extract package names from a list of strings
+*/}}
+{{- define "n8n.packageNames" -}}
+{{- $packageNames := list -}}
+{{- range . -}}
+  {{- $matches := regexFindAll "^@?[^@]+" . 1 -}}
+  {{- if $matches -}}
+    {{- $packageNames = append $packageNames (index $matches 0) -}}
+  {{- end -}}
+{{- end -}}
+{{- join "," $packageNames -}}
+{{- end -}}

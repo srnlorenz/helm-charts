@@ -1266,6 +1266,38 @@ tests:
           any: true
         template: deployment.yaml
 
+  - it: should allow all external npm packages when nodes.external.allowAll is true and taskRunners.mode is internal
+    set:
+      taskRunners:
+        mode: internal
+      nodes:
+        external:
+          allowAll: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n")].env
+          content:
+            name: NODE_FUNCTION_ALLOW_EXTERNAL
+            value: "*"
+          any: true
+        template: deployment.yaml
+
+  - it: should allow all external npm packages for external task runner when nodes.external.allowAll is true and taskRunners.mode is external
+    set:
+      taskRunners:
+        mode: external
+      nodes:
+        external:
+          allowAll: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "n8n-task-runners")].env
+          content:
+            name: NODE_FUNCTION_ALLOW_EXTERNAL
+            value: "*"
+          any: true
+        template: deployment.yaml
+
   - it: should allow builtin node functions in internal task runner when nodes.builtin.modules is set and taskRunners.mode is external
     set:
       taskRunners:

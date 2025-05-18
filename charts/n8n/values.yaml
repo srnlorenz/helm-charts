@@ -107,6 +107,8 @@ nodes:
       # - fs
   # -- External npm packages to install and allow in the Code node
   external:
+    # -- Allow all external npm packages
+    allowAll: false
     # -- List of npm package names and versions (e.g., "package-name@1.0.0")
     packages: []
       # - "moment@2.29.4"
