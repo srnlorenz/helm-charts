@@ -45,6 +45,7 @@ keywords:
   - budgeting
 
 annotations:
+  artifacthub.io/alternativeName: actual
   artifacthub.io/links: |
     - name: Chart Source
       url: https://github.com/community-charts/helm-charts
