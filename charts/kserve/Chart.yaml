@@ -1,11 +1,12 @@
 apiVersion: v2
 name: kserve
 description: Helm chart for KServe Serverless Inferencing on Kubernetes
+deprecated: true
 icon: https://raw.githubusercontent.com/kserve/artwork/main/icon/color/k-serve-icon-color.png
 
 type: application
 
-version: 1.0.2
+version: 1.0.3
 appVersion: "v0.8.0"
 
 home: https://kserve.github.io/website/
@@ -37,6 +38,9 @@ annotations:
   artifacthub.io/changes: |
     - kind: deprecated
       description: This chart is no longer maintained and has been deprecated. Please consider using [Official KServe Helm Chart](https://kserve.github.io/website/latest/admin/serverless/serverless/#4-install-kserve) instead.
+      links:
+        - name: Alternative Kserve Charts
+          url: https://github.com/orgs/kserve/packages?repo_name=kserve
   artifacthub.io/license: Apache-2.0
   artifacthub.io/maintainers: |
     - name: burakince

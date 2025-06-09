@@ -4,12 +4,14 @@
 
 # DEPRECATED
 
+> **:exclamation: This Helm Chart is deprecated!**
+
 > **Warning**
 > This KServe chart is no longer maintained. Please use [Official KServe Helm Chart](https://github.com/kserve/kserve/pkgs/container/charts%2Fkserve) instead. You can find more information from [here](https://kserve.github.io/website/latest/admin/serverless/serverless/#4-install-kserve).
 
 Helm chart for KServe Serverless Inferencing on Kubernetes
 
-![Version: 1.0.2](https://img.shields.io/badge/Version-1.0.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.8.0](https://img.shields.io/badge/AppVersion-v0.8.0-informational?style=flat-square)
+![Version: 1.0.3](https://img.shields.io/badge/Version-1.0.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.8.0](https://img.shields.io/badge/AppVersion-v0.8.0-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
