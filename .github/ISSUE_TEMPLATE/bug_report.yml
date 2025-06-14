@@ -2,8 +2,7 @@ name: Bug Report
 description: Create a report to help us improve
 title: "[name of the chart e.g. mlflow] Issue Title"
 labels: [bug]
-assignees:
-  - 
+assignees: ["maintainers"]
 body:
   - type: markdown
     attributes:
