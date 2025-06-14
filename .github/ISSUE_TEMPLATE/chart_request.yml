@@ -2,7 +2,7 @@ name: 🚀 Chart Request
 description: Suggest a new Helm chart for an open-source project.
 title: "[Chart Request]: "
 labels: ["new chart request", "enhancement"]
-assignees: ["maintainers"]
+assignees: ["contributors"]
 body:
   - type: markdown
     attributes:
