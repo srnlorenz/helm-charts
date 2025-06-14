@@ -136,7 +136,7 @@ ingress:
   #    hosts:
   #      - actualbudget.local
 
-# -- Extra environment variables
+# -- Extra environment variables. For more information checkout: https://actualbudget.org/docs/config/
 extraEnvVars: {}
 
 # -- This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/

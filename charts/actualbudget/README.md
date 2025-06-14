@@ -96,7 +96,7 @@ helm upgrade [RELEASE_NAME] community-charts/actualbudget
 |-----|------|---------|-------------|
 | affinity | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | extraContainers | list | `[]` | Additional containers (sidecars) on the output Deployment definition. |
-| extraEnvVars | object | `{}` | Extra environment variables |
+| extraEnvVars | object | `{}` | Extra environment variables. For more information checkout: https://actualbudget.org/docs/config/ |
 | files.dataDirectory | string | `"/data"` | This is where the server stores the budget data files. For more information checkout: https://actualbudget.org/docs/config/#actual_data_dir |
 | files.server | string | `"/data/server-files"` | The server will put an account.sqlite file in this directory, which will contain the (hashed) server password, a list of all the budget files the server knows about, and the active session token (along with anything else the server may want to store in the future). For more information checkout: https://actualbudget.org/docs/config/#serverfiles |
 | files.user | string | `"/data/user-files"` | The server will put all the budget files in this directory as binary blobs. For more information checkout: https://actualbudget.org/docs/config/#userfiles |
