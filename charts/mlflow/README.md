@@ -1,6 +1,6 @@
 # mlflow
 
-![mlflow](https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/MLflow-logo-final-black.png)
+![mlflow](https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/logo-light.svg)
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
