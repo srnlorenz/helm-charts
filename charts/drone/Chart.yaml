@@ -54,6 +54,8 @@ annotations:
   artifacthub.io/links: |
     - name: Chart Source
       url: https://github.com/community-charts/helm-charts
+    - name: Chart Usage Page
+      url: https://community-charts.github.io/docs/charts/drone/usage
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/changes: |
     - Update drone/drone image version to 2.26.0

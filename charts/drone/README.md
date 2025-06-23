@@ -6,6 +6,10 @@ A Helm chart for Drone Server and Drone Kubernetes Runner
 
 ![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.26.0](https://img.shields.io/badge/AppVersion-2.26.0-informational?style=flat-square)
 
+## Official Documentation
+
+For detailed usage instructions, configuration options, and additional information about the `drone` Helm chart, refer to the [official documentation](https://community-charts.github.io/docs/charts/drone/usage).
+
 ## Get Helm Repository Info
 
 ```console

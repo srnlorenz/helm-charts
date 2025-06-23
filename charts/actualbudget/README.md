@@ -6,6 +6,10 @@ A local-first personal finance app
 
 ![Version: 1.6.0](https://img.shields.io/badge/Version-1.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.6.1](https://img.shields.io/badge/AppVersion-25.6.1-informational?style=flat-square)
 
+## Official Documentation
+
+For detailed usage instructions, configuration options, and additional information about the `actualbudget` Helm chart, refer to the [official documentation](https://community-charts.github.io/docs/charts/actualbudget/usage).
+
 ## Get Helm Repository Info
 
 ```console

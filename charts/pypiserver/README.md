@@ -6,6 +6,10 @@ A Helm chart for PyPI Server
 
 ![Version: 0.1.7](https://img.shields.io/badge/Version-0.1.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v2.3.2](https://img.shields.io/badge/AppVersion-v2.3.2-informational?style=flat-square)
 
+## Official Documentation
+
+For detailed usage instructions, configuration options, and additional information about the `pypiserver` Helm chart, refer to the [official documentation](https://community-charts.github.io/docs/charts/pypiserver/usage).
+
 ## Get Helm Repository Info
 
 ```console

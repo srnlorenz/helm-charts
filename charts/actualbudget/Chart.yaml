@@ -40,6 +40,8 @@ annotations:
   artifacthub.io/links: |
     - name: Chart Source
       url: https://github.com/community-charts/helm-charts
+    - name: Chart Usage Page
+      url: https://community-charts.github.io/docs/charts/actualbudget/usage
     - name: Upstream Project
       url: https://github.com/actualbudget/actual
   artifacthub.io/containsSecurityUpdates: "false"

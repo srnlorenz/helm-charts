@@ -45,6 +45,8 @@ annotations:
   artifacthub.io/links: |
     - name: Chart Source
       url: https://github.com/community-charts/helm-charts
+    - name: Chart Usage Page
+      url: https://community-charts.github.io/docs/charts/mlflow/usage
     - name: Upstream Project
       url: https://github.com/burakince/mlflow
   artifacthub.io/containsSecurityUpdates: "false"
