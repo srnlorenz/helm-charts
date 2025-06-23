@@ -57,8 +57,12 @@ annotations:
     - name: Chart Usage Page
       url: https://community-charts.github.io/docs/charts/drone/usage
   artifacthub.io/containsSecurityUpdates: "false"
-  artifacthub.io/changes: |
-    - Update drone/drone image version to 2.26.0
+  artifacthub.io/changes: |-
+    - kind: changed
+      description: Update drone/drone image version to 2.26.0
+      links:
+        - name: Upstream Project
+          url: https://hub.docker.com/r/drone/drone
   artifacthub.io/images: |
     - name: drone
       image: drone/drone:2.26.0
