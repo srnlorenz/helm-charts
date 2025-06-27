@@ -30,16 +30,17 @@ sources:
   - https://github.com/community-charts/helm-charts
   - https://github.com/cloudflare/cloudflared
 keywords:
+  - cloudflared
+  - cloudflare
+  - cloudflare-tunnel
   - kubernetes
   - reverse-proxy
-  - cloudflare
-  - cloudflared
   - argo-tunnel
   - argo
   - tunnel
   - zero-trust-network-access
-  - cloudflare-tunnel
 annotations:
+  artifacthub.io/alternativeName: cloudflare
   artifacthub.io/links: |
     - name: Chart Source
       url: https://github.com/community-charts/helm-charts

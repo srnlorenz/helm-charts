@@ -30,6 +30,9 @@ sources:
   - https://github.com/community-charts/helm-charts
   - https://github.com/actualbudget/actual
 keywords:
+  - actualbudget
+  - actual-budget
+  - actual
   - docker
   - finance
   - personal-finance
