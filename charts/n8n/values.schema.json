@@ -1228,6 +1228,92 @@
           "title": "readinessProbe",
           "type": "object"
         },
+        "forceToUseStatefulset": {
+          "default": false,
+          "description": "Force to use statefulset for the main pod. If true, the main pod will be created as a statefulset.",
+          "required": [],
+          "title": "forceToUseStatefulset",
+          "type": "boolean"
+        },
+        "persistence": {
+          "additionalProperties": false,
+          "description": "Persistence configuration for the main pod",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "Whether to enable persistence",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "volumeName": {
+              "default": "",
+              "description": "Name of the volume to use for persistence",
+              "required": [],
+              "title": "volumeName",
+              "type": "string"
+            },
+            "existingClaim": {
+              "default": "",
+              "description": "Existing claim to use for persistence",
+              "required": [],
+              "title": "existingClaim",
+              "type": "string"
+            },
+            "mountPath": {
+              "default": "",
+              "description": "Mount path for persistence",
+              "required": [],
+              "title": "mountPath",
+              "type": "string"
+            },
+            "subPath": {
+              "default": "",
+              "description": "Sub path for persistence",
+              "required": [],
+              "title": "subPath",
+              "type": "string"
+            },
+            "storageClass": {
+              "default": "",
+              "description": "Storage class for persistence",
+              "required": [],
+              "title": "storageClass",
+              "type": "string"
+            },
+            "accessMode": {
+              "description": "Access mode for persistence",
+              "enum": ["ReadWriteOnce", "ReadWriteMany"],
+              "required": [],
+              "title": "accessMode",
+              "type": "string"
+            },
+            "size": {
+              "default": "8Gi",
+              "description": "Size for persistence",
+              "required": [],
+              "title": "size",
+              "type": "string"
+            },
+            "annotations": {
+              "additionalProperties": true,
+              "description": "Annotations for persistence",
+              "required": [],
+              "title": "annotations",
+              "type": "object"
+            },
+            "labels": {
+              "additionalProperties": true,
+              "description": "Labels for persistence",
+              "required": [],
+              "title": "labels",
+              "type": "object"
+            }
+          },
+          "required": ["enabled", "volumeName", "existingClaim", "mountPath", "subPath", "storageClass", "accessMode", "size", "annotations", "labels"],
+          "title": "persistence",
+          "type": "object"
+        },
         "extraEnvVars": {
           "additionalProperties": true,
           "description": "Extra environment variables",
@@ -1286,9 +1372,33 @@
           "required": [],
           "title": "affinity",
           "type": "object"
+        },
+        "hostAliases": {
+          "description": "Host aliases for the main pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases",
+          "items": {
+            "type": "object",
+            "required": ["ip", "hostnames"],
+            "properties": {
+              "ip": {
+                "type": "string",
+                "description": "IP address for the host alias"
+              },
+              "hostnames": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of hostnames to associate with the IP address"
+              }
+            },
+            "additionalProperties": false
+          },
+          "required": [],
+          "title": "hostAliases",
+          "type": "array"
         }
       },
-      "required": ["count", "resources", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity"],
+      "required": ["count", "resources", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "initContainers", "extraContainers", "affinity", "hostAliases"],
       "title": "main",
       "type": "object"
     },
@@ -2484,9 +2594,33 @@
           "required": [],
           "title": "affinity",
           "type": "object"
+        },
+        "hostAliases": {
+          "description": "Host aliases for the webhook pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases",
+          "items": {
+            "type": "object",
+            "required": ["ip", "hostnames"],
+            "properties": {
+              "ip": {
+                "type": "string",
+                "description": "IP address for the host alias"
+              },
+              "hostnames": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of hostnames to associate with the IP address"
+              }
+            },
+            "additionalProperties": false
+          },
+          "required": [],
+          "title": "hostAliases",
+          "type": "array"
         }
       },
-      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity"],
+      "required": ["mode", "count", "url", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases"],
       "allOf": [
         {
           "if": {
@@ -3132,6 +3266,92 @@
           "title": "readinessProbe",
           "type": "object"
         },
+        "forceToUseStatefulset": {
+          "default": false,
+          "description": "Force to use statefulset for the worker pod. If true, the worker pod will be created as a statefulset.",
+          "required": [],
+          "title": "forceToUseStatefulset",
+          "type": "boolean"
+        },
+        "persistence": {
+          "additionalProperties": false,
+          "description": "Persistence configuration for the worker pod",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "description": "Whether to enable persistence",
+              "required": [],
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "volumeName": {
+              "default": "",
+              "description": "Name of the volume to use for persistence",
+              "required": [],
+              "title": "volumeName",
+              "type": "string"
+            },
+            "existingClaim": {
+              "default": "",
+              "description": "Existing claim to use for persistence",
+              "required": [],
+              "title": "existingClaim",
+              "type": "string"
+            },
+            "mountPath": {
+              "default": "",
+              "description": "Mount path for persistence",
+              "required": [],
+              "title": "mountPath",
+              "type": "string"
+            },
+            "subPath": {
+              "default": "",
+              "description": "Sub path for persistence",
+              "required": [],
+              "title": "subPath",
+              "type": "string"
+            },
+            "storageClass": {
+              "default": "",
+              "description": "Storage class for persistence",
+              "required": [],
+              "title": "storageClass",
+              "type": "string"
+            },
+            "accessMode": {
+              "description": "Access mode for persistence",
+              "enum": ["ReadWriteOnce", "ReadWriteMany"],
+              "required": [],
+              "title": "accessMode",
+              "type": "string"
+            },
+            "size": {
+              "default": "8Gi",
+              "description": "Size for persistence",
+              "required": [],
+              "title": "size",
+              "type": "string"
+            },
+            "annotations": {
+              "additionalProperties": true,
+              "description": "Annotations for persistence",
+              "required": [],
+              "title": "annotations",
+              "type": "object"
+            },
+            "labels": {
+              "additionalProperties": true,
+              "description": "Labels for persistence",
+              "required": [],
+              "title": "labels",
+              "type": "object"
+            }
+          },
+          "required": ["enabled", "volumeName", "existingClaim", "mountPath", "subPath", "storageClass", "accessMode", "size", "annotations", "labels"],
+          "title": "persistence",
+          "type": "object"
+        },
         "extraEnvVars": {
           "additionalProperties": true,
           "description": "Extra environment variables",
@@ -3190,9 +3410,33 @@
           "required": [],
           "title": "affinity",
           "type": "object"
+        },
+        "hostAliases": {
+          "description": "Host aliases for the worker pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases",
+          "items": {
+            "type": "object",
+            "required": ["ip", "hostnames"],
+            "properties": {
+              "ip": {
+                "type": "string",
+                "description": "IP address for the host alias"
+              },
+              "hostnames": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of hostnames to associate with the IP address"
+              }
+            },
+            "additionalProperties": false
+          },
+          "required": [],
+          "title": "hostAliases",
+          "type": "array"
         }
       },
-      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity"],
+      "required": ["mode", "count", "concurrency", "allNodes", "autoscaling", "resources", "startupProbe", "livenessProbe", "readinessProbe", "forceToUseStatefulset", "persistence", "extraEnvVars", "extraSecretNamesForEnvFrom", "volumes", "volumeMounts", "pdb", "waitMainNodeReady", "initContainers", "extraContainers", "affinity", "hostAliases"],
       "allOf": [
         {
           "if": {
@@ -3206,6 +3450,40 @@
           "then": {
             "not": { "type": "object" },
             "description": "allNodes and autoscaling.enabled cannot both be true"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "autoscaling": {
+                "properties": { "enabled": { "const": true } }
+              },
+              "forceToUseStatefulset": { "const": true }
+            }
+          },
+          "then": {
+            "not": { "type": "object" },
+            "description": "worker.autoscaling.enabled and worker.forceToUseStatefulset cannot both be true"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "autoscaling": {
+                "properties": { "enabled": { "const": true } }
+              },
+              "persistence": {
+                "properties": {
+                  "enabled": { "const": true },
+                  "accessMode": { "const": "ReadWriteOnce" }
+                },
+                "required": ["enabled", "accessMode"]
+              }
+            }
+          },
+          "then": {
+            "not": { "type": "object" },
+            "description": "worker.autoscaling.enabled cannot be true when worker.persistence.enabled=true and worker.persistence.accessMode=ReadWriteOnce"
           }
         }
       ],

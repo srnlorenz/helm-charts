@@ -4,7 +4,7 @@
 
 A Helm chart for fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.
 
-![Version: 1.11.0](https://img.shields.io/badge/Version-1.11.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.99.1](https://img.shields.io/badge/AppVersion-1.99.1-informational?style=flat-square)
+![Version: 1.12.0](https://img.shields.io/badge/Version-1.12.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.99.1](https://img.shields.io/badge/AppVersion-1.99.1-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -313,6 +313,194 @@ webhook:
 ```
 
 Ensure that you configure either `allNodes` or `autoscaling` based on your deployment requirements.
+
+## StatefulSet and Deployment Selection (Persistence & Scaling)
+
+> **Note:** You do **not** need to set `forceToUseStatefulset` in most cases. The chart will automatically select StatefulSet or Deployment based on your persistence and replica settings.
+
+- **StatefulSet** is used automatically if:
+  - `persistence.enabled: true`
+  - More than one replica (`count > 1` and `autoscaling.enabled: false`)
+  - `persistence.accessMode: ReadWriteOnce`
+  - No `existingClaim` is set
+
+- **Deployment** is used if:
+  - `persistence.enabled: false`
+  - Only one replica (`count: 1` and no autoscaling)
+  - `persistence.accessMode: ReadWriteMany`
+  - `existingClaim` is set
+
+- You can **force** StatefulSet with `forceToUseStatefulset: true` (default is `false`).
+
+**Examples:**
+
+### Main Node Examples
+
+```yaml
+# Automatic StatefulSet (multiple replicas, ReadWriteOnce)
+main:
+  count: 3  # Multiple replicas
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    volumeName: "n8n-main-data"
+    mountPath: "/home/node/.n8n"
+    size: 10Gi
+# Result: StatefulSet with 3 replicas
+```
+
+```yaml
+# Automatic Deployment (multiple replicas, ReadWriteMany)
+main:
+  count: 3  # Multiple replicas
+  persistence:
+    enabled: true
+    accessMode: ReadWriteMany
+    volumeName: "n8n-main-data"
+    mountPath: "/home/node/.n8n"
+    size: 10Gi
+# Result: Deployment with 3 replicas
+```
+
+```yaml
+# Automatic Deployment (single replica)
+main:
+  count: 1  # Single replica
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    volumeName: "n8n-main-data"
+    mountPath: "/home/node/.n8n"
+    size: 10Gi
+# Result: Deployment with 1 replica
+```
+
+```yaml
+# Manual override (force StatefulSet)
+main:
+  forceToUseStatefulset: true
+  persistence:
+    enabled: true
+    volumeName: "n8n-main-data"
+    mountPath: "/home/node/.n8n"
+    size: 10Gi
+# Result: StatefulSet regardless of other settings
+```
+
+### Worker Node Examples
+
+```yaml
+# Automatic StatefulSet (multiple replicas, ReadWriteOnce)
+worker:
+  mode: queue
+  count: 3  # Multiple replicas
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    volumeName: "n8n-worker-data"
+    mountPath: "/home/node/.n8n"
+    size: 5Gi
+# Result: StatefulSet with 3 replicas
+```
+
+```yaml
+# Autoscaling with Deployment (ReadWriteMany)
+worker:
+  mode: queue
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+  persistence:
+    enabled: true
+    accessMode: ReadWriteMany  # Required for autoscaling
+    volumeName: "n8n-worker-data"
+    mountPath: "/home/node/.n8n"
+    size: 5Gi
+# Result: Deployment with autoscaling enabled
+```
+
+```yaml
+# Manual scaling with StatefulSet
+worker:
+  mode: queue
+  forceToUseStatefulset: true
+  count: 3  # Fixed number of replicas
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    volumeName: "n8n-worker-data"
+    mountPath: "/home/node/.n8n"
+    size: 5Gi
+  # Note: autoscaling.enabled should be false or omitted
+# Result: StatefulSet with 3 replicas, no autoscaling
+```
+
+```yaml
+# ❌ INVALID CONFIGURATION - Will fail schema validation
+worker:
+  mode: queue
+  autoscaling:
+    enabled: true  # ❌ Cannot enable autoscaling
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce  # ❌ With ReadWriteOnce persistence
+# Result: Schema validation error
+```
+
+### Persistence Use Cases
+
+**When to use persistence:**
+- **Main node**: Store n8n data, workflows, and configuration persistently
+- **Worker nodes**: Store npm packages and node modules for faster startup
+- **Development**: Keep workflows and data across pod restarts
+- **Production**: Ensure data persistence and faster npm package loading
+
+**Storage considerations:**
+- **ReadWriteOnce**: Use for single-node deployments or when you need StatefulSets
+- **ReadWriteMany**: Use for multi-node deployments with autoscaling
+- **Storage classes**: Choose based on your cluster's available storage options
+- **Size**: Consider your data growth and npm package requirements
+
+> **⚠️ Warning**: Using `ReadWriteMany` access mode with multiple nodes can create a volume bottleneck and significantly decrease performance. Consider using `ReadWriteOnce` with StatefulSets for better performance in high-traffic scenarios, or use external storage solutions (S3, NFS) for shared data.
+
+> **⚠️ Autoscaling Limitations**:
+> - **StatefulSets and Autoscaling**: StatefulSets do not work with Horizontal Pod Autoscaler (HPA). If you enable `worker.forceToUseStatefulset: true`, autoscaling will be disabled automatically.
+> - **Persistence and Autoscaling**: When using `worker.persistence.enabled: true` with `worker.persistence.accessMode: ReadWriteOnce`, autoscaling cannot be enabled. This is because ReadWriteOnce volumes can only be mounted by one pod at a time, which conflicts with HPA's ability to scale pods dynamically.
+> - **Webhook pods only support Deployments and can always use autoscaling.**
+
+## Host Aliases Configuration
+
+The chart supports Kubernetes hostAliases for all node types (main, worker, and webhook). This allows you to add custom hostname-to-IP mappings to the pods' `/etc/hosts` file.
+
+### Host Aliases Configuration
+
+```yaml
+main:
+  hostAliases:
+    - ip: "127.0.0.1"
+      hostnames:
+        - "foo.local"
+        - "bar.local"
+    - ip: "10.1.2.3"
+      hostnames:
+        - "foo.remote"
+        - "bar.remote"
+
+worker:
+  hostAliases:
+    - ip: "192.168.1.100"
+      hostnames:
+        - "internal-api.local"
+
+webhook:
+  hostAliases:
+    - ip: "10.0.0.50"
+      hostnames:
+        - "webhook-service.local"
+```
+
+For more information about hostAliases, see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases).
 
 ## Main Node Ready status Waiter
 
@@ -652,7 +840,7 @@ The Worker and Webhook nodes no longer include a default init container to wait 
 
 ##### Deprecation Notices
 
-* **Secret Name Change**: The secret `RELEASE_NAME-encryption-key-secret` is deprecated. Starting with this release, the chart now uses `RELEASE_NAME-encryption-key-secret-v2` to manage the `N8N_ENCRYPTION_KEY`. This change ensures compatibility with Helm’s resource ownership model and resolves previous upgrade issues.
+* **Secret Name Change**: The secret `RELEASE_NAME-encryption-key-secret` is deprecated. Starting with this release, the chart now uses `RELEASE_NAME-encryption-key-secret-v2` to manage the `N8N_ENCRYPTION_KEY`. This change ensures compatibility with Helm's resource ownership model and resolves previous upgrade issues.
 
 ##### Actions Required
 
@@ -789,18 +977,31 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | log.level | string | `"info"` | The log output level. The available options are (from lowest to highest level) are error, warn, info, and debug. The default value is info. You can learn more about these options [here](https://docs.n8n.io/hosting/logging-monitoring/logging/#log-levels). |
 | log.output | list | `["console"]` | Where to output logs to. Options are: `console` or `file` or both. |
 | log.scopes | list | `[]` | Scopes to filter logs by. Nothing is filtered by default. Supported log scopes: concurrency, external-secrets, license, multi-main-setup, pubsub, redis, scaling, waiting-executions |
-| main | object | `{"affinity":{},"count":1,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"volumeMounts":[],"volumes":[]}` | Main node configurations |
+| main | object | `{"affinity":{},"count":1,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"forceToUseStatefulset":false,"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"persistence":{"accessMode":"ReadWriteOnce","annotations":{"helm.sh/resource-policy":"keep"},"enabled":false,"existingClaim":"","labels":{},"mountPath":"/home/node/.n8n","size":"8Gi","storageClass":"","subPath":"","volumeName":"n8n-data"},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"volumeMounts":[],"volumes":[]}` | Main node configurations |
 | main.affinity | object | `{}` | Main node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | main.count | int | `1` | Number of main nodes. Only enterprise license users can have one leader main node and mutiple follower main nodes. |
 | main.extraContainers | list | `[]` | Additional containers for the main pod |
 | main.extraEnvVars | object | `{}` | Extra environment variables |
 | main.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
+| main.forceToUseStatefulset | bool | `false` | Force to use statefulset for the main pod. If true, the main pod will be created as a statefulset. |
+| main.hostAliases | list | `[]` | Host aliases for the main pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases |
 | main.initContainers | list | `[]` | Additional init containers for the main pod |
 | main.livenessProbe | object | `{"httpGet":{"path":"/healthz","port":"http"}}` | This is to setup the liveness probe for the main pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | main.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Whether to enable the PodDisruptionBudget for the main pod. |
 | main.pdb.enabled | bool | `true` | Whether to enable the PodDisruptionBudget |
 | main.pdb.maxUnavailable | string | `nil` | Maximum number of unavailable replicas |
 | main.pdb.minAvailable | int | `1` | Minimum number of available replicas |
+| main.persistence | object | `{"accessMode":"ReadWriteOnce","annotations":{"helm.sh/resource-policy":"keep"},"enabled":false,"existingClaim":"","labels":{},"mountPath":"/home/node/.n8n","size":"8Gi","storageClass":"","subPath":"","volumeName":"n8n-data"}` | Persistence configuration for the main pod |
+| main.persistence.accessMode | string | `"ReadWriteOnce"` | Access mode for persistence |
+| main.persistence.annotations | object | `{"helm.sh/resource-policy":"keep"}` | Annotations for persistence |
+| main.persistence.enabled | bool | `false` | Whether to enable persistence |
+| main.persistence.existingClaim | string | `""` | Existing claim to use for persistence |
+| main.persistence.labels | object | `{}` | Labels for persistence |
+| main.persistence.mountPath | string | `"/home/node/.n8n"` | Mount path for persistence |
+| main.persistence.size | string | `"8Gi"` | Size for persistence |
+| main.persistence.storageClass | string | `""` | Storage class for persistence |
+| main.persistence.subPath | string | `""` | Sub path for persistence |
+| main.persistence.volumeName | string | `"n8n-data"` | Name of the volume to use for persistence |
 | main.readinessProbe | object | `{"httpGet":{"path":"/healthz/readiness","port":"http"}}` | This is to setup the readiness probe for the main pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | main.resources | object | `{}` | This block is for setting up the resource management for the main pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 | main.volumeMounts | list | `[]` | Additional volumeMounts on the output Deployment definition. |
@@ -944,7 +1145,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | versionNotifications.infoUrl | string | `"https://docs.n8n.io/hosting/installation/updating/"` | URL for versions panel to page instructing user on how to update n8n instance |
 | volumeMounts | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumeMounts fields instead. This field will be removed in a future release. |
 | volumes | list | `[]` | DEPRECATED: Use main, worker, and webhook blocks volumes fields instead. This field will be removed in a future release. |
-| webhook | object | `{"affinity":{},"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"count":2,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"mode":"regular","pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"url":"","volumeMounts":[],"volumes":[],"waitMainNodeReady":{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}}` | Webhook node configurations |
+| webhook | object | `{"affinity":{},"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"count":2,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"mode":"regular","pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"url":"","volumeMounts":[],"volumes":[],"waitMainNodeReady":{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}}` | Webhook node configurations |
 | webhook.affinity | object | `{}` | Webhook node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | webhook.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one webhook pod |
 | webhook.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2}` | If true, the number of webhooks will be automatically scaled based on default metrics. On default, it will scale based on CPU. Scale by requests can be done by setting a custom metric. For more information can be found here: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/ |
@@ -957,6 +1158,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | webhook.extraContainers | list | `[]` | Additional containers for the webhook pod |
 | webhook.extraEnvVars | object | `{}` | Extra environment variables |
 | webhook.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
+| webhook.hostAliases | list | `[]` | Host aliases for the webhook pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases |
 | webhook.initContainers | list | `[]` | Additional init containers for the webhook pod |
 | webhook.livenessProbe | object | `{"httpGet":{"path":"/healthz","port":"http"}}` | This is to setup the liveness probe for the webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | webhook.mode | string | `"regular"` | Use `regular` to use main node as webhook node, or use `queue` to have webhook nodes |
@@ -975,7 +1177,7 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | webhook.waitMainNodeReady.healthCheckPath | string | `"/healthz"` | The health check path to use for request to the main node. |
 | webhook.waitMainNodeReady.overwriteSchema | string | `""` | The schema to use for request to the main node. On default, it will use identify the schema from the main N8N_PROTOCOL environment variable or use http. |
 | webhook.waitMainNodeReady.overwriteUrl | string | `""` | The URL to use for request to the main node. On default, it will use service name and port. |
-| worker | object | `{"affinity":{},"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"concurrency":10,"count":2,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"mode":"regular","pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[],"volumes":[],"waitMainNodeReady":{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}}` | Worker node configurations |
+| worker | object | `{"affinity":{},"allNodes":false,"autoscaling":{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2},"concurrency":10,"count":2,"extraContainers":[],"extraEnvVars":{},"extraSecretNamesForEnvFrom":[],"forceToUseStatefulset":false,"hostAliases":[],"initContainers":[],"livenessProbe":{"httpGet":{"path":"/healthz","port":"http"}},"mode":"regular","pdb":{"enabled":true,"maxUnavailable":null,"minAvailable":1},"persistence":{"accessMode":"ReadWriteOnce","annotations":{"helm.sh/resource-policy":"keep"},"enabled":false,"existingClaim":"","labels":{},"mountPath":"/home/node/.n8n","size":"8Gi","storageClass":"","subPath":"","volumeName":"n8n-data"},"readinessProbe":{"httpGet":{"path":"/healthz/readiness","port":"http"}},"resources":{},"startupProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5},"volumeMounts":[],"volumes":[],"waitMainNodeReady":{"additionalParameters":[],"enabled":false,"healthCheckPath":"/healthz","overwriteSchema":"","overwriteUrl":""}}` | Worker node configurations |
 | worker.affinity | object | `{}` | Worker node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
 | worker.allNodes | bool | `false` | If true, all k8s nodes will deploy exatly one worker pod |
 | worker.autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":10,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":2}` | If true, the number of workers will be automatically scaled based on default metrics. On default, it will scale based on CPU and memory. For more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/ |
@@ -989,6 +1191,8 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | worker.extraContainers | list | `[]` | Additional containers for the worker pod |
 | worker.extraEnvVars | object | `{}` | Extra environment variables |
 | worker.extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
+| worker.forceToUseStatefulset | bool | `false` | Force to use statefulset for the worker pod. If true, the worker pod will be created as a statefulset. |
+| worker.hostAliases | list | `[]` | Host aliases for the worker pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases |
 | worker.initContainers | list | `[]` | Additional init containers for the worker pod |
 | worker.livenessProbe | object | `{"httpGet":{"path":"/healthz","port":"http"}}` | This is to setup the liveness probe for the worker pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | worker.mode | string | `"regular"` | Use `regular` to use main node as executer, or use `queue` to have worker nodes |
@@ -996,6 +1200,17 @@ helm upgrade [RELEASE_NAME] community-charts/n8n
 | worker.pdb.enabled | bool | `true` | Whether to enable the PodDisruptionBudget |
 | worker.pdb.maxUnavailable | string | `nil` | Maximum number of unavailable replicas |
 | worker.pdb.minAvailable | int | `1` | Minimum number of available replicas |
+| worker.persistence | object | `{"accessMode":"ReadWriteOnce","annotations":{"helm.sh/resource-policy":"keep"},"enabled":false,"existingClaim":"","labels":{},"mountPath":"/home/node/.n8n","size":"8Gi","storageClass":"","subPath":"","volumeName":"n8n-data"}` | Persistence configuration for the worker pod |
+| worker.persistence.accessMode | string | `"ReadWriteOnce"` | Access mode for persistence |
+| worker.persistence.annotations | object | `{"helm.sh/resource-policy":"keep"}` | Annotations for persistence |
+| worker.persistence.enabled | bool | `false` | Whether to enable persistence |
+| worker.persistence.existingClaim | string | `""` | Existing claim to use for persistence |
+| worker.persistence.labels | object | `{}` | Labels for persistence |
+| worker.persistence.mountPath | string | `"/home/node/.n8n"` | Mount path for persistence |
+| worker.persistence.size | string | `"8Gi"` | Size for persistence |
+| worker.persistence.storageClass | string | `""` | Storage class for persistence |
+| worker.persistence.subPath | string | `""` | Sub path for persistence |
+| worker.persistence.volumeName | string | `"n8n-data"` | Name of the volume to use for persistence |
 | worker.readinessProbe | object | `{"httpGet":{"path":"/healthz/readiness","port":"http"}}` | This is to setup the readiness probe for the worker pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |
 | worker.resources | object | `{}` | This block is for setting up the resource management for the worker pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
 | worker.startupProbe | object | `{"exec":{"command":["/bin/sh","-c","ps aux | grep '[n]8n'"]},"failureThreshold":30,"initialDelaySeconds":10,"periodSeconds":5}` | This is to setup the startup probe for the worker pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/ |

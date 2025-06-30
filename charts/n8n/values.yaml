@@ -295,6 +295,33 @@ main:
       path: /healthz/readiness
       port: http
 
+  # -- Force to use statefulset for the main pod. If true, the main pod will be created as a statefulset.
+  forceToUseStatefulset: false
+
+  # -- Persistence configuration for the main pod
+  persistence:
+    # -- Whether to enable persistence
+    enabled: false
+    # -- Name of the volume to use for persistence
+    volumeName: "n8n-data"
+    # -- Existing claim to use for persistence
+    existingClaim: ""
+    # -- Mount path for persistence
+    mountPath: "/home/node/.n8n"
+    # -- Sub path for persistence
+    subPath: ""
+    # -- Storage class for persistence
+    storageClass: ""
+    # -- Access mode for persistence
+    accessMode: ReadWriteOnce
+    # -- Size for persistence
+    size: 8Gi
+    # -- Annotations for persistence
+    annotations:
+      helm.sh/resource-policy: keep
+    # -- Labels for persistence
+    labels: {}
+
   # -- Extra environment variables
   extraEnvVars: {}
 
@@ -322,6 +349,9 @@ main:
 
   # -- Main node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
+
+  # -- Host aliases for the main pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases
+  hostAliases: []
 
 # -- Worker node configurations
 worker:
@@ -438,6 +468,33 @@ worker:
       path: /healthz/readiness
       port: http
 
+  # -- Force to use statefulset for the worker pod. If true, the worker pod will be created as a statefulset.
+  forceToUseStatefulset: false
+
+  # -- Persistence configuration for the worker pod
+  persistence:
+    # -- Whether to enable persistence
+    enabled: false
+    # -- Name of the volume to use for persistence
+    volumeName: "n8n-data"
+    # -- Existing claim to use for persistence
+    existingClaim: ""
+    # -- Mount path for persistence
+    mountPath: "/home/node/.n8n"
+    # -- Sub path for persistence
+    subPath: ""
+    # -- Storage class for persistence
+    storageClass: ""
+    # -- Access mode for persistence
+    accessMode: ReadWriteOnce
+    # -- Size for persistence
+    size: 8Gi
+    # -- Annotations for persistence
+    annotations:
+      helm.sh/resource-policy: keep
+    # -- Labels for persistence
+    labels: {}
+
   # -- Extra environment variables
   extraEnvVars: {}
 
@@ -465,6 +522,9 @@ worker:
 
   # -- Worker node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
+
+  # -- Host aliases for the worker pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases
+  hostAliases: []
 
 # -- Webhook node configurations
 webhook:
@@ -620,6 +680,9 @@ webhook:
 
   # -- Webhook node affinity. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
+
+  # -- Host aliases for the webhook pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases
+  hostAliases: []
 
 # -- Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/
 taskRunners:
