@@ -69,6 +69,8 @@ service:
   name: http
   # -- Additional service annotations
   annotations: {}
+  # -- Additional service labels
+  labels: {}
 
 # -- n8n log configurations
 log:
@@ -353,6 +355,9 @@ main:
   # -- Host aliases for the main pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases
   hostAliases: []
 
+  # -- Runtime class name for the main pod. For more information checkout: https://kubernetes.io/docs/concepts/containers/runtime-class/
+  runtimeClassName: ""
+
 # -- Worker node configurations
 worker:
   # -- Use `regular` to use main node as executer, or use `queue` to have worker nodes
@@ -526,6 +531,9 @@ worker:
   # -- Host aliases for the worker pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases
   hostAliases: []
 
+  # -- Runtime class name for the worker pod. For more information checkout: https://kubernetes.io/docs/concepts/containers/runtime-class/
+  runtimeClassName: ""
+
 # -- Webhook node configurations
 webhook:
   # -- Use `regular` to use main node as webhook node, or use `queue` to have webhook nodes
@@ -539,6 +547,65 @@ webhook:
 
   # -- If true, all k8s nodes will deploy exatly one webhook pod
   allNodes: false
+
+  # -- MCP webhook configuration. This is only used when the webhook mode is set to `queue` and the database type is set to `postgresdb`.
+  mcp:
+    # -- Whether to enable MCP webhook
+    enabled: true
+
+    # -- This block is for setting up the resource management for the mcp webhook pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    resources: {}
+
+    # -- This is to setup the startup probe for the mcp webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+    startupProbe:
+      exec:
+        command: ["/bin/sh", "-c", "ps aux | grep '[n]8n'"]
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      failureThreshold: 30
+
+    # -- This is to setup the liveness probe for the mcp webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: http
+
+    # -- This is to setup the readiness probe for the mcp webhook pod more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+    readinessProbe:
+      httpGet:
+        path: /healthz/readiness
+        port: http
+
+    # -- Extra environment variables for the mcp webhook pod
+    extraEnvVars: {}
+
+    # -- Extra secrets for environment variables for the mcp webhook pod
+    extraSecretNamesForEnvFrom: []
+
+    # -- Additional volumes on the output Deployment definition for the mcp webhook pod
+    volumes: []
+    # - name: foo
+    #   secret:
+    #     secretName: mysecret
+    #     optional: false
+
+    # -- Additional volumeMounts on the output Deployment definition for the mcp webhook pod
+    volumeMounts: []
+    # - name: foo
+    #   mountPath: "/etc/foo"
+    #   readOnly: true
+
+    # -- Additional init containers for the mcp webhook pod
+    initContainers: []
+
+    # -- Additional containers for the mcp webhook pod
+    extraContainers: []
+
+    # -- Webhook node affinity for the mcp webhook pod. For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+    affinity: {}
+
+    # -- Host aliases for the mcp webhook pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases
+    hostAliases: []
 
   # -- If true, the number of webhooks will be automatically scaled based on default metrics. On default, it will scale based on CPU. Scale by requests can be done by setting a custom metric. For more information can be found here: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
   autoscaling:
@@ -683,6 +750,9 @@ webhook:
 
   # -- Host aliases for the webhook pod. For more information checkout: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/#adding-additional-entries-with-hostaliases
   hostAliases: []
+
+  # -- Runtime class name for the webhook pod. For more information checkout: https://kubernetes.io/docs/concepts/containers/runtime-class/
+  runtimeClassName: ""
 
 # -- Task runners mode. Please follow the documentation for more information: https://docs.n8n.io/hosting/configuration/task-runners/
 taskRunners:

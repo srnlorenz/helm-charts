@@ -175,8 +175,8 @@ tests:
       image:
         tag: ""
     release:
-      name: outline
-      namespace: outline
+      name: n8n
+      namespace: n8n
     chart:
       version: 1.0.0
       appVersion: 0.81.0
@@ -1354,4 +1354,14 @@ tests:
             hostnames:
               - "my-host.com"
           any: true
+        template: deployment-webhook.yaml
+
+  - it: should set runtimeClassName when webhook.runtimeClassName is defined
+    set:
+      webhook:
+        runtimeClassName: "my-runtime-class"
+    asserts:
+      - equal:
+          path: spec.template.spec.runtimeClassName
+          value: my-runtime-class
         template: deployment-webhook.yaml
