@@ -34,7 +34,7 @@ _See [helm install](https://helm.sh/docs/helm/helm_install/) for command documen
 ## Full Example
 
 > **Tip**:
-> n8n now listens on IPv6 addresses by default (`N8N_LISTEN_ADDRESS=::`) due to the gradual deprecation of IPv4.
+> n8n now listens on IPv6 addresses by [default](https://docs.n8n.io/hosting/configuration/environment-variables/deployment/) (`N8N_LISTEN_ADDRESS="::"`) due to the gradual deprecation of IPv4.
 > If your Kubernetes cluster only supports IPv4, be sure to set `N8N_LISTEN_ADDRESS=0.0.0.0`.
 > This will help avoid potential issues with readiness and liveness probes failing.
 
