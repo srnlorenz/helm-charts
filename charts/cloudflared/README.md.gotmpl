@@ -32,7 +32,7 @@ _See [`helm repo`](https://helm.sh/docs/helm/helm_repo/) for command documentati
    If you already have a Cloudflare account and have added your domain to it, follow the first three steps in [this guide](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-local-tunnel/) to create a Cloudflared tunnel using the CLI.
 
 3. **Store Tunnel Files**
-   After creating your Cloudflared tunnel via CLI, ensure the following files are stored in the `./cloudflare` directory under your home directory:
+   After creating your Cloudflared tunnel via CLI, ensure the following files are stored in the `~/.cloudflared` directory under your home directory:
    - Your tunnel credentials JSON file.
    - Your tunnel certificate PEM file.
 
