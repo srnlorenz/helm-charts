@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 1.4.1](https://img.shields.io/badge/Version-1.4.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.2.0](https://img.shields.io/badge/AppVersion-3.2.0-informational?style=flat-square)
+![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.2.0](https://img.shields.io/badge/AppVersion-3.2.0-informational?style=flat-square)
 
 ## Official Documentation
 
@@ -345,6 +345,8 @@ ingress:
 
 > **Tip**: auth and ldapAuth can not be enabled at same time!
 
+### Authentication with Plain Admin Settings Example
+
 ```yaml
 auth:
   enabled: true
@@ -352,7 +354,18 @@ auth:
   adminPassword: "S3cr3+"
 ```
 
+### Authentication with Existing Admin Credentials Secret Example
+
+```yaml
+auth:
+  enabled: true
+  existingAdminSecret:
+    name: auth-admin-secret
+```
+
 Use following configuration for centralised PosgreSQL DB backend for authentication backend.
+
+### Authentication Postgres DB Backend with Plain Settings Example
 
 ```yaml
 auth:
@@ -366,6 +379,22 @@ auth:
     database: "auth"
     user: "mlflowauth"
     password: "A4m1nPa33w0rd!"
+```
+
+### Authentication Postgres DB Backend with Existing Secret Example
+
+```yaml
+auth:
+  enabled: true
+  existingAdminSecret:
+    name: auth-admin-secret
+  postgres:
+    enabled: true
+    host: postgresql--auth-instance1.abcdef1234.eu-central-1.rds.amazonaws.com
+    port: 5432
+    database: auth
+    existingSecret:
+      name: auth-postgres-database-secret
 ```
 
 ## Basic Authentication with LDAP Backend
@@ -605,7 +634,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | artifactRoot.s3.existingSecret.keyOfSecretAccessKey | string | `""` | This is for setting up the key for AWS_SECRET_ACCESS_KEY secret. If it's set, awsSecretAccessKey will be ignored. |
 | artifactRoot.s3.existingSecret.name | string | `""` | This is for setting up the AWS IAM user secrets existing secret name. |
 | artifactRoot.s3.path | string | `""` | S3 bucket folder. If you want to use root level, please don't set anything. |
-| auth | object | `{"adminPassword":"","adminUsername":"","appName":"basic-auth","authorizationFunction":"mlflow.server.auth:authenticate_request_basic_auth","configFile":"basic_auth.ini","configPath":"/etc/mlflow/auth/","defaultPermission":"READ","enabled":false,"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""},"sqliteFile":"basic_auth.db","sqliteFullPath":""}` | Mlflow authentication settings |
+| auth | object | `{"adminPassword":"","adminUsername":"","appName":"basic-auth","authorizationFunction":"mlflow.server.auth:authenticate_request_basic_auth","configFile":"basic_auth.ini","configPath":"/etc/mlflow/auth/","defaultPermission":"READ","enabled":false,"existingAdminSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"postgres":{"database":"","driver":"","enabled":false,"existingSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"host":"","password":"","port":5432,"user":""},"sqliteFile":"basic_auth.db","sqliteFullPath":""}` | Mlflow authentication settings |
 | auth.adminPassword | string | `""` | Mlflow admin user password |
 | auth.adminUsername | string | `""` | Mlflow admin user username |
 | auth.appName | string | `"basic-auth"` | Default registered authentication app name. If you want to use your custom authentication function, please look at: https://mlflow.org/docs/latest/auth/index.html#custom-authentication |
@@ -614,10 +643,18 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | auth.configPath | string | `"/etc/mlflow/auth/"` | Mlflow authentication INI configuration file path. |
 | auth.defaultPermission | string | `"READ"` | Default permission for all users. More details: https://mlflow.org/docs/latest/auth/index.html#permissions |
 | auth.enabled | bool | `false` | Specifies if you want to enable mlflow authentication. auth and ldapAuth can't be enabled at same time. |
-| auth.postgres | object | `{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}` | PostgreSQL based centrilised authentication database |
+| auth.existingAdminSecret | object | `{"name":"","passwordKey":"password","usernameKey":"username"}` | Specifies if you want to use an existing admin credentials secret for auth. If it's set, adminUsername and adminPassword will be ignored. |
+| auth.existingAdminSecret.name | string | `""` | The name of the existing admin credentials secret. |
+| auth.existingAdminSecret.passwordKey | string | `"password"` | The key of the admin password in the existing admin credentials secret. |
+| auth.existingAdminSecret.usernameKey | string | `"username"` | The key of the admin username in the existing admin credentials secret. |
+| auth.postgres | object | `{"database":"","driver":"","enabled":false,"existingSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"host":"","password":"","port":5432,"user":""}` | PostgreSQL based centrilised authentication database |
 | auth.postgres.database | string | `""` | mlflow authorization database name created before in the postgres instance |
 | auth.postgres.driver | string | `""` | postgres database connection driver. e.g.: "psycopg2" |
 | auth.postgres.enabled | bool | `false` | Specifies if you want to use postgres auth backend storage |
+| auth.postgres.existingSecret | object | `{"name":"","passwordKey":"password","usernameKey":"username"}` | Specifies if you want to use an existing database secret for auth. If it's set, user and password will be ignored. |
+| auth.postgres.existingSecret.name | string | `""` | The name of the existing database secret. |
+| auth.postgres.existingSecret.passwordKey | string | `"password"` | The key of the password in the existing database secret. |
+| auth.postgres.existingSecret.usernameKey | string | `"username"` | The key of the username in the existing database secret. |
 | auth.postgres.host | string | `""` | Postgres host address. e.g. your RDS or Azure Postgres Service endpoint |
 | auth.postgres.password | string | `""` | postgres database user password which can access to mlflow authorization database |
 | auth.postgres.port | int | `5432` | Postgres service port |
@@ -726,6 +763,8 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | serviceMonitor.timeout | string | `"10s"` | Set timeout for scrape |
 | serviceMonitor.useServicePort | bool | `false` | When set true then use a service port. On default use a pod port. |
 | strategy | object | `{"rollingUpdate":{"maxSurge":"100%","maxUnavailable":0},"type":"RollingUpdate"}` | This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
+| telemetry | object | `{"enabled":false}` | Mlflow Usage Tracking settings. More information can be found here: https://mlflow.org/docs/latest/community/usage-tracking/ |
+| telemetry.enabled | bool | `false` | Specifies if you want to enable collecting anonymized usage data about how core features of the platform are used. |
 | tolerations | list | `[]` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/ |
 
 **Homepage:** <https://mlflow.org>

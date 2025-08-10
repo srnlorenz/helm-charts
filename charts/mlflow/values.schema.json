@@ -363,6 +363,8 @@
         },
         "existingDatabaseSecret": {
           "additionalProperties": false,
+          "type": "object",
+          "description": "Specifies if you want to use an existing database secret.",
           "properties": {
             "name": {
               "default": "",
@@ -387,8 +389,7 @@
             }
           },
           "required": ["name", "usernameKey", "passwordKey"],
-          "title": "existingDatabaseSecret",
-          "type": "object"
+          "title": "existingDatabaseSecret"
         }
       },
       "required": [
@@ -1209,6 +1210,22 @@
       "title": "log",
       "type": "object"
     },
+    "telemetry": {
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Mlflow Usage Tracking settings. More information can be found here: https://mlflow.org/docs/latest/community/usage-tracking/",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "description": "Specifies if you want to enable collecting anonymized usage data about how core features of the platform are used.",
+          "required": [],
+          "title": "enabled",
+          "type": "boolean"
+        }
+      },
+      "required": ["enabled"],
+      "title": "telemetry"
+    },
     "serviceAccount": {
       "additionalProperties": false,
       "properties": {
@@ -1392,6 +1409,36 @@
           "title": "adminPassword",
           "type": "string"
         },
+        "existingAdminSecret": {
+          "additionalProperties": false,
+          "type": "object",
+          "description": "Specifies if you want to use an existing admin credentials secret for auth. If it's set, adminUsername and adminPassword will be ignored.",
+          "properties": {
+            "name": {
+              "default": "",
+              "description": "The name of the existing admin credentials secret.",
+              "required": [],
+              "title": "name",
+              "type": "string"
+            },
+            "usernameKey": {
+              "default": "username",
+              "description": "The key of the admin username in the existing admin credentials secret.",
+              "required": [],
+              "title": "usernameKey",
+              "type": "string"
+            },
+            "passwordKey": {
+              "default": "password",
+              "description": "The key of the admin password in the existing admin credentials secret.",
+              "required": [],
+              "title": "passwordKey",
+              "type": "string"
+            }
+          },
+          "required": ["name", "usernameKey", "passwordKey"],
+          "title": "existingAdminSecret"
+        },
         "defaultPermission": {
           "default": "READ",
           "required": [],
@@ -1480,6 +1527,36 @@
               "required": [],
               "title": "driver",
               "type": "string"
+            },
+            "existingSecret": {
+              "additionalProperties": false,
+              "type": "object",
+              "description": "Specifies if you want to use an existing database secret for auth. If it's set, user and password will be ignored.",
+              "properties": {
+                "name": {
+                  "default": "",
+                  "description": "The name of the existing database secret.",
+                  "required": [],
+                  "title": "name",
+                  "type": "string"
+                },
+                "usernameKey": {
+                  "default": "username",
+                  "description": "The key of the username in the existing database secret.",
+                  "required": [],
+                  "title": "usernameKey",
+                  "type": "string"
+                },
+                "passwordKey": {
+                  "default": "password",
+                  "description": "The key of the password in the existing database secret.",
+                  "required": [],
+                  "title": "passwordKey",
+                  "type": "string"
+                }
+              },
+              "required": ["name", "usernameKey", "passwordKey"],
+              "title": "existingSecret"
             }
           },
           "required": [
@@ -1489,7 +1566,8 @@
             "database",
             "user",
             "password",
-            "driver"
+            "driver",
+            "existingSecret"
           ],
           "title": "postgres",
           "type": "object"
@@ -1499,6 +1577,7 @@
         "enabled",
         "adminUsername",
         "adminPassword",
+        "existingAdminSecret",
         "defaultPermission",
         "appName",
         "authorizationFunction",
@@ -1964,6 +2043,7 @@
     "securityContext",
     "service",
     "log",
+    "telemetry",
     "backendStore",
     "postgresql",
     "mysql",
