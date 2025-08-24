@@ -141,6 +141,146 @@ tests:
           path: data.DB_POSTGRESDB_DATABASE
           value: external_database
 
+  - it: should set postgresql connection settings when poolSize, connectionTimeout, idleConnectionTimeout, and schema are set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          poolSize: 2
+          connectionTimeout: 20000
+          idleConnectionTimeout: 30000
+          schema: public
+    documentSelector:
+      path: metadata.name
+      value: n8n-database-configmap
+    asserts:
+      - equal:
+          path: data.DB_POSTGRESDB_POOL_SIZE
+          value: "2"
+      - equal:
+          path: data.DB_POSTGRESDB_CONNECTION_TIMEOUT
+          value: "20000"
+      - equal:
+          path: data.DB_POSTGRESDB_IDLE_CONNECTION_TIMEOUT
+          value: "30000"
+      - equal:
+          path: data.DB_POSTGRESDB_SCHEMA
+          value: public
+
+  - it: should set postgresql ssl connection enabled when postgresdb.ssl.enabled is set to true
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+    documentSelector:
+      path: metadata.name
+      value: n8n-database-configmap
+    asserts:
+      - equal:
+          path: data.DB_POSTGRESDB_SSL_ENABLED
+          value: "true"
+
+  - it: should set postgresql ssl CA certificate when ssl enabled and base64EncodedCertificateAuthorityFile is set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            base64EncodedCertificateAuthorityFile: Q0EgZmlsZSBjb250ZW50
+    documentSelector:
+      path: metadata.name
+      value: n8n-database-configmap
+    asserts:
+      - equal:
+          path: data.DB_POSTGRESDB_SSL_CA
+          value: /home/node/certs/ca/ca.crt
+
+  - it: should set postgresql ssl CA certificate when ssl enabled and existingCertificateAuthorityFileSecret.name is set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            existingCertificateAuthorityFileSecret:
+              name: ca-cert-secret
+    documentSelector:
+      path: metadata.name
+      value: n8n-database-configmap
+    asserts:
+      - equal:
+          path: data.DB_POSTGRESDB_SSL_CA
+          value: /home/node/certs/ca/ca.crt
+
+  - it: should set postgresql ssl certificate when ssl enabled and base64EncodedCertFile is set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            base64EncodedCertFile: Y2VydGlmaWNhdGUgZmlsZSBjb250ZW50
+    documentSelector:
+      path: metadata.name
+      value: n8n-database-configmap
+    asserts:
+      - equal:
+          path: data.DB_POSTGRESDB_SSL_CERT
+          value: /home/node/certs/cert/cert.crt
+
+  - it: should set postgresql ssl certificate when ssl enabled and existingCertFileSecret.name is set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            existingCertFileSecret:
+              name: cert-secret
+    documentSelector:
+      path: metadata.name
+      value: n8n-database-configmap
+    asserts:
+      - equal:
+          path: data.DB_POSTGRESDB_SSL_CERT
+          value: /home/node/certs/cert/cert.crt
+
+  - it: should set postgresql ssl certificate private key when ssl enabled and base64EncodedPrivateKeyFile is set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            base64EncodedPrivateKeyFile: Y2VydGlmaWNhdGUgcHJpdmF0ZSBrZXkgZmlsZSBjb250ZW50
+    documentSelector:
+      path: metadata.name
+      value: n8n-database-configmap
+    asserts:
+      - equal:
+          path: data.DB_POSTGRESDB_SSL_KEY
+          value: /home/node/certs/key/cert.key
+
+  - it: should set postgresql ssl certificate private key when ssl enabled and existingPrivateKeyFileSecret.name is set
+    set:
+      db:
+        type: postgresdb
+        postgresdb:
+          ssl:
+            enabled: true
+            existingPrivateKeyFileSecret:
+              name: cert-private-key-secret
+    documentSelector:
+      path: metadata.name
+      value: n8n-database-configmap
+    asserts:
+      - equal:
+          path: data.DB_POSTGRESDB_SSL_KEY
+          value: /home/node/certs/key/cert.key
+
   - it: should set vacum on startup when db type set to sqlite
     set:
       db:
@@ -466,7 +606,7 @@ tests:
           path: data.OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS
           value: "true"
 
-  - it: should set redis host redis-master when db type set to postgresdb and worker mode is queue and redis.enabled is true
+  - it: should set redis host redis-master and port when db type set to postgresdb and worker mode is queue and redis.enabled is true
     set:
       db:
         type: postgresdb
@@ -474,6 +614,10 @@ tests:
         mode: queue
       redis:
         enabled: true
+        master:
+          service:
+            ports:
+              redis: 6379
     documentSelector:
       path: metadata.name
       value: n8n-queue-configmap
@@ -481,8 +625,11 @@ tests:
       - equal:
           path: data.QUEUE_BULL_REDIS_HOST
           value: n8n-redis-master
+      - equal:
+          path: data.QUEUE_BULL_REDIS_PORT
+          value: "6379"
 
-  - it: should set redis host redis-master when db type set to postgresdb and webhook mode is queue and redis.enabled is true
+  - it: should set redis host redis-master and port when db type set to postgresdb and webhook mode is queue and redis.enabled is true
     set:
       db:
         type: postgresdb
@@ -490,6 +637,10 @@ tests:
         mode: queue
       redis:
         enabled: true
+        master:
+          service:
+            ports:
+              redis: 6379
     documentSelector:
       path: metadata.name
       value: n8n-queue-configmap
@@ -497,8 +648,11 @@ tests:
       - equal:
           path: data.QUEUE_BULL_REDIS_HOST
           value: n8n-redis-master
+      - equal:
+          path: data.QUEUE_BULL_REDIS_PORT
+          value: "6379"
 
-  - it: should set redis host from external redis host when db type set to postgresdb and worker mode is queue and redis.enabled is false
+  - it: should set redis host and port from external redis host and port when db type set to postgresdb and worker mode is queue and redis.enabled is false
     set:
       db:
         type: postgresdb
@@ -506,6 +660,7 @@ tests:
         mode: queue
       externalRedis:
         host: external-redis-hostname
+        port: 6380
     documentSelector:
       path: metadata.name
       value: n8n-queue-configmap
@@ -513,8 +668,11 @@ tests:
       - equal:
           path: data.QUEUE_BULL_REDIS_HOST
           value: external-redis-hostname
+      - equal:
+          path: data.QUEUE_BULL_REDIS_PORT
+          value: "6380"
 
-  - it: should set redis host from external redis host when db type set to postgresdb and webhook mode is queue and redis.enabled is false
+  - it: should set redis host and port from external redis host and port when db type set to postgresdb and webhook mode is queue and redis.enabled is false
     set:
       db:
         type: postgresdb
@@ -522,6 +680,7 @@ tests:
         mode: queue
       externalRedis:
         host: external-redis-hostname
+        port: 6380
     documentSelector:
       path: metadata.name
       value: n8n-queue-configmap
@@ -529,6 +688,9 @@ tests:
       - equal:
           path: data.QUEUE_BULL_REDIS_HOST
           value: external-redis-hostname
+      - equal:
+          path: data.QUEUE_BULL_REDIS_PORT
+          value: "6380"
 
   - it: should set disable production main process when db type set to postgresdb and webhook mode is queue
     set:
@@ -543,6 +705,146 @@ tests:
       - equal:
           path: data.N8N_DISABLE_PRODUCTION_MAIN_PROCESS
           value: "true"
+
+  - it: should set redis db when db type set to postgresdb and worker mode is queue
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+      externalRedis:
+        database: 1
+    documentSelector:
+      path: metadata.name
+      value: n8n-queue-configmap
+    asserts:
+      - equal:
+          path: data.QUEUE_BULL_REDIS_DB
+          value: "1"
+
+  - it: should set redis db when db type set to postgresdb and webhook mode is queue
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+      externalRedis:
+        database: 1
+    documentSelector:
+      path: metadata.name
+      value: n8n-queue-configmap
+    asserts:
+      - equal:
+          path: data.QUEUE_BULL_REDIS_DB
+          value: "1"
+
+  - it: should enable redis connection tls when externalRedis.tls.enabled, db type set to postgresdb and worker mode is queue
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+      externalRedis:
+        tls:
+          enabled: true
+    documentSelector:
+      path: metadata.name
+      value: n8n-queue-configmap
+    asserts:
+      - equal:
+          path: data.QUEUE_BULL_REDIS_TLS
+          value: "true"
+
+  - it: should enable redis connection tls when externalRedis.tls.enabled, db type set to postgresdb and webhook mode is queue
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+      externalRedis:
+        tls:
+          enabled: true
+    documentSelector:
+      path: metadata.name
+      value: n8n-queue-configmap
+    asserts:
+      - equal:
+          path: data.QUEUE_BULL_REDIS_TLS
+          value: "true"
+
+  - it: should enable redis dual-stack connection when externalRedis.dualStack, db type set to postgresdb and worker mode is queue
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+      externalRedis:
+        dualStack: true
+    documentSelector:
+      path: metadata.name
+      value: n8n-queue-configmap
+    asserts:
+      - equal:
+          path: data.QUEUE_BULL_REDIS_DUALSTACK
+          value: "true"
+
+  - it: should enable redis dual-stack connection when externalRedis.dualStack, db type set to postgresdb and webhook mode is queue
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+      externalRedis:
+        dualStack: true
+    documentSelector:
+      path: metadata.name
+      value: n8n-queue-configmap
+    asserts:
+      - equal:
+          path: data.QUEUE_BULL_REDIS_DUALSTACK
+          value: "true"
+
+  - it: should set redis cluster nodes when externalRedis.clusterNodes have multiple objects, db type set to postgresdb and worker mode is queue
+    set:
+      db:
+        type: postgresdb
+      worker:
+        mode: queue
+      externalRedis:
+        clusterNodes:
+          - host: redis-node-1
+            port: 1234
+          - host: redis-2
+            port: 5678
+    documentSelector:
+      path: metadata.name
+      value: n8n-queue-configmap
+    asserts:
+      - equal:
+          path: data.QUEUE_BULL_REDIS_CLUSTER_NODES
+          value: "redis-node-1:1234,redis-2:5678"
+
+  - it: should set redis cluster nodes when externalRedis.clusterNodes have multiple objects, db type set to postgresdb and webhook mode is queue
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+      externalRedis:
+        clusterNodes:
+          - host: redis-node1
+            port: 4321
+          - host: redis2
+            port: 8765
+          - host: host-3
+            port: 9012
+    documentSelector:
+      path: metadata.name
+      value: n8n-queue-configmap
+    asserts:
+      - equal:
+          path: data.QUEUE_BULL_REDIS_CLUSTER_NODES
+          value: "redis-node1:4321,redis2:8765,host-3:9012"
 
   - it: should set workflow history enabled when workflowHistory.enabled is true
     set:
@@ -946,6 +1248,32 @@ tests:
           value: eu-west-1
 
   - it: should match snapshot of default values
+    release:
+      name: n8n
+      namespace: n8n
+    chart:
+      version: 1.0.0
+      appVersion: 1.0.0
+    asserts:
+      - matchSnapshot: { }
+
+  - it: should match snapshot of external redis values
+    set:
+      db:
+        type: postgresdb
+      webhook:
+        mode: queue
+      externalRedis:
+        username: redis-username
+        password: redis-password
+        clusterNodes:
+          - host: redis-1
+            port: 6379
+          - host: redis-2
+            port: 6379
+        tls:
+          enabled: true
+        dualStack: true
     release:
       name: n8n
       namespace: n8n
