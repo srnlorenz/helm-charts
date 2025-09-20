@@ -849,6 +849,108 @@
       "title": "image",
       "type": "object"
     },
+    "initImages": {
+      "additionalProperties": false,
+      "description": "mlflow init images",
+      "properties": {
+        "dbchecker": {
+          "additionalProperties": false,
+          "description": "dbchecker init container image configuration",
+          "properties": {
+            "repository": {
+              "default": "busybox",
+              "description": "dbchecker init container image repository to use",
+              "required": [],
+              "title": "repository",
+              "type": "string"
+            },
+            "pullPolicy": {
+              "default": "IfNotPresent",
+              "description": "dbchecker init container image pull policy",
+              "required": [],
+              "title": "pullPolicy",
+              "type": "string",
+              "enum": ["IfNotPresent", "Never", "Always"]
+            },
+            "tag": {
+              "default": "1.32",
+              "description": "dbchecker init container image tag to use",
+              "required": [],
+              "title": "tag",
+              "type": "string"
+            }
+          },
+          "required": ["repository", "pullPolicy", "tag"],
+          "title": "dbchecker",
+          "type": "object"
+        },
+        "mlflowDbMigration": {
+          "additionalProperties": false,
+          "description": "mlflow-db-migration init container image configuration",
+          "properties": {
+            "repository": {
+              "default": "burakince/mlflow",
+              "description": "mlflow-db-migration init container image repository to use",
+              "required": [],
+              "title": "repository",
+              "type": "string"
+            },
+            "pullPolicy": {
+              "default": "IfNotPresent",
+              "description": "mlflow-db-migration init container image pull policy",
+              "required": [],
+              "title": "pullPolicy",
+              "type": "string",
+              "enum": ["IfNotPresent", "Never", "Always"]
+            },
+            "tag": {
+              "default": "",
+              "description": "mlflow-db-migration init container image tag to use. Default app version",
+              "required": [],
+              "title": "tag",
+              "type": "string"
+            }
+          },
+          "required": ["repository", "pullPolicy", "tag"],
+          "title": "mlflowDbMigration",
+          "type": "object"
+        },
+        "iniFileInitializer": {
+          "additionalProperties": false,
+          "description": "ini-file-initializer init container image configuration",
+          "properties": {
+            "repository": {
+              "default": "busybox",
+              "description": "ini-file-initializer init container image repository to use",
+              "required": [],
+              "title": "repository",
+              "type": "string"
+            },
+            "pullPolicy": {
+              "default": "IfNotPresent",
+              "description": "ini-file-initializer init container image pull policy",
+              "required": [],
+              "title": "pullPolicy",
+              "type": "string",
+              "enum": ["IfNotPresent", "Never", "Always"]
+            },
+            "tag": {
+              "default": "1.32",
+              "description": "ini-file-initializer init container image tag to use",
+              "required": [],
+              "title": "tag",
+              "type": "string"
+            }
+          },
+          "required": ["repository", "pullPolicy", "tag"],
+          "title": "iniFileInitializer",
+          "type": "object"
+        }
+      },
+      "required": ["dbchecker", "mlflowDbMigration", "iniFileInitializer"],
+      "title": "initImages",
+      "type": "object"
+    },
     "imagePullSecrets": {
       "description": "Image pull secrets for private docker registry usages",
       "items": {
@@ -2111,6 +2213,7 @@
   "required": [
     "replicaCount",
     "image",
+    "initImages",
     "strategy",
     "imagePullSecrets",
     "nameOverride",
