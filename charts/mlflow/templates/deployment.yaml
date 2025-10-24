@@ -330,7 +330,11 @@ spec:
             {{- end }}
           {{- end }}
           {{- range .Values.extraFlags }}
+            {{- if contains " " . }}
+            - {{ . }}
+            {{- else }}
             - --{{ kebabcase . }}
+            {{- end }}
           {{- end }}
           ports:
             - name: {{ .Values.service.containerPortName }}
