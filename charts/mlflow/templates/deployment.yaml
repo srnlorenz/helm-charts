@@ -296,6 +296,7 @@ spec:
             - server
             - --host=0.0.0.0
             - --app-name=oidc-auth
+            - --gunicorn-opts=--worker-class uvicorn.workers.UvicornWorker --log-level info
             - --port={{ .Values.service.containerPort }}
           {{- if or .Values.backendStore.postgres.enabled .Values.postgresql.enabled }}
             - --backend-store-uri=postgresql{{ $dbConnectionDriver }}://
@@ -318,17 +319,8 @@ spec:
           {{- else if .Values.ldapAuth.enabled }}
             - --app-name=basic-auth
           {{- end }}
-          {{- if and .Values.log.enabled (not (hasKey .Values.extraArgs "gunicornOpts")) }}
-            - {{ printf "--gunicorn-opts='--log-level=%s'" .Values.log.level }}
-          {{- end }}
           {{- range $key, $value := .Values.extraArgs }}
-            {{- if and $.Values.log.enabled (eq $key "gunicornOpts") (contains "--log-level" $value) }}
-            - {{ printf "--gunicorn-opts='%s'" (regexReplaceAll "--log-level=[^\\s]*" $value (printf "--log-level=%s" $.Values.log.level)) }}
-            {{- else if and $.Values.log.enabled (eq $key "gunicornOpts") (not (contains "--log-level" $value)) }}
-            - {{ printf "--gunicorn-opts='--log-level=%s %s'" $.Values.log.level $value }}
-            {{- else }}
             - {{ printf "--%s=%s" (kebabcase $key) $value }}
-            {{- end }}
           {{- end }}
           {{- range .Values.extraFlags }}
             - --{{ kebabcase . }}
